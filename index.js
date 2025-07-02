@@ -1,15 +1,15 @@
-// index.js
-require('dotenv').config(); // Load environment variables from .env file
-const express = require('express');
-const cors = require('cors');
-const simulationRoutes = require('./src/routes/simulationRoutes');
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import simulationRoutes from './src/routes/simulationRoutes.js';
 
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Middleware
-app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Enable parsing of JSON request bodies
+app.use(cors());
+app.use(express.json());
 
 // API Routes
 app.use('/api/simulation', simulationRoutes);

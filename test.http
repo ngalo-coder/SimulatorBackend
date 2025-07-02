@@ -1,0 +1,16 @@
+POST http://localhost:5001/api/simulation/start
+Content-Type: application/json
+
+{
+  "caseId": "VP-ABD-001"
+}
+
+###
+
+POST http://localhost:5001/api/simulation/ask
+Content-Type: application/json
+
+{
+  "sessionId": "your_session_id_here",
+  "question": "your question here"
+}

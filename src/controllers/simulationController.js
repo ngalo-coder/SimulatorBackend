@@ -1,8 +1,12 @@
-// src/controllers/simulationController.js
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const { getPatientResponse } = require('../services/aiService');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { v4 as uuidv4 } from 'uuid';
+import { getPatientResponse } from '../services/aiService.js';
+
+// ES module __dirname workaround
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // In-memory storage for active sessions. In a larger app, use a database like Redis.
 const sessions = new Map();
@@ -18,7 +22,7 @@ fs.readdirSync(casesDir).forEach(file => {
     }
 });
 
-exports.startSimulation = (req, res) => {
+export function startSimulation(req, res) {
     const { caseId } = req.body;
     if (!caseId || !cases[caseId]) {
         return res.status(404).json({ error: 'Case not found' });
@@ -38,9 +42,9 @@ exports.startSimulation = (req, res) => {
         sessionId: sessionId,
         initialPrompt: caseData.initial_prompt,
     });
-};
+}
 
-exports.handleAsk = async (req, res) => {
+export async function handleAsk(req, res) {
     const { sessionId, question } = req.body;
     if (!sessionId || !question) {
         return res.status(400).json({ error: 'sessionId and question are required' });
@@ -78,4 +82,4 @@ exports.handleAsk = async (req, res) => {
         response: aiResponse,
         isFinal: false,
     });
-};
+}

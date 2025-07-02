@@ -1,10 +1,13 @@
-// src/services/aiService.js
-const { OpenAI } = require('openai');
-const openai = new OpenAI({
- apiKey: process.env.OPENROUTER_API_KEY, // Use OpenRouter API Key
- baseURL: "https://openrouter.ai/api/v1", // Set OpenRouter base URL
-});
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+dotenv.config();
 
+
+// Use OPENAI_API_KEY for compatibility with the OpenAI library
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || process.env.OPENROUTER_API_KEY, // Use whichever is set
+  baseURL: "https://openrouter.ai/api/v1",
+});
 
 /**
  * Formats a key from snake_case or camelCase to a readable Title Case string.
@@ -13,10 +16,10 @@ const openai = new OpenAI({
  * @returns {string} The formatted title.
  */
 function formatTitle(key) {
-    return key
-        .replace(/_/g, ' ')
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/\b\w/g, char => char.toUpperCase());
+  return key
+    .replace(/_/g, ' ')
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/\b\w/g, char => char.toUpperCase());
 }
 
 /**
@@ -25,33 +28,33 @@ function formatTitle(key) {
  * @returns {string} A formatted string for the AI's "Core Knowledge".
  */
 function formatClinicalInfo(infoObject) {
-    let formattedString = '';
-    for (const key in infoObject) {
-        // CRITICAL: Do not reveal the hidden diagnosis to the AI model itself.
-        if (key === 'hidden_diagnosis') continue;
+  let formattedString = '';
+  for (const key in infoObject) {
+    // CRITICAL: Do not reveal the hidden diagnosis to the AI model itself.
+    if (key === 'hidden_diagnosis') continue;
 
-        const title = formatTitle(key);
-        formattedString += `\n- ${title}:\n`;
+    const title = formatTitle(key);
+    formattedString += `\n- ${title}:\n`;
 
-        const value = infoObject[key];
+    const value = infoObject[key];
 
-        if (Array.isArray(value)) {
-            formattedString += value.map(item => `  - ${item}`).join('\n');
-        } else if (typeof value === 'object' && value !== null) {
-            // Handle nested objects like 'review_of_systems'
-            for (const subKey in value) {
-                const subTitle = formatTitle(subKey);
-                formattedString += `  - ${subTitle}:\n`;
-                if (Array.isArray(value[subKey])) {
-                    formattedString += value[subKey].map(item => `    - ${item}`).join('\n');
-                }
-            }
-        } else {
-            // Handle simple string values
-            formattedString += `  - ${value}`;
+    if (Array.isArray(value)) {
+      formattedString += value.map(item => `  - ${item}`).join('\n');
+    } else if (typeof value === 'object' && value !== null) {
+      // Handle nested objects like 'review_of_systems'
+      for (const subKey in value) {
+        const subTitle = formatTitle(subKey);
+        formattedString += `  - ${subTitle}:\n`;
+        if (Array.isArray(value[subKey])) {
+          formattedString += value[subKey].map(item => `    - ${item}`).join('\n');
         }
+      }
+    } else {
+      // Handle simple string values
+      formattedString += `  - ${value}`;
     }
-    return formattedString;
+  }
+  return formattedString;
 }
 
 /**
@@ -61,19 +64,19 @@ function formatClinicalInfo(infoObject) {
  * @param {string} newQuestion - The clinician's new question.
  * @returns {Promise<string>} The AI-generated patient response.
  */
-async function getPatientResponse(caseData, conversationHistory, newQuestion) {
-    const { system_instruction, patient_profile, response_rules, clinical_information_to_disclose } = caseData;
+export async function getPatientResponse(caseData, conversationHistory, newQuestion) {
+  const { system_instruction, patient_profile, response_rules, clinical_information_to_disclose } = caseData;
 
-    // Build the "Core Knowledge" prompt section from the clinical data
-    const coreKnowledgePrompt = formatClinicalInfo(clinical_information_to_disclose);
+  // Build the "Core Knowledge" prompt section from the clinical data
+  const coreKnowledgePrompt = formatClinicalInfo(clinical_information_to_disclose);
 
-    // Build the conversation history string
-    const historyString = conversationHistory
-        .map(msg => `${msg.role}: ${msg.content}`)
-        .join('\n');
+  // Build the conversation history string
+  const historyString = conversationHistory
+    .map(msg => `${msg.role}: ${msg.content}`)
+    .join('\n');
 
-    // Assemble the final, detailed prompt using the new generic structure
-    const finalPrompt = `
+  // Assemble the final, detailed prompt using the new generic structure
+  const finalPrompt = `
     ${system_instruction}
 
     --- YOUR PERSONA ---
@@ -99,18 +102,16 @@ async function getPatientResponse(caseData, conversationHistory, newQuestion) {
     Patient:
     `;
 
-    try {
-        const completion = await openai.chat.completions.create({
-            model: 'gpt-4o', // Or "gpt-3.5-turbo"
-            messages: [{ role: 'user', content: finalPrompt }],
-            temperature: 0.5, // Keeps responses consistent but allows for natural language variation
-            max_tokens: 150,
-        });
-        return completion.choices[0].message.content.trim();
-    } catch (error) {
-        console.error("Error calling OpenAI API:", error);
-        return "I'm sorry, I'm having a technical issue. Please try again.";
-    }
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o', // Or "gpt-3.5-turbo"
+      messages: [{ role: 'user', content: finalPrompt }],
+      temperature: 0.5, // Keeps responses consistent but allows for natural language variation
+      max_tokens: 150,
+    });
+    return completion.choices[0].message.content.trim();
+  } catch (error) {
+    console.error("Error calling OpenAI API:", error);
+    return "I'm sorry, I'm having a technical issue. Please try again.";
+  }
 }
-
-module.exports = { getPatientResponse };
