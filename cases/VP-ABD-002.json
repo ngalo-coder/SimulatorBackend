@@ -1,0 +1,31 @@
+{
+  "case_metadata": {
+    "case_id": "VP-ABD-002",
+    "title": "35-Year-Old with Epigastric Burning Pain",
+    "difficulty": "Easy",
+    "tags": ["dyspepsia", "PUD", "GERD"]
+  },
+  "patient_profile": {
+    "name": "Nyambura Muthoni",
+    "age": "35",
+    "gender": "Female",
+    "occupation": "Teacher",
+    "chief_complaint": "Burning pain in my upper stomach for 2 weeks.",
+    "emotional_tone": "Tired, slightly distressed.",
+    "background_story": "Recently stressed due to school exams."
+  },
+  "clinical_information_to_disclose": {
+    "hidden_diagnosis": "Peptic Ulcer Disease",
+    "history_of_presenting_illness": [
+      "Burning pain improves with eating but worsens at night.",
+      "Occasional nausea.",
+      "No vomiting or blood in stool."
+    ],
+    "review_of_systems": {
+      "positive": ["Heartburn"],
+      "negative": ["No weight loss", "No jaundice"]
+    },
+    "past_medical_history": "Takes ibuprofen for headaches.",
+    "social_history": ["Drinks 2 cups of coffee daily", "No smoking"]
+  }
+}

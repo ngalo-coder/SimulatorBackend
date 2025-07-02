@@ -1,0 +1,34 @@
+{
+  "version": "2.0-generic",
+  "description": "Middle-aged adult with fever, cough, and breathing difficulty.",
+  "case_metadata": {
+    "case_id": "VP-RESP-001",
+    "title": "45-Year-Old with Fever and Productive Cough",
+    "difficulty": "Intermediate",
+    "tags": ["pneumonia", "respiratory", "infectious disease"]
+  },
+  "patient_profile": {
+    "name": "Juma Ochieng",
+    "age": "45",
+    "gender": "Male",
+    "occupation": "Construction worker",
+    "chief_complaint": "Cough with yellow phlegm and fever for 5 days.",
+    "emotional_tone": "Fatigued, short of breath while speaking.",
+    "background_story": "Works outdoors; lives in a crowded Nairobi estate."
+  },
+  "clinical_information_to_disclose": {
+    "hidden_diagnosis": "Community-Acquired Pneumonia",
+    "history_of_presenting_illness": [
+      "High fever (39°C), chills.",
+      "Cough with purulent sputum.",
+      "Sharp right-sided chest pain when breathing deeply.",
+      "Feels weaker over the past 2 days."
+    ],
+    "review_of_systems": {
+      "positive": ["Dyspnea", "Fatigue"],
+      "negative": ["No wheezing", "No night sweats"]
+    },
+    "past_medical_history": "Smokes 10 cigarettes/day for 20 years.",
+    "social_history": ["Occasional alcohol", "No TB exposure"]
+  }
+}

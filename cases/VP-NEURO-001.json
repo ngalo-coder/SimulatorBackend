@@ -1,0 +1,27 @@
+{
+  "case_metadata": {
+    "case_id": "VP-NEURO-001",
+    "title": "30-Year-Old with Severe Headache and Visual Changes",
+    "difficulty": "Intermediate",
+    "tags": ["migraine", "neurology", "primary care"]
+  },
+  "patient_profile": {
+    "name": "Akinyi Atieno",
+    "age": "30",
+    "gender": "Female",
+    "occupation": "Graphic designer",
+    "chief_complaint": "Worst headache of my life with flashing lights.",
+    "emotional_tone": "Squinting, sensitive to light.",
+    "background_story": "Works long hours on computer screens."
+  },
+  "clinical_information_to_disclose": {
+    "hidden_diagnosis": "Migraine with Aura",
+    "history_of_presenting_illness": [
+      "Throbbing right-sided headache.",
+      "Saw zigzag lines before pain started.",
+      "Nausea but no vomiting.",
+      "Light and sound sensitivity."
+    ],
+    "past_medical_history": "2 similar episodes last year."
+  }
+}

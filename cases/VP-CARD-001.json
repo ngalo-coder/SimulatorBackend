@@ -1,0 +1,27 @@
+{
+  "case_metadata": {
+    "case_id": "VP-CARD-001",
+    "title": "55-Year-Old with Crushing Chest Pain",
+    "difficulty": "Hard",
+    "tags": ["ACS", "MI", "cardiology"]
+  },
+  "patient_profile": {
+    "name": "Njeri Mwangi",
+    "age": "55",
+    "gender": "Female",
+    "occupation": "Shopkeeper",
+    "chief_complaint": "Heavy chest pain for 1 hour, radiating to left arm.",
+    "emotional_tone": "Diaphoretic, clutching chest.",
+    "background_story": "Has been stressed about her business."
+  },
+  "clinical_information_to_disclose": {
+    "hidden_diagnosis": "Acute Myocardial Infarction (STEMI)",
+    "history_of_presenting_illness": [
+      "Sudden onset while restocking shelves.",
+      "Pain 10/10, feels like 'an elephant sitting on my chest'.",
+      "Associated nausea and dizziness."
+    ],
+    "past_medical_history": "Hypertension, type 2 diabetes.",
+    "family_history": "Father died of heart attack at 60."
+  }
+}

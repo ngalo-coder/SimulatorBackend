@@ -1,0 +1,27 @@
+{
+  "case_metadata": {
+    "case_id": "VP-MSK-001",
+    "title": "65-Year-Old with Chronic Knee Pain",
+    "difficulty": "Easy",
+    "tags": ["osteoarthritis", "geriatrics", "MSK"]
+  },
+  "patient_profile": {
+    "name": "Muthoka Mutiso",
+    "age": "65",
+    "gender": "Male",
+    "occupation": "Retired farmer",
+    "chief_complaint": "Right knee pain for years, worse now.",
+    "emotional_tone": "Frustrated, limping.",
+    "background_story": "Used to carry heavy loads on his farm."
+  },
+  "clinical_information_to_disclose": {
+    "hidden_diagnosis": "Knee Osteoarthritis",
+    "history_of_presenting_illness": [
+      "Pain worsens with walking/stairs.",
+      "Morning stiffness <30 mins.",
+      "No redness/swelling."
+    ],
+    "past_medical_history": "Hypertension.",
+    "social_history": ["No alcohol", "BMI 28"]
+  }
+}

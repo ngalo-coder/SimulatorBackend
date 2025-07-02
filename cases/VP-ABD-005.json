@@ -1,0 +1,25 @@
+{
+  "case_metadata": {
+    "case_id": "VP-ABD-005",
+    "title": "60-Year-Old with Weight Loss and Abdominal Pain",
+    "difficulty": "Hard",
+    "tags": ["cancer", "colon", "weight loss"]
+  },
+  "patient_profile": {
+    "name": "Wambui Kariuki",
+    "age": "60",
+    "gender": "Female",
+    "occupation": "Retired",
+    "chief_complaint": "Belly pain and lost 10kg in 3 months.",
+    "emotional_tone": "Worried, fatigued."
+  },
+  "clinical_information_to_disclose": {
+    "hidden_diagnosis": "Colon Adenocarcinoma",
+    "history_of_presenting_illness": [
+      "Alternating diarrhea/constipation.",
+      "Blood in stool occasionally.",
+      "Pain is dull, diffuse."
+    ],
+    "family_history": "Brother had colon cancer at 55."
+  }
+}
