@@ -125,3 +125,4 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
     res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
     res.end();
   }
+}
