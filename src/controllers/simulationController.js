@@ -78,3 +78,7 @@ export async function handleAsk(req, res) {
     // or we can accumulate it here. For simplicity, we won't accumulate it on the backend
     // in this example to keep the focus on streaming. A more robust solution would.
 }
+
+export function getAllCases(req, res) {
+    res.json(cases);
+}

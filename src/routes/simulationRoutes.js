@@ -1,5 +1,5 @@
 import express from 'express';
-import { startSimulation, handleAsk } from '../controllers/simulationController.js';
+import { startSimulation, handleAsk, getAllCases } from '../controllers/simulationController.js';
 
 const router = express.Router();
 
@@ -7,5 +7,8 @@ router.post('/start', startSimulation);
 
 // CHANGE THIS LINE FROM .post to .get
 router.get('/ask', handleAsk);
+
+// Route to get all cases
+router.get('/cases', getAllCases);
 
 export default router;
