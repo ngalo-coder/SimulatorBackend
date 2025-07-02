@@ -4,6 +4,8 @@ import { startSimulation, handleAsk } from '../controllers/simulationController.
 const router = express.Router();
 
 router.post('/start', startSimulation);
-router.post('/ask', handleAsk);
+
+// CHANGE THIS LINE FROM .post to .get
+router.get('/ask', handleAsk);
 
 export default router;

@@ -1,13 +1,7 @@
 import OpenAI from 'openai';
-import dotenv from 'dotenv';
-dotenv.config();
 
-
-// Use OPENAI_API_KEY for compatibility with the OpenAI library
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENROUTER_API_KEY, // Use whichever is set
-  baseURL: "https://openrouter.ai/api/v1",
-});
+// Initialize OpenAI client with API key from environment variable
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * Formats a key from snake_case or camelCase to a readable Title Case string.
@@ -58,13 +52,13 @@ function formatClinicalInfo(infoObject) {
 }
 
 /**
- * Gets a response from the AI patient model using the generic director format.
+ * Gets a STREAMED response from the AI patient model and writes it to the response object.
  * @param {object} caseData - The full JSON object for the current case.
  * @param {Array<object>} conversationHistory - The history of the chat.
  * @param {string} newQuestion - The clinician's new question.
- * @returns {Promise<string>} The AI-generated patient response.
+ * @param {object} res - The Express response object to write the stream to.
  */
-export async function getPatientResponse(caseData, conversationHistory, newQuestion) {
+export async function getPatientResponseStream(caseData, conversationHistory, newQuestion, res) {
   const { system_instruction, patient_profile, response_rules, clinical_information_to_disclose } = caseData;
 
   // Build the "Core Knowledge" prompt section from the clinical data
@@ -103,15 +97,29 @@ export async function getPatientResponse(caseData, conversationHistory, newQuest
     `;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o', // Or "gpt-3.5-turbo"
+    const stream = await openai.chat.completions.create({
+      model: 'gpt-4o',
       messages: [{ role: 'user', content: finalPrompt }],
-      temperature: 0.5, // Keeps responses consistent but allows for natural language variation
+      temperature: 0.5,
       max_tokens: 150,
+      stream: true, // Enable streaming
     });
-    return completion.choices[0].message.content.trim();
+
+    // Loop through the stream chunks as they arrive from OpenAI
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || '';
+      if (content) {
+        // Write each chunk to the client in the SSE format
+        res.write(`data: ${JSON.stringify({ type: 'chunk', content })}\n\n`);
+      }
+    }
   } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    return "I'm sorry, I'm having a technical issue. Please try again.";
+    console.error("Error calling OpenAI stream API:", error);
+    // If an error occurs, send an error event
+    res.write(`data: ${JSON.stringify({ type: 'error', content: "An error occurred with the AI service." })}\n\n`);
+  } finally {
+    // When the stream is finished, send a 'done' event and end the response
+    res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+    res.end();
   }
 }

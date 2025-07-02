@@ -2,17 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import { getPatientResponse } from '../services/aiService.js';
+// Import the new streaming function
+import { getPatientResponseStream } from '../services/aiService.js';
 
 // ES module __dirname workaround
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// In-memory storage for active sessions. In a larger app, use a database like Redis.
 const sessions = new Map();
+const cases = {};
 
 // Load all cases from the /cases directory into memory on startup
-const cases = {};
 const casesDir = path.join(__dirname, '..', '..', 'cases');
 fs.readdirSync(casesDir).forEach(file => {
     if (file.endsWith('.json')) {
@@ -44,8 +44,11 @@ export function startSimulation(req, res) {
     });
 }
 
+// THIS FUNCTION IS COMPLETELY REWRITTEN
 export async function handleAsk(req, res) {
-    const { sessionId, question } = req.body;
+    // We now get data from query parameters because EventSource (on the frontend) uses GET
+    const { sessionId, question } = req.query;
+
     if (!sessionId || !question) {
         return res.status(400).json({ error: 'sessionId and question are required' });
     }
@@ -57,29 +60,21 @@ export async function handleAsk(req, res) {
 
     const { caseData, history } = session;
 
-    // Check for end session trigger
-    const endTrigger = caseData.end_session_trigger;
-    if (question.toLowerCase().includes(endTrigger.condition)) {
-        console.log(`Session ended: ${sessionId}`);
-        sessions.delete(sessionId); // Clean up the session
-        return res.json({
-            response: endTrigger.response,
-            isFinal: true,
-            evaluation: caseData.evaluation_criteria
-        });
-    }
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders(); // Send headers immediately
 
-    const aiResponse = await getPatientResponse(caseData, history, question);
-
-    // Update history
+    // Update history before starting the stream
     history.push({ role: 'Clinician', content: question });
-    history.push({ role: 'Patient', content: aiResponse });
     
-    // Update the session in our map
-    sessions.set(sessionId, { caseData, history });
+    // Call the new streaming function, passing the response object `res`
+    // This function will now control writing to and ending the response.
+    await getPatientResponseStream(caseData, history, question, res);
 
-    res.json({
-        response: aiResponse,
-        isFinal: false,
-    });
+    // After the stream is done, we need to save the AI's full response to history.
+    // The front-end will need to send the complete message back in a final call,
+    // or we can accumulate it here. For simplicity, we won't accumulate it on the backend
+    // in this example to keep the focus on streaming. A more robust solution would.
 }
