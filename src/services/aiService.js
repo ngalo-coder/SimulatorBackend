@@ -1,7 +1,10 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI client with API key from environment variable
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Use OpenRouter API key and base URL
+const openai = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: 'https://openrouter.ai/api/v1',
+});
 
 /**
  * Formats a key from snake_case or camelCase to a readable Title Case string.
@@ -98,14 +101,14 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
 
   try {
     const stream = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'openai/gpt-4o', // OpenRouter model name
       messages: [{ role: 'user', content: finalPrompt }],
       temperature: 0.5,
       max_tokens: 150,
       stream: true, // Enable streaming
     });
 
-    // Loop through the stream chunks as they arrive from OpenAI
+    // Loop through the stream chunks as they arrive from OpenRouter
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
@@ -114,7 +117,7 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
       }
     }
   } catch (error) {
-    console.error("Error calling OpenAI stream API:", error);
+    console.error("Error calling OpenRouter stream API:", error);
     // If an error occurs, send an error event
     res.write(`data: ${JSON.stringify({ type: 'error', content: "An error occurred with the AI service." })}\n\n`);
   } finally {
@@ -122,4 +125,3 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
     res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
     res.end();
   }
-}
