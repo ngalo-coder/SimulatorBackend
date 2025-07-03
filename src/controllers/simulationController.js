@@ -66,7 +66,7 @@ export function startSimulation(req, res) {
 // THIS FUNCTION IS COMPLETELY REWRITTEN
 export async function handleAsk(req, res) {
     // We now get data from query parameters because EventSource (on the frontend) uses GET
-    const { sessionId, question } = req.query;
+    const { sessionId, question } = req.body;
 
     if (!sessionId || !question) {
         return res.status(400).json({ error: 'sessionId and question are required' });

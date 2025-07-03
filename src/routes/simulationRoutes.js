@@ -6,7 +6,7 @@ const router = express.Router();
 router.post('/start', startSimulation);
 
 // CHANGE THIS LINE FROM .post to .get
-router.get('/ask', handleAsk);
+router.post('/ask', handleAsk);
 
 // Route to get all cases
 router.get('/cases', getAllCases);
