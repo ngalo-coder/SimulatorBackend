@@ -1,46 +1,65 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 // Import the new streaming function
 import { getPatientResponseStream } from '../services/aiService.js';
-
-// ES module __dirname workaround
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getAllCasesData, getCaseById } from '../services/caseService.js'; // Import case service functions
 
 const sessions = new Map();
-const cases = {};
+// const cases = {}; // Cases are now managed by caseService
 
 // Load all cases from the /cases directory into memory on startup
-const casesDir = path.join(__dirname, '..', '..', 'cases');
-fs.readdirSync(casesDir).forEach(file => {
-    if (file.endsWith('.json')) {
-        const caseId = path.basename(file, '.json');
-        const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
-        cases[caseId] = caseData;
-    }
-});
+// This logic is now in caseService.js
 
 export function startSimulation(req, res) {
     const { caseId } = req.body;
-    if (!caseId || !cases[caseId]) {
+    const caseInfo = getCaseById(caseId); // Use caseService
+
+    if (!caseId || !caseInfo) {
         return res.status(404).json({ error: 'Case not found' });
     }
 
     const sessionId = uuidv4();
-    const caseData = cases[caseId];
+    // caseData for session should be the original, rich data for AI context
+    // but initial_prompt might come from transformed metadata or be generated
+    const caseDataForSession = caseInfo.originalData; // Used for AI context
+    const transformedMetadata = caseInfo.case_metadata; // Used for prompt generation requiring specific field names
+
+    // Generate initialPrompt using the guide's logic
+    let initialPrompt = "Welcome to the simulation. How can I help you?"; // Default
+    if (transformedMetadata.chief_complaint && transformedMetadata.patient_age && transformedMetadata.patient_gender) {
+        initialPrompt = `Hello, I'm a ${transformedMetadata.patient_age}-year-old ${String(transformedMetadata.patient_gender).toLowerCase()} and I'm here because ${String(transformedMetadata.chief_complaint).toLowerCase()}.`;
+        if (transformedMetadata.clinical_context) {
+            initialPrompt += ` ${String(transformedMetadata.clinical_context.toLowerCase())}.`;
+        }
+    } else {
+        // Fallback if essential fields for the detailed prompt are missing
+        // Use a generic prompt from original data if available
+        initialPrompt = caseDataForSession.initial_prompt || transformedMetadata.initial_prompt || "Hello, I'm here for my appointment.";
+        console.warn(`[simulationController] Missing some fields in transformedMetadata for detailed initialPrompt for case ${caseId}. Used fallback.`);
+    }
     
+    const conversationHistory = [
+        {
+            role: "patient", // As per guide's session structure example
+            content: initialPrompt,
+            timestamp: new Date().toISOString()
+        }
+    ];
+
     sessions.set(sessionId, {
-        caseData: caseData,
-        history: [], // Start with an empty conversation history
+        caseId: caseId,
+        caseData: caseDataForSession,
+        transformedMetadata: transformedMetadata,
+        history: conversationHistory, // Initialize with the patient's first statement
+        startTime: new Date().toISOString(),
+        questionCount: 0,
+        isComplete: false
     });
 
-    console.log(`Session started: ${sessionId} for case: ${caseId}`);
+    console.log(`Session started: ${sessionId} for case: ${caseId}. Initial prompt: "${initialPrompt}"`);
 
     res.json({
         sessionId: sessionId,
-        initialPrompt: caseData.initial_prompt,
+        initialPrompt: initialPrompt,
     });
 }
 
@@ -58,7 +77,8 @@ export async function handleAsk(req, res) {
         return res.status(404).json({ error: 'Session not found' });
     }
 
-    const { caseData, history } = session;
+    // caseData here refers to the original data stored for the session, needed for AI context
+    const { caseData, history, transformedMetadata } = session;
 
     // Set headers for Server-Sent Events (SSE)
     res.setHeader('Content-Type', 'text/event-stream');
@@ -80,5 +100,17 @@ export async function handleAsk(req, res) {
 }
 
 export function getAllCases(req, res) {
-    res.json(cases);
+    const allCases = getAllCasesData();
+    // The /api/simulation/cases endpoint expects a structure like:
+    // { "caseId1": { "case_metadata": { ... } }, "caseId2": { "case_metadata": { ... } } }
+    const responseCases = {};
+    for (const caseId in allCases) {
+        if (Object.hasOwnProperty.call(allCases, caseId)) {
+            responseCases[caseId] = {
+                case_metadata: allCases[caseId].case_metadata // Use the transformed metadata
+            };
+        }
+    }
+    // console.log("[simulationController] Sending responseCases for /cases:", JSON.stringify(responseCases, null, 2));
+    res.json(responseCases);
 }
