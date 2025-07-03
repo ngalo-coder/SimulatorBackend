@@ -1,4 +1,5 @@
-POST http://localhost:5001/api/simulation/start
+# POST http://localhost:5001/api/simulation/start
+POST https://simulatorbackend.onrender.com/api/simulation/start
 Content-Type: application/json
 
 {
@@ -7,10 +8,11 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:5001/api/simulation/ask
+# POST http://localhost:5001/api/simulation/ask
+POST https://simulatorbackend.onrender.com/api/simulation/ask
 Content-Type: application/json
 
 {
-  "sessionId": "your_session_id_here",
-  "question": "your question here"
+  "sessionId": "4004ddff-762c-4b20-9c6f-9d7f01877cab",
+  "question": "HOW ARE YOUR FEELING TODAY?"
 }
