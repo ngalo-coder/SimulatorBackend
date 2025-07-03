@@ -1,31 +1,38 @@
 {
   "case_metadata": {
-    "case_id": "VP-ABD-002",
-    "title": "35-Year-Old with Epigastric Burning Pain",
-    "difficulty": "Easy",
-    "tags": ["dyspepsia", "PUD", "GERD"]
+    "case_id": "VP-ABD-001",
+    "title": "Abdominal Pain in a Young Woman",
+    "difficulty": "Medium",
+    "estimated_duration_min": 15,
+    "tags": ["abdominal pain", "young adult", "female"]
   },
   "patient_profile": {
-    "name": "Nyambura Muthoni",
-    "age": "35",
+    "name": "Jane Doe",
+    "age": 24,
     "gender": "Female",
-    "occupation": "Teacher",
-    "chief_complaint": "Burning pain in my upper stomach for 2 weeks.",
-    "emotional_tone": "Tired, slightly distressed.",
-    "background_story": "Recently stressed due to school exams."
+    "occupation": "Student",
+    "chief_complaint": "Lower abdominal pain",
+    "hidden_diagnosis": "Appendicitis",
+    "case_notes": "No significant past medical history."
   },
-  "clinical_information_to_disclose": {
-    "hidden_diagnosis": "Peptic Ulcer Disease",
-    "history_of_presenting_illness": [
-      "Burning pain improves with eating but worsens at night.",
-      "Occasional nausea.",
-      "No vomiting or blood in stool."
-    ],
-    "review_of_systems": {
-      "positive": ["Heartburn"],
-      "negative": ["No weight loss", "No jaundice"]
-    },
-    "past_medical_history": "Takes ibuprofen for headaches.",
-    "social_history": ["Drinks 2 cups of coffee daily", "No smoking"]
+  "response_rules": {
+    "emotional_tone": "Anxious"
+  },
+  "interaction_flow": [
+    {
+      "condition": "asks about pain",
+      "response": "The pain started three days ago and is getting worse."
+    }
+  ],
+  "end_session_trigger": {
+    "condition": "says thank you",
+    "response": "Thank you, doctor."
+  },
+  "evaluation_criteria": {
+    "History Taking": "Asked about onset, duration, and associated symptoms.",
+    "Differential Diagnosis": "Considered appendicitis, ovarian torsion, UTI.",
+    "Clinical Reasoning": "Logical approach to abdominal pain.",
+    "Management Plan": "Suggested appropriate investigations.",
+    "Communication": "Empathetic and clear."
   }
 }

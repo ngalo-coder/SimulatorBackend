@@ -1,127 +1,89 @@
 import OpenAI from 'openai';
 
-// Use OpenRouter API key and base URL
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1',
 });
 
-/**
- * Formats a key from snake_case or camelCase to a readable Title Case string.
- * e.g., 'past_medical_history' -> 'Past Medical History'
- * @param {string} key The key to format.
- * @returns {string} The formatted title.
- */
-function formatTitle(key) {
-  return key
-    .replace(/_/g, ' ')
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/\b\w/g, char => char.toUpperCase());
+// Helper to fill the template with case data
+function fillCaseTemplate(caseData, conversationHistory, newQuestion) {
+  const tagsList = (caseData.case_metadata?.tags || []).map(tag => `"${tag}"`).join(', ');
+  const interactionFlow = (caseData.interaction_flow || [])
+    .map(flow => `{
+      "condition": "${flow.condition}",
+      "response": "${flow.response}"
+    }`)
+    .join(',\n    ');
+
+  return `
+{
+  "version": "1.0",
+  "description": "Virtual Patient Simulation: ${caseData.case_metadata?.title || ''}",
+  "system_instruction": "You are an AI-simulated patient interacting with a clinician. Your responses must follow clinical realism. Only reveal patient history if asked. You do not give medical opinions. Wait for the clinician's questions before responding. Never state the diagnosis.",
+  "case_metadata": {
+    "case_id": "${caseData.case_metadata?.case_id || ''}",
+    "title": "${caseData.case_metadata?.title || ''}",
+    "difficulty": "${caseData.case_metadata?.difficulty || ''}",
+    "estimated_duration_min": ${caseData.case_metadata?.estimated_duration_min || 0},
+    "tags": [${tagsList}]
+  },
+  "patient_profile": {
+    "name": "${caseData.patient_profile?.name || ''}",
+    "age": ${caseData.patient_profile?.age || 0},
+    "gender": "${caseData.patient_profile?.gender || ''}",
+    "occupation": "${caseData.patient_profile?.occupation || ''}",
+    "chief_complaint": "${caseData.patient_profile?.chief_complaint || ''}",
+    "hidden_diagnosis": "${caseData.patient_profile?.hidden_diagnosis || ''}",
+    "case_notes": "${caseData.patient_profile?.case_notes || ''}"
+  },
+  "initial_prompt": "You are now interacting with a virtual patient named ${caseData.patient_profile?.name || ''}. Begin by asking your clinical questions.",
+  "response_rules": {
+    "disclosure_logic": "Only reveal symptoms, history, or findings if the clinician asks a relevant question. Do not volunteer information.",
+    "emotional_tone": "${caseData.response_rules?.emotional_tone || ''}",
+    "invalid_input_response": "I'm not sure I understand. Could you ask that another way?"
+  },
+  "interaction_flow": [
+    ${interactionFlow}
+  ],
+  "end_session_trigger": {
+    "condition": "${caseData.end_session_trigger?.condition || ''}",
+    "response": "${caseData.end_session_trigger?.response || ''}"
+  },
+  "evaluation_criteria": {
+    "History Taking": "${caseData.evaluation_criteria?.['History Taking'] || ''}",
+    "Differential Diagnosis": "${caseData.evaluation_criteria?.['Differential Diagnosis'] || ''}",
+    "Clinical Reasoning": "${caseData.evaluation_criteria?.['Clinical Reasoning'] || ''}",
+    "Management Plan": "${caseData.evaluation_criteria?.['Management Plan'] || ''}",
+    "Communication": "${caseData.evaluation_criteria?.['Communication'] || ''}"
+  },
+  "conversation_history": ${JSON.stringify(conversationHistory)},
+  "clinician_question": "${newQuestion}"
+}
+  `.trim();
 }
 
-/**
- * Recursively formats the clinical information object into a readable text block for the AI prompt.
- * @param {object} infoObject The clinical information object.
- * @returns {string} A formatted string for the AI's "Core Knowledge".
- */
-function formatClinicalInfo(infoObject) {
-  let formattedString = '';
-  for (const key in infoObject) {
-    // CRITICAL: Do not reveal the hidden diagnosis to the AI model itself.
-    if (key === 'hidden_diagnosis') continue;
-
-    const title = formatTitle(key);
-    formattedString += `\n- ${title}:\n`;
-
-    const value = infoObject[key];
-
-    if (Array.isArray(value)) {
-      formattedString += value.map(item => `  - ${item}`).join('\n');
-    } else if (typeof value === 'object' && value !== null) {
-      // Handle nested objects like 'review_of_systems'
-      for (const subKey in value) {
-        const subTitle = formatTitle(subKey);
-        formattedString += `  - ${subTitle}:\n`;
-        if (Array.isArray(value[subKey])) {
-          formattedString += value[subKey].map(item => `    - ${item}`).join('\n');
-        }
-      }
-    } else {
-      // Handle simple string values
-      formattedString += `  - ${value}`;
-    }
-  }
-  return formattedString;
-}
-
-/**
- * Gets a STREAMED response from the AI patient model and writes it to the response object.
- * @param {object} caseData - The full JSON object for the current case.
- * @param {Array<object>} conversationHistory - The history of the chat.
- * @param {string} newQuestion - The clinician's new question.
- * @param {object} res - The Express response object to write the stream to.
- */
 export async function getPatientResponseStream(caseData, conversationHistory, newQuestion, res) {
-  const { system_instruction, patient_profile, response_rules, clinical_information_to_disclose } = caseData;
-
-  // Build the "Core Knowledge" prompt section from the clinical data
-  const coreKnowledgePrompt = formatClinicalInfo(clinical_information_to_disclose);
-
-  // Build the conversation history string
-  const historyString = conversationHistory
-    .map(msg => `${msg.role}: ${msg.content}`)
-    .join('\n');
-
-  // Assemble the final, detailed prompt using the new generic structure
-  const finalPrompt = `
-    ${system_instruction}
-
-    --- YOUR PERSONA ---
-    - Name: ${patient_profile.name}
-    - Age: ${patient_profile.age}
-    - Occupation: ${patient_profile.occupation}
-    - Chief Complaint: ${patient_profile.chief_complaint}
-    - Emotional Tone: ${patient_profile.emotional_tone}
-    - Background: ${patient_profile.background_story || 'Not specified'}
-
-    --- YOUR CORE KNOWLEDGE (SOURCE OF TRUTH) ---
-    You possess the following clinical information. Only reveal a piece of information if asked a direct and relevant question about it. If asked about something not on this list (e.g., 'Do you have chest pain?'), you should state that you haven't experienced it or it's not a problem for you.
-    ${coreKnowledgePrompt}
-    
-    --- RESPONSE RULES ---
-    - If the user asks an unclear question, respond with: "${response_rules.invalid_input_response}"
-    
-    --- PREVIOUS CONVERSATION ---
-    ${historyString}
-    ---
-
-    Clinician: ${newQuestion}
-    Patient:
-    `;
+  const prompt = fillCaseTemplate(caseData, conversationHistory, newQuestion);
 
   try {
     const stream = await openai.chat.completions.create({
-      model: 'openai/gpt-4o', // OpenRouter model name
-      messages: [{ role: 'user', content: finalPrompt }],
+      model: 'openai/gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
       temperature: 0.5,
       max_tokens: 150,
-      stream: true, // Enable streaming
+      stream: true,
     });
 
-    // Loop through the stream chunks as they arrive from OpenRouter
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
-        // Write each chunk to the client in the SSE format
         res.write(`data: ${JSON.stringify({ type: 'chunk', content })}\n\n`);
       }
     }
   } catch (error) {
     console.error("Error calling OpenRouter stream API:", error);
-    // If an error occurs, send an error event
     res.write(`data: ${JSON.stringify({ type: 'error', content: "An error occurred with the AI service." })}\n\n`);
   } finally {
-    // When the stream is finished, send a 'done' event and end the response
     res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
     res.end();
   }
