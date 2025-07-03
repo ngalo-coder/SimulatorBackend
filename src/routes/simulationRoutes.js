@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get('/cases', getCases); // List all cases
 router.post('/start', startSimulation);
-router.get('/ask', handleAsk);
+router.post('/ask', handleAsk);
 
 export default router;

@@ -33,7 +33,7 @@ export function getCases(req, res) {
 }
 
 export function startSimulation(req, res) {
-    const { caseId } = req.query;
+    const { caseId } = req.body;
     if (!caseId || !cases[caseId]) {
         return res.status(404).json({ error: 'Case not found' });
     }
@@ -55,7 +55,7 @@ export function startSimulation(req, res) {
 }
 
 export async function handleAsk(req, res) {
-    const { sessionId, question } = req.query;
+    const { sessionId, question } = req.body;
 
     if (!sessionId || !question) {
         return res.status(400).json({ error: 'sessionId and question are required' });

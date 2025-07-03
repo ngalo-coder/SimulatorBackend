@@ -1,5 +1,5 @@
-# POST http://localhost:5001/api/simulation/start
-POST https://simulatorbackend.onrender.com/api/simulation/start
+POST http://localhost:5001/api/simulation/start
+#POST https://simulatorbackend.onrender.com/api/simulation/start
 Content-Type: application/json
 
 {
@@ -8,18 +8,18 @@ Content-Type: application/json
 
 ###
 
-# POST http://localhost:5001/api/simulation/ask
-GET https://simulatorbackend.onrender.com/api/simulation/ask
+POST http://localhost:5001/api/simulation/ask
+#POST https://simulatorbackend.onrender.com/api/simulation/ask
 Content-Type: application/json
 
 {
-  "sessionId": "df0aa99d-6ac9-45c7-b028-cf3c340827dd",
+  "sessionId": "2f2126bd-abf1-42aa-bb33-3e193677e74a",
   "question": "HOW ARE YOUR FEELING TODAY?"
 }
 
 ###
 
-# POST http://localhost:5001/api/simulation/ask
-GET https://simulatorbackend.onrender.com/api/simulation/cases
+ GET http://localhost:5001/api/simulation/cases
+# GET https://simulatorbackend.onrender.com/api/simulation/cases
 Content-Type: application/json
 
