@@ -33,7 +33,7 @@ export function getCases(req, res) {
 }
 
 export function startSimulation(req, res) {
-    const { caseId } = req.body;
+    const { caseId } = req.query;
     if (!caseId || !cases[caseId]) {
         return res.status(404).json({ error: 'Case not found' });
     }

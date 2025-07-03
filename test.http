@@ -13,6 +13,13 @@ GET https://simulatorbackend.onrender.com/api/simulation/ask
 Content-Type: application/json
 
 {
-  "sessionId": "b1c8a619-ed8c-44d4-a80b-0325d3b88853",
+  "sessionId": "df0aa99d-6ac9-45c7-b028-cf3c340827dd",
   "question": "HOW ARE YOUR FEELING TODAY?"
 }
+
+###
+
+# POST http://localhost:5001/api/simulation/ask
+GET https://simulatorbackend.onrender.com/api/simulation/cases
+Content-Type: application/json
+
