@@ -55,25 +55,26 @@ export function startSimulation(req, res) {
 }
 
 export async function handleAsk(req, res) {
-    const { sessionId, question } = req.body;
+  const sessionId = req.body?.sessionId || req.query?.sessionId;
+  const question = req.body?.question || req.query?.question;
 
-    if (!sessionId || !question) {
-        return res.status(400).json({ error: 'sessionId and question are required' });
-    }
+  if (!sessionId || !question) {
+    return res.status(400).json({ error: 'sessionId and question are required' });
+  }
 
-    const session = sessions.get(sessionId);
-    if (!session) {
-        return res.status(404).json({ error: 'Session not found' });
-    }
+  const session = sessions.get(sessionId);
+  if (!session) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
 
-    const { caseData, history } = session;
+  const { caseData, history } = session;
 
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.flushHeaders();
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
 
-    history.push({ role: 'Clinician', content: question });
+  history.push({ role: 'Clinician', content: question });
 
-    await getPatientResponseStream(caseData, history, question, res);
+  await getPatientResponseStream(caseData, history, question, res);
 }
