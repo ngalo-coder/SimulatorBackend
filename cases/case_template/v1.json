@@ -7,9 +7,7 @@
   "case_metadata": {
     "case_id": "[UNIQUE_CASE_ID, e.g., VP-CARD-001]",
     "title": "[Brief, descriptive title, e.g., 55-Year-Old with Chest Pain]",
-    "specialty": "[Relevant medical specialty, e.g., Cardiology, Primary Care]", 
-    "program_area": "[CHOOSE FROM: Internal medicine, Surgery, Obstetrics and gynaecology, Pediatrics, Community health, Specialized programs]",
-    "specialized_area": "[IF program_area IS 'Specialized programs' OR if applicable: CHOOSE FROM: Ophthalmology, ENT, Reproductive health, Dermatology, Anesthesia, Family medicine, Pediatrics, Surgery, or LEAVE BLANK/NULL]",
+    "specialty": "[Relevant medical specialty, e.g., Cardiology, Primary Care]",
     "difficulty": "[Easy, Intermediate, or Hard]",
     "tags": [
       "[keyword1, e.g., chest pain]",
@@ -44,76 +42,76 @@
       "exacerbating_factors": "[What makes it worse? e.g., 'Any movement makes it worse. I'm scared to even breathe too deeply.']",
       "relieving_factors": "[What makes it better? e.g., 'Nothing. Sitting still doesn't even help.']",
       "associated_symptoms": [
-        "[e.g., Feeling very sweaty and clammy.]",
-        "[e.g., Feels like I'm going to be sick to my stomach (nauseous).]",
-        "[e.g., Feeling short of breath.]"
+        "Feeling very sweaty and clammy.",
+        "Feels like I'm going to be sick to my stomach (nauseous).",
+        "Feeling short of breath."
       ]
     },
 
     "review_of_systems": {
       "comment": "List key positive and negative findings to help the clinician rule things in or out.",
       "positive": [
-        "[e.g., Patient will admit to feeling dizzy if asked.]"
+        "Patient will admit to feeling dizzy if asked."
       ],
       "negative": [
-        "[e.g., No cough.]",
-        "[e.g., No fever or chills.]",
-        "[e.g., No leg swelling or pain (to rule out PE).]",
-        "[e.g., Pain is not worse when taking a deep breath (to rule out pleuritic pain).]",
-        "[e.g., No recent trauma to the chest.]"
+        "No cough.",
+        "No fever or chills.",
+        "No leg swelling or pain (to rule out PE).",
+        "Pain is not worse when taking a deep breath (to rule out pleuritic pain).",
+        "No recent trauma to the chest."
       ]
     },
 
     "past_medical_history": [
-      "[e.g., Hypertension, diagnosed 5 years ago.]",
-      "[e.g., High cholesterol (hyperlipidemia), diagnosed 5 years ago.]",
-      "[e.g., Type 2 Diabetes, diagnosed 3 years ago.]"
+      "Hypertension, diagnosed 5 years ago.",
+      "High cholesterol (hyperlipidemia), diagnosed 5 years ago.",
+      "Type 2 Diabetes, diagnosed 3 years ago."
     ],
 
     "medications": [
-      "[e.g., Lisinopril for blood pressure.]",
-      "[e.g., Atorvastatin for cholesterol.]",
-      "[e.g., Metformin for diabetes.]",
-      "[e.g., Admits to not always taking his medications as prescribed.]"
+      "Lisinopril for blood pressure.",
+      "Atorvastatin for cholesterol.",
+      "Metformin for diabetes.",
+      "Admits to not always taking his medications as prescribed."
     ],
 
     "allergies": [
-      "[e.g., No known drug allergies.]"
+      "No known drug allergies."
     ],
 
     "surgical_history": [
-      "[e.g., Appendectomy as a teenager.]"
+      "Appendectomy as a teenager."
     ],
     
     "family_history": [
-      "[e.g., Father had a heart attack and passed away at age 60.]",
-      "[e.g., Mother is alive with high blood pressure.]"
+      "Father had a heart attack and passed away at age 60.",
+      "Mother is alive with high blood pressure."
     ],
 
     "social_history": {
-      "smoking_status": "[e.g., Smokes half a pack of cigarettes a day for the last 30 years.]",
-      "alcohol_use": "[e.g., Drinks a glass of wine with dinner maybe 2-3 times a week.]",
-      "substance_use": "[e.g., Denies any illicit drug use.]",
-      "diet_and_exercise": "[e.g., Admits his diet isn't great, eats a lot of fast food. Doesn't exercise regularly.]",
-      "living_situation": "[e.g., Lives with his wife; has two children.]"
+      "smoking_status": "Smokes half a pack of cigarettes a day for the last 30 years.",
+      "alcohol_use": "Drinks a glass of wine with dinner maybe 2-3 times a week.",
+      "substance_use": "Denies any illicit drug use.",
+      "diet_and_exercise": "Admits his diet isn't great, eats a lot of fast food. Doesn't exercise regularly.",
+      "living_situation": "Lives with his wife; has two children."
     }
   },
 
   "simulation_triggers": {
     "end_session": {
-      "condition_keyword": "[e.g., diagnosis, admit, treat]",
-      "patient_response": "[e.g., Thank you, doctor. So, what do you think is going on with me?]"
+      "condition_keyword": "diagnosis",
+      "patient_response": "Thank you, doctor. So, what do you think is going on with me?"
     },
     "invalid_input": {
-      "response": "[e.g., I'm sorry, I don't quite understand. Could you please ask that in a different way?]"
+      "response": "I'm sorry, I don't quite understand. Could you please ask that in a different way?"
     }
   },
 
   "evaluation_criteria": {
-    "History_Taking": "[Guidance for evaluating history taking, e.g., Did the user fully characterize the chest pain using a framework like SOCRATES/OPQRST? Were all associated symptoms (diaphoresis, nausea, shortness of breath) uncovered?]",
-    "Risk_Factor_Assessment": "[Guidance for evaluating risk factor assessment, e.g., Did the user identify all major cardiovascular risk factors (hypertension, hyperlipidemia, diabetes, smoking, family history, medication non-adherence)?]",
-    "Differential_Diagnosis_Questioning": "[Guidance for evaluating differential diagnosis questioning, e.g., Did the user ask questions to rule out other life-threatening causes like Pulmonary Embolism (leg pain/swelling) or Aortic Dissection (tearing pain)?]",
-    "Communication_and_Empathy": "[Guidance for evaluating communication, e.g., Was the tone of questioning appropriate for a patient who is actively scared and in severe pain?]",
-    "Clinical_Urgency": "[Guidance for evaluating clinical urgency, e.g., Did the user's line of questioning and overall demeanor reflect the high-acuity, emergency nature of the presentation?]"
+    "History_Taking": "Did the user fully characterize the chest pain using a framework like SOCRATES/OPQRST? Were all associated symptoms (diaphoresis, nausea, shortness of breath) uncovered?",
+    "Risk_Factor_Assessment": "Did the user identify all major cardiovascular risk factors (hypertension, hyperlipidemia, diabetes, smoking, family history, medication non-adherence)?",
+    "Differential_Diagnosis_Questioning": "Did the user ask questions to rule out other life-threatening causes like Pulmonary Embolism (leg pain/swelling) or Aortic Dissection (tearing pain)?",
+    "Communication_and_Empathy": "Was the tone of questioning appropriate for a patient who is actively scared and in severe pain?",
+    "Clinical_Urgency": "Did the user's line of questioning and overall demeanor reflect the high-acuity, emergency nature of the presentation?"
   }
 }
