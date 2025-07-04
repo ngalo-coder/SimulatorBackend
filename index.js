@@ -2,8 +2,13 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import simulationRoutes from './src/routes/simulationRoutes.js';
+import connectDB from './src/config/db.js'; // Import connectDB
 
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
