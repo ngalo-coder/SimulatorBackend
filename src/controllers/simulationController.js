@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import { getPatientResponseStream } from '../services/aiService.js';
+import { getPatientResponseStream, createSession } from '../services/aiService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,11 +42,15 @@ export function startSimulation(req, res) {
   const sessionId = uuidv4();
   const caseData = cases[caseId];
 
-  sessions.set(sessionId, {
+  const sessionData = {
     caseData,
     history: [],
     sessionEnded: false,
-  });
+    willEndAfterResponse: false
+  };
+  
+  sessions.set(sessionId, sessionData);
+  createSession(sessionId, caseData);
 
   console.log(`Session started: ${sessionId} for case: ${caseId}`);
 
@@ -71,17 +75,26 @@ export async function handleAsk(req, res) {
   }
 
   if (session.sessionEnded) {
-    return res.status(403).json({ error: 'Simulation has already ended.' });
+    return res.status(403).json({ 
+      error: 'Simulation has ended. Please start a new session.',
+      summary: "The session concluded with the patient being admitted for emergency care."
+    });
   }
 
   const { caseData, history } = session;
 
-  // Check if the clinician has provided a diagnosis or conclusion
-  const lowerQuestion = question.toLowerCase();
-  const endTriggers = ['i diagnose', 'i think', 'i believe', 'you are having', 'my diagnosis', 'i suspect'];
+  // Add clinician's question to history
+  history.push({ role: 'Clinician', content: question });
 
-  if (endTriggers.some(trigger => lowerQuestion.includes(trigger))) {
-    session.sessionEnded = true;
+  // Check for diagnosis
+  const diagnosisTriggers = [
+    'heart attack', 'myocardial infarction', 'emergency', 
+    'admit', 'admitted', 'treatment', 'ward', 'emergency care'
+  ];
+  const lowerQuestion = question.toLowerCase();
+  
+  if (diagnosisTriggers.some(trigger => lowerQuestion.includes(trigger))) {
+    session.willEndAfterResponse = true;
   }
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -89,7 +102,28 @@ export async function handleAsk(req, res) {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  history.push({ role: 'Clinician', content: question });
-
   await getPatientResponseStream(caseData, history, question, sessionId, res);
+}
+
+// POST /end - End a simulation session
+export function endSession(req, res) {
+  const { sessionId } = req.body;
+  const session = sessions.get(sessionId);
+  
+  if (!session) {
+    return res.status(404).json({ error: 'Session not found' });
+  }
+  
+  session.sessionEnded = true;
+  
+  // Generate summary
+  const patient = session.caseData.patient_profile || {};
+  const summary = `Session ended for ${patient.name || 'patient'}. 
+Total exchanges: ${session.history.length}`;
+  
+  res.json({
+    sessionEnded: true,
+    summary,
+    history: session.history
+  });
 }

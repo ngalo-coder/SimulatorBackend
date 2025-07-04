@@ -1,4 +1,3 @@
-// aiService.js
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -8,7 +7,6 @@ const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
 });
 
-// In-memory session tracking
 const sessions = new Map();
 
 export function createSession(sessionId, caseData) {
@@ -16,6 +14,7 @@ export function createSession(sessionId, caseData) {
     caseData,
     history: [],
     sessionEnded: false,
+    willEndAfterResponse: false
   });
 }
 
@@ -23,57 +22,83 @@ export function getSession(sessionId) {
   return sessions.get(sessionId);
 }
 
-function fillCaseTemplate(caseData, conversationHistory, newQuestion) {
-  const tagsList = (caseData.case_metadata?.tags || []).map(tag => `"${tag}"`).join(', ');
-  return JSON.stringify({
-    version: "1.0",
-    description: `Virtual Patient Simulation: ${caseData.case_metadata?.title || ''}`,
-    system_instruction:
-      "You are an AI-simulated patient interacting with a clinician. Your responses must follow clinical realism. Only reveal patient history if asked. You do not give medical opinions. Wait for the clinician's questions before responding. Never state the diagnosis.",
-    case_metadata: {
-      case_id: caseData.case_metadata?.case_id || '',
-      title: caseData.case_metadata?.title || '',
-      difficulty: caseData.case_metadata?.difficulty || '',
-      estimated_duration_min: caseData.case_metadata?.estimated_duration_min || 0,
-      tags: caseData.case_metadata?.tags || [],
-    },
-    patient_profile: caseData.patient_profile,
-    initial_prompt: `You are now interacting with a virtual patient named ${caseData.patient_profile?.name}. Begin by asking your clinical questions.`,
-    response_rules: {
-      disclosure_logic: "Only reveal symptoms, history, or findings if the clinician asks a relevant question. Do not volunteer information.",
-      emotional_tone: caseData.response_rules?.emotional_tone || '',
-      invalid_input_response: "I'm not sure I understand. Could you ask that another way?",
-    },
-    interaction_flow: caseData.interaction_flow || [],
-    end_session_trigger: caseData.end_session_trigger || {},
-    evaluation_criteria: caseData.evaluation_criteria || {},
-    conversation_history: conversationHistory,
-    clinician_question: newQuestion,
-  });
+function buildPrompt(caseData, conversationHistory, newQuestion, willEndAfterResponse) {
+  const patient = caseData.patient_profile || {};
+  
+  // Build conversation history string
+  const historyString = conversationHistory
+    .map(entry => `${entry.role}: ${entry.content}`)
+    .join('\n');
+  
+  // Add special instructions if this is the final response
+  const endInstructions = willEndAfterResponse ? 
+    "\n\nIMPORTANT: The clinician has diagnosed you and is admitting you to the hospital. " +
+    "Express trust in the clinician, show relief that help is coming, and bring the conversation " +
+    "to a natural close with a final statement." : "";
+  
+  // System instruction for the patient role
+  return `
+    You are ${patient.name || 'the patient'}, a ${patient.age || 'unknown'}-year-old patient 
+    experiencing ${patient.chief_complaint || 'symptoms'}. You are talking to a clinician.
+    
+    Role Guidelines:
+    1. You are the PATIENT, not the doctor
+    2. Only reveal information when asked directly
+    3. Never diagnose yourself or suggest treatments
+    4. Respond naturally as a patient would
+    5. Maintain a ${caseData.response_rules?.emotional_tone || 'concerned'} tone
+    
+    Background: ${patient.case_notes || 'No additional notes'}
+    
+    Conversation History:
+    ${historyString}
+    
+    Clinician's latest question: "${newQuestion}"
+    ${endInstructions}
+    
+    Your response as the patient (1-2 sentences):
+  `;
 }
 
 export async function getPatientResponseStream(caseData, conversationHistory, newQuestion, sessionId, res) {
-  const prompt = fillCaseTemplate(caseData, conversationHistory, newQuestion);
   const session = sessions.get(sessionId);
+  const willEnd = session?.willEndAfterResponse || false;
+  
+  const prompt = buildPrompt(caseData, conversationHistory, newQuestion, willEnd);
 
   try {
     const stream = await openai.chat.completions.create({
       model: 'openai/gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.5,
-      max_tokens: 150,
+      messages: [{ role: 'system', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 100,
       stream: true,
     });
 
+    let fullResponse = '';
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
+        fullResponse += content;
         res.write(`data: ${JSON.stringify({ type: 'chunk', content })}\n\n`);
+      }
+    }
 
-        // Check for session end trigger
-        if (content.toLowerCase().includes("what do you think is going on")) {
-          session.sessionEnded = true;
-        }
+    // Add patient response to history
+    if (session) {
+      session.history.push({ role: 'Patient', content: fullResponse });
+
+      // End session if this was the final response
+      if (session.willEndAfterResponse) {
+        session.sessionEnded = true;
+        console.log(`Session ${sessionId} ended after diagnosis`);
+        
+        // Send session end event
+        res.write(`data: ${JSON.stringify({ 
+          type: 'session_end', 
+          content: "SESSION_END",
+          summary: "The patient has been admitted for emergency care."
+        })}\n\n`);
       }
     }
   } catch (error) {

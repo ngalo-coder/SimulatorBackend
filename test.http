@@ -1,4 +1,4 @@
-POST http://localhost:5001/api/simulation/start
+# POST http://localhost:5001/api/simulation/start
 #POST https://simulatorbackend.onrender.com/api/simulation/start
 Content-Type: application/json
 
@@ -8,7 +8,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:5001/api/simulation/ask
+# GET http://localhost:5001/api/simulation/ask
 #POST https://simulatorbackend.onrender.com/api/simulation/ask
 Content-Type: application/json
 
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 
- #GET http://localhost:5001/api/simulation/cases
+# GET http://localhost:5001/api/simulation/cases
  GET https://simulatorbackend.onrender.com/api/simulation/cases
 Content-Type: application/json
 

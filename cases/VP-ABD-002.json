@@ -16,7 +16,9 @@
     "case_notes": "Was at his daughter's school play when the pain started"
   },
   "response_rules": {
-    "emotional_tone": "Visibly anxious and scared, occasionally clutching his chest, speaks in short, breathy sentences"
+    "emotional_tone": "Visibly anxious and scared, occasionally clutching his chest, speaks in short, breathy sentences",
+    "mid_phase_tone": "Becoming more fatigued, voice weaker",
+    "final_phase_tone": "Concerned about prognosis, asking about next steps"
   },
   "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",
   "end_session_trigger": {
@@ -29,5 +31,18 @@
     "Communication": "Did the user remain empathetic and calm?",
     "Management Plan": "Did they express urgency for emergency care?",
     "Clinical Reasoning": "Did the user synthesize clues appropriately?"
+  },
+  "clinical_milestones": [
+    "History of present illness (onset, location, character, severity, timing, exacerbating/relieving factors)",
+    "Associated symptoms (nausea, sweating, shortness of breath)",
+    "Past medical history (hypertension, hyperlipidemia, diabetes)",
+    "Medication history and adherence",
+    "Social history (smoking, alcohol)",
+    "Family history of heart disease"
+  ],
+  "progression_logic": {
+    "initial": "Focus on symptom characterization and associated symptoms",
+    "mid": "Explore risk factors and past medical history",
+    "final": "Clarify social and family history, and discuss possible diagnoses"
   }
 }
