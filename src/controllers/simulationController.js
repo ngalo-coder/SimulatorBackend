@@ -2,7 +2,7 @@
 // import path from 'path'; // No longer needed for case loading
 // import { fileURLToPath } from 'url'; // No longer needed for case loading
 // import { v4 as uuidv4 } from 'uuid'; // No longer using uuid for session IDs from this controller directly
-import { getPatientResponseStream, createSession, getEvaluation } from '../services/aiService.js';
+import { getPatientResponseStream, getEvaluation } from '../services/aiService.js';
 import Case from '../models/CaseModel.js'; // Import Mongoose Case Model
 import Session from '../models/SessionModel.js'; // Import Mongoose Session Model
 
