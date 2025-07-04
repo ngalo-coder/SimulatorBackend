@@ -109,3 +109,72 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
     res.end();
   }
 }
+
+// New function to get evaluation from the AI
+export async function getEvaluation(caseData, conversationHistory) {
+  const { clinical_dossier, evaluation_criteria } = caseData;
+  const hiddenDiagnosis = clinical_dossier?.hidden_diagnosis;
+
+  if (!hiddenDiagnosis || !evaluation_criteria) {
+    console.error("Evaluation cannot be performed: Missing hidden diagnosis or evaluation criteria in case data.");
+    return "Evaluation data is missing from the case file. Cannot generate evaluation.";
+  }
+
+  const historyString = conversationHistory
+    .map(entry => `${entry.role}: ${entry.content}`)
+    .join('\n');
+
+  // Construct the prompt for the evaluation AI
+  const evaluationPrompt = `
+    You are an expert medical educator. Your task is to evaluate a clinician's performance in a simulated patient encounter.
+    The simulated case involved a patient with the hidden diagnosis of: ${hiddenDiagnosis}.
+
+    The clinician's conversation with the patient was as follows:
+    --- START OF CONVERSATION ---
+    ${historyString}
+    --- END OF CONVERSATION ---
+
+    Please evaluate the clinician's performance based on the following criteria. Provide a detailed, constructive assessment for each point, formatted exactly as the example below.
+
+    Evaluation Criteria:
+    1. History Taking: ${evaluation_criteria.History_Taking}
+    2. Risk Factor Assessment: ${evaluation_criteria.Risk_Factor_Assessment}
+    3. Differential Diagnosis Questioning: ${evaluation_criteria.Differential_Diagnosis_Questioning}
+    4. Communication and Empathy: ${evaluation_criteria.Communication_and_Empathy}
+    5. Clinical Urgency: ${evaluation_criteria.Clinical_Urgency}
+
+    For each criterion, assess whether the clinician's actions were Good, Needs Improvement, or Needs Significant Improvement. Provide specific examples from the conversation to support your assessment.
+    Conclude with an overall "Summary & Recommendations" section, highlighting key strengths and areas for development, and explicitly stating whether the likely diagnosis was reached or missed.
+
+    Desired Output Format:
+    SESSION END
+    Thank you for completing the simulation. Here is an evaluation of your performance based on the case of [Patient Name from case data if available, otherwise use the hidden diagnosis name].
+    Hidden Diagnosis: ${hiddenDiagnosis}
+    Evaluation of Your Performance:
+    1. History Taking: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
+    [Your detailed assessment for History Taking, referencing conversation specifics]
+    2. Risk Factor Assessment: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
+    [Your detailed assessment for Risk Factor Assessment, referencing conversation specifics]
+    3. Differential Diagnosis Questioning: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
+    [Your detailed assessment for Differential Diagnosis Questioning, referencing conversation specifics]
+    4. Communication and Empathy: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
+    [Your detailed assessment for Communication and Empathy, referencing conversation specifics]
+    5. Clinical Urgency: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
+    [Your detailed assessment for Clinical Urgency, referencing conversation specifics]
+    Summary & Recommendations:
+    [Your overall summary and recommendations]
+  `;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'openai/gpt-4o', // Or another powerful model suitable for evaluation
+      messages: [{ role: 'system', content: evaluationPrompt }],
+      temperature: 0.5, // Lower temperature for more deterministic evaluation
+      max_tokens: 1500, // Allow for a detailed evaluation
+    });
+    return response.choices[0]?.message?.content || "Could not generate evaluation.";
+  } catch (error) {
+    console.error("Error calling OpenAI for evaluation:", error);
+    return "An error occurred while generating the evaluation.";
+  }
+}
