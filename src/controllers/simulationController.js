@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import { getPatientResponseStream, createSession } from '../services/aiService.js';
+import { getPatientResponseStream, createSession, getEvaluation } from '../services/aiService.js'; // Added getEvaluation
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,7 +106,7 @@ export async function handleAsk(req, res) {
 }
 
 // POST /end - End a simulation session
-export function endSession(req, res) {
+export async function endSession(req, res) { // Made function async
   const { sessionId } = req.body;
   const session = sessions.get(sessionId);
   
@@ -116,14 +116,22 @@ export function endSession(req, res) {
   
   session.sessionEnded = true;
   
-  // Generate summary
-  const patient = session.caseData.patient_profile || {};
-  const summary = `Session ended for ${patient.name || 'patient'}. 
-Total exchanges: ${session.history.length}`;
+  // Generate detailed evaluation
+  const evaluation = await getEvaluation(session.caseData, session.history);
   
+  const patientName = session.caseData?.patient_persona?.name ||
+                      session.caseData?.patient_profile?.name ||
+                      "the patient"; // Fallback for patient name
+
+  // The getEvaluation function is expected to return the full formatted string.
+  // If it only returns the core evaluation content, we might need to wrap it here.
+  // For now, assuming getEvaluation returns the complete desired output.
+
+  console.log(`Session ${sessionId} ended. Evaluation generated.`);
+
   res.json({
     sessionEnded: true,
-    summary,
-    history: session.history
+    evaluation: evaluation, // Send the detailed evaluation
+    history: session.history // Still useful to send history for review
   });
 }
