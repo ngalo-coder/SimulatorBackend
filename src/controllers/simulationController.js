@@ -22,28 +22,44 @@ import Session from '../models/SessionModel.js'; // Import Mongoose Session Mode
 //   }
 // });
 
-// GET /cases - List all case metadata
+// GET /cases - List all case metadata, now with filtering
 export async function getCases(req, res) {
   try {
+    const { program_area, specialized_area } = req.query;
+    const query = {};
+
+    if (program_area) {
+      query['case_metadata.program_area'] = program_area;
+    }
+    if (specialized_area) {
+      // If specialized_area is 'None' or an empty string from query,
+      // we might want to specifically query for null or empty.
+      // For now, assuming a direct match or it's omitted.
+      // If specialized_area is "null" as a string, we'd query for actual null.
+      if (specialized_area === "null" || specialized_area === "None" || specialized_area === "") {
+        query['case_metadata.specialized_area'] = { $in: [null, ""] };
+      } else {
+        query['case_metadata.specialized_area'] = specialized_area;
+      }
+    }
+
     // Fetch only necessary fields from case_metadata for the list
-    const casesFromDB = await Case.find({})
+    const casesFromDB = await Case.find(query)
       .select('case_metadata.case_id case_metadata.title case_metadata.difficulty case_metadata.program_area case_metadata.specialized_area case_metadata.tags case_metadata.estimated_duration_min')
       .lean(); // .lean() returns plain JS objects, good for sending in response
 
     const caseList = casesFromDB.map(c => ({
-      // Map to the structure expected by the frontend, if necessary
-      // Assuming frontend expects fields directly from case_metadata
       case_id: c.case_metadata.case_id,
       title: c.case_metadata.title,
       difficulty: c.case_metadata.difficulty,
       program_area: c.case_metadata.program_area,
       specialized_area: c.case_metadata.specialized_area,
-      estimated_duration_min: c.case_metadata.estimated_duration_min, // Ensure this field exists in your schema/data
+      estimated_duration_min: c.case_metadata.estimated_duration_min,
       tags: c.case_metadata.tags,
     }));
     res.json(caseList);
   } catch (error) {
-    console.error('Error fetching cases:', error);
+    console.error('Error fetching cases with filters:', error);
     res.status(500).json({ error: 'Failed to fetch cases' });
   }
 }
@@ -303,5 +319,25 @@ export async function endSession(req, res) {
   } catch (error) {
     console.error(`Error in endSession for sessionId ${sessionId}:`, error);
     res.status(500).json({ error: 'Failed to end session or generate evaluation' });
+  }
+}
+
+// GET /case-categories - List all unique program and specialized areas
+export async function getCaseCategories(req, res) {
+  try {
+    const programAreas = await Case.distinct('case_metadata.program_area');
+
+    // Fetch distinct specialized areas and filter out null/empty values
+    const specializedAreasRaw = await Case.distinct('case_metadata.specialized_area');
+    const specializedAreas = specializedAreasRaw.filter(area => area && area.trim() !== '');
+
+    res.json({
+      program_areas: programAreas.sort(), // Sort for consistent ordering
+      specialized_areas: specializedAreas.sort() // Sort for consistent ordering
+    });
+
+  } catch (error) {
+    console.error('Error fetching case categories:', error);
+    res.status(500).json({ error: 'Failed to fetch case categories' });
   }
 }
