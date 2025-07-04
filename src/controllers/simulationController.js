@@ -1,63 +1,105 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { v4 as uuidv4 } from 'uuid';
-import { getPatientResponseStream, createSession, getEvaluation } from '../services/aiService.js'; // Added getEvaluation
+// import fs from 'fs'; // No longer needed for case loading
+// import path from 'path'; // No longer needed for case loading
+// import { fileURLToPath } from 'url'; // No longer needed for case loading
+// import { v4 as uuidv4 } from 'uuid'; // No longer using uuid for session IDs from this controller directly
+import { getPatientResponseStream, createSession, getEvaluation } from '../services/aiService.js';
+import Case from '../models/CaseModel.js'; // Import Mongoose Case Model
+import Session from '../models/SessionModel.js'; // Import Mongoose Session Model
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url); // Not needed if not using __dirname for cases
+// const __dirname = path.dirname(__filename); // Not needed if not using path for cases
 
-const sessions = new Map();
-const cases = {};
+const sessions = new Map(); // This will be replaced in a later step
+// const cases = {}; // This is now removed, cases come from DB
 
-// Load all cases from the /cases directory into memory on startup
-const casesDir = path.join(__dirname, '..', '..', 'cases');
-fs.readdirSync(casesDir).forEach(file => {
-  if (file.endsWith('.json')) {
-    const caseId = path.basename(file, '.json');
-    const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
-    cases[caseId] = caseData;
-  }
-});
+// // Load all cases from the /cases directory into memory on startup - REMOVED
+// const casesDir = path.join(__dirname, '..', '..', 'cases');
+// fs.readdirSync(casesDir).forEach(file => {
+//   if (file.endsWith('.json')) {
+//     const caseId = path.basename(file, '.json');
+//     const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
+//     cases[caseId] = caseData;
+//   }
+// });
 
 // GET /cases - List all case metadata
-export function getCases(req, res) {
-  const caseList = Object.values(cases).map(c => ({
-    case_id: c.case_metadata?.case_id,
-    title: c.case_metadata?.title,
-    difficulty: c.case_metadata?.difficulty,
-    estimated_duration_min: c.case_metadata?.estimated_duration_min,
-    tags: c.case_metadata?.tags,
-  }));
-  res.json(caseList);
+export async function getCases(req, res) {
+  try {
+    // Fetch only necessary fields from case_metadata for the list
+    const casesFromDB = await Case.find({})
+      .select('case_metadata.case_id case_metadata.title case_metadata.difficulty case_metadata.program_area case_metadata.specialized_area case_metadata.tags case_metadata.estimated_duration_min')
+      .lean(); // .lean() returns plain JS objects, good for sending in response
+
+    const caseList = casesFromDB.map(c => ({
+      // Map to the structure expected by the frontend, if necessary
+      // Assuming frontend expects fields directly from case_metadata
+      case_id: c.case_metadata.case_id,
+      title: c.case_metadata.title,
+      difficulty: c.case_metadata.difficulty,
+      program_area: c.case_metadata.program_area,
+      specialized_area: c.case_metadata.specialized_area,
+      estimated_duration_min: c.case_metadata.estimated_duration_min, // Ensure this field exists in your schema/data
+      tags: c.case_metadata.tags,
+    }));
+    res.json(caseList);
+  } catch (error) {
+    console.error('Error fetching cases:', error);
+    res.status(500).json({ error: 'Failed to fetch cases' });
+  }
 }
 
 // POST /start - Start a simulation session
-export function startSimulation(req, res) {
+export async function startSimulation(req, res) {
   const { caseId } = req.body;
-  if (!caseId || !cases[caseId]) {
-    return res.status(404).json({ error: 'Case not found' });
+  if (!caseId) {
+    return res.status(400).json({ error: 'caseId is required' });
   }
 
-  const sessionId = uuidv4();
-  const caseData = cases[caseId];
+  try {
+    const caseDataFromDB = await Case.findOne({ 'case_metadata.case_id': caseId });
 
-  const sessionData = {
-    caseData,
-    history: [],
-    sessionEnded: false,
-    willEndAfterResponse: false
-  };
-  
-  sessions.set(sessionId, sessionData);
-  createSession(sessionId, caseData);
+    if (!caseDataFromDB) {
+      return res.status(404).json({ error: 'Case not found' });
+    }
 
-  console.log(`Session started: ${sessionId} for case: ${caseId}`);
+    // Convert Mongoose document to a plain JavaScript object for consistent use
+    const plainCaseData = caseDataFromDB.toObject();
 
-  res.json({
-    sessionId,
-    initialPrompt: caseData.initial_prompt,
-  });
+    // Create a new session document in MongoDB
+    const newSession = new Session({
+      case_ref: caseDataFromDB._id, // Link to the Case document's ObjectId
+      original_case_id: caseDataFromDB.case_metadata.case_id, // Store the string ID
+      history: [], // Initial history is empty
+      // sessionEnded defaults to false as per schema
+    });
+
+    await newSession.save();
+    const mongoSessionId = newSession._id.toString();
+
+    // TEMPORARY: Populate in-memory sessions map for handleAsk and endSession to continue working.
+    // This will be removed when those functions are refactored to use MongoDB.
+    const sessionDataForMemory = {
+      caseData: plainCaseData,
+      history: newSession.history, // Initially empty
+      sessionEnded: newSession.sessionEnded,
+      willEndAfterResponse: false, // This specific flag might need to be part of DB session state later
+      _id: mongoSessionId // Storing mongoID for reference
+    };
+    sessions.set(mongoSessionId, sessionDataForMemory);
+
+    // The call to aiService.createSession is removed as aiService should not maintain its own session map.
+    // If aiService needs caseData for other initialization, it should be passed directly when its methods are called.
+
+    console.log(`MongoDB Session started: ${mongoSessionId} for case: ${caseId}`);
+
+    res.json({
+      sessionId: mongoSessionId, // Return the MongoDB session ID
+      initialPrompt: plainCaseData.initial_prompt,
+    });
+  } catch (error) {
+    console.error(`Error starting simulation for caseId ${caseId}:`, error);
+    res.status(500).json({ error: 'Failed to start simulation' });
+  }
 }
 
 // GET /ask - Stream simulation response
