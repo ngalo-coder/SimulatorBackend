@@ -13,50 +13,53 @@ const cases = {};
 // Load all cases from the /cases directory into memory on startup
 const casesDir = path.join(__dirname, '..', '..', 'cases');
 fs.readdirSync(casesDir).forEach(file => {
-    if (file.endsWith('.json')) {
-        const caseId = path.basename(file, '.json');
-        const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
-        cases[caseId] = caseData;
-    }
+  if (file.endsWith('.json')) {
+    const caseId = path.basename(file, '.json');
+    const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
+    cases[caseId] = caseData;
+  }
 });
 
 // GET /cases - List all case metadata
 export function getCases(req, res) {
-    const caseList = Object.values(cases).map(c => ({
-        case_id: c.case_metadata?.case_id,
-        title: c.case_metadata?.title,
-        difficulty: c.case_metadata?.difficulty,
-        estimated_duration_min: c.case_metadata?.estimated_duration_min,
-        tags: c.case_metadata?.tags,
-    }));
-    res.json(caseList);
+  const caseList = Object.values(cases).map(c => ({
+    case_id: c.case_metadata?.case_id,
+    title: c.case_metadata?.title,
+    difficulty: c.case_metadata?.difficulty,
+    estimated_duration_min: c.case_metadata?.estimated_duration_min,
+    tags: c.case_metadata?.tags,
+  }));
+  res.json(caseList);
 }
 
+// POST /start - Start a simulation session
 export function startSimulation(req, res) {
-    const { caseId } = req.body;
-    if (!caseId || !cases[caseId]) {
-        return res.status(404).json({ error: 'Case not found' });
-    }
+  const { caseId } = req.body;
+  if (!caseId || !cases[caseId]) {
+    return res.status(404).json({ error: 'Case not found' });
+  }
 
-    const sessionId = uuidv4();
-    const caseData = cases[caseId];
-    
-    sessions.set(sessionId, {
-        caseData: caseData,
-        history: [],
-    });
+  const sessionId = uuidv4();
+  const caseData = cases[caseId];
 
-    console.log(`Session started: ${sessionId} for case: ${caseId}`);
+  sessions.set(sessionId, {
+    caseData,
+    history: [],
+    sessionEnded: false,
+  });
 
-    res.json({
-        sessionId: sessionId,
-        initialPrompt: caseData.initial_prompt,
-    });
+  console.log(`Session started: ${sessionId} for case: ${caseId}`);
+
+  res.json({
+    sessionId,
+    initialPrompt: caseData.initial_prompt,
+  });
 }
 
+// GET /ask - Stream simulation response
 export async function handleAsk(req, res) {
-  const sessionId = req.body?.sessionId || req.query?.sessionId;
-  const question = req.body?.question || req.query?.question;
+  const sessionId = req.query.sessionId;
+  const question = req.query.question;
 
   if (!sessionId || !question) {
     return res.status(400).json({ error: 'sessionId and question are required' });
@@ -67,7 +70,19 @@ export async function handleAsk(req, res) {
     return res.status(404).json({ error: 'Session not found' });
   }
 
+  if (session.sessionEnded) {
+    return res.status(403).json({ error: 'Simulation has already ended.' });
+  }
+
   const { caseData, history } = session;
+
+  // Check if the clinician has provided a diagnosis or conclusion
+  const lowerQuestion = question.toLowerCase();
+  const endTriggers = ['i diagnose', 'i think', 'i believe', 'you are having', 'my diagnosis', 'i suspect'];
+
+  if (endTriggers.some(trigger => lowerQuestion.includes(trigger))) {
+    session.sessionEnded = true;
+  }
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -76,5 +91,5 @@ export async function handleAsk(req, res) {
 
   history.push({ role: 'Clinician', content: question });
 
-  await getPatientResponseStream(caseData, history, question, res);
+  await getPatientResponseStream(caseData, history, question, sessionId, res);
 }
