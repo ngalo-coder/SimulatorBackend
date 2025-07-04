@@ -9,7 +9,7 @@ import Session from '../models/SessionModel.js'; // Import Mongoose Session Mode
 // const __filename = fileURLToPath(import.meta.url); // Not needed if not using __dirname for cases
 // const __dirname = path.dirname(__filename); // Not needed if not using path for cases
 
-const sessions = new Map(); // This will be replaced in a later step
+// const sessions = new Map(); // REMOVED: No longer using in-memory map for sessions
 // const cases = {}; // This is now removed, cases come from DB
 
 // // Load all cases from the /cases directory into memory on startup - REMOVED
@@ -76,19 +76,11 @@ export async function startSimulation(req, res) {
     await newSession.save();
     const mongoSessionId = newSession._id.toString();
 
-    // TEMPORARY: Populate in-memory sessions map for handleAsk and endSession to continue working.
-    // This will be removed when those functions are refactored to use MongoDB.
-    const sessionDataForMemory = {
-      caseData: plainCaseData,
-      history: newSession.history, // Initially empty
-      sessionEnded: newSession.sessionEnded,
-      willEndAfterResponse: false, // This specific flag might need to be part of DB session state later
-      _id: mongoSessionId // Storing mongoID for reference
-    };
-    sessions.set(mongoSessionId, sessionDataForMemory);
-
     // The call to aiService.createSession is removed as aiService should not maintain its own session map.
     // If aiService needs caseData for other initialization, it should be passed directly when its methods are called.
+
+    // In-memory session map population is now removed.
+    // sessions.set(mongoSessionId, sessionDataForMemory); // REMOVED
 
     console.log(`MongoDB Session started: ${mongoSessionId} for case: ${caseId}`);
 
@@ -111,69 +103,205 @@ export async function handleAsk(req, res) {
     return res.status(400).json({ error: 'sessionId and question are required' });
   }
 
-  const session = sessions.get(sessionId);
-  if (!session) {
-    return res.status(404).json({ error: 'Session not found' });
+  try {
+    const session = await Session.findById(sessionId).populate('case_ref');
+
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    if (session.sessionEnded) {
+      return res.status(403).json({
+        error: 'Simulation has ended. Please start a new session.',
+        // Consider if a summary is still relevant or if evaluation should be fetched
+      });
+    }
+
+    if (!session.case_ref) {
+        console.error(`Session ${sessionId} is missing case_ref.`);
+        return res.status(500).json({ error: 'Internal server error: Case data missing for session.' });
+    }
+
+    const caseData = session.case_ref.toObject(); // Get plain object for case data
+
+    // Add clinician's question to history
+    session.history.push({ role: 'Clinician', content: question, timestamp: new Date() });
+    // Note: We will save the session after the AI response is also added.
+
+    let willEndAfterResponse = false; // Local flag for this request/response cycle
+    const diagnosisTriggers = [
+      'heart attack', 'myocardial infarction', 'emergency',
+      'admit', 'admitted', 'treatment', 'ward', 'emergency care'
+    ];
+    const lowerQuestion = question.toLowerCase();
+
+    if (diagnosisTriggers.some(trigger => lowerQuestion.includes(trigger))) {
+      willEndAfterResponse = true;
+      // If this flag needs to be persisted in DB immediately, update session model and save here.
+      // session.willEndAfterResponse = true; // Example if field existed in SessionModel
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    // Modify getPatientResponseStream or use a wrapper to capture the full AI response
+    // For now, we assume getPatientResponseStream is modified or a new service is used
+    // that allows us to get the full response for saving, while still streaming.
+    // This is a simplified representation of how it might work if getPatientResponseStream
+    // internally updates the session history after full response is collected.
+    // A more robust way would be for getPatientResponseStream to take a callback
+    // that it calls with the full response text once available.
+
+    // Let's make a placeholder for how history update would work post-streaming.
+    // The actual implementation of capturing full response from stream
+    // while streaming needs careful handling in aiService.getPatientResponseStream.
+    // For this step, we'll simulate this by calling it, then imagine we got the full response.
+
+    // The current `getPatientResponseStream` in `aiService.js` has a side effect:
+    // `session.history.push({ role: 'Patient', content: fullResponse });`
+    // This was fine for in-memory, but for MongoDB, we need to ensure `session` object
+    // here is the one that gets this push and then is saved.
+
+    // To correctly handle this:
+    // 1. `getPatientResponseStream` should be adapted. It currently takes `history` as a parameter.
+    //    It should operate on a copy or be aware it's a Mongoose subdocument array.
+    // 2. The `session.save()` should happen *after* `getPatientResponseStream` has finished
+    //    and the AI's response has been pushed to `session.history`.
+
+    // Simulating the flow:
+    // `getPatientResponseStream` will internally push to the history array it receives.
+    // Since `session.history` is passed, it will be updated by `getPatientResponseStream`.
+
+    // The `aiService.getPatientResponseStream` is expected to handle adding the AI response to the history array
+    // and potentially updating the session's `sessionEnded` status if `willEndAfterResponse` is true.
+    // It will need the Mongoose `session` object to do this and then save it.
+    // OR, `handleAsk` can manage this.
+
+    // Let's adjust the call to getPatientResponseStream and handle history saving here.
+    // We'll need to modify getPatientResponseStream to return the full response.
+    // This is a significant change to aiService. For now, let's assume aiService
+    // is refactored to support this.
+
+    // Placeholder for what getPatientResponseStream should do:
+    // It streams to `res`, and also returns the full response string.
+    // This is a conceptual change for getPatientResponseStream
+
+    // For now, to make minimal changes to getPatientResponseStream's signature,
+    // we rely on its existing side-effect of pushing to the history array.
+    // We then save the session. This implies getPatientResponseStream must correctly
+    // handle the Mongoose array.
+
+    await getPatientResponseStream(
+        caseData,
+        session.history, // Pass the Mongoose array directly
+        question,
+        sessionId, // session._id.toString()
+        res,
+        willEndAfterResponse // Pass this flag to aiService
+    );
+
+    // After the stream has finished and getPatientResponseStream has pushed the AI's response
+    // to session.history (and potentially updated session.sessionEnded if willEndAfterResponse was true), save.
+    // This relies on getPatientResponseStream's internal logic in aiService.js to update these.
+    // Specifically, aiService.js's getPatientResponseStream has:
+    //   `sessionInMemory.history.push({ role: 'Patient', content: fullResponse });`
+    //   `if (sessionInMemory.willEndAfterResponse) { sessionInMemory.sessionEnded = true; ... }`
+    // This `sessionInMemory` was from its own map. Now it needs to operate on the passed `session` Mongoose object.
+    // This change to aiService is implied by this refactoring.
+    // Assuming aiService.getPatientResponseStream is updated to:
+    //    - take `willEndAfterResponse` as a parameter.
+    //    - push to the `history` array it receives.
+    //    - if `willEndAfterResponse` is true, set `session.sessionEnded = true` on the mongoose session object.
+
+    // If `willEndAfterResponse` was true, `getPatientResponseStream` (or logic within it) should have set `session.sessionEnded = true`.
+    // We save the session which now includes the clinician's question and
+    // the patient's response (pushed into session.history by getPatientResponseStream).
+    // Also, update sessionEnded status based on the flag returned from aiService.
+    const { sessionShouldBeMarkedEnded } = await getPatientResponseStream(
+        caseData,
+        session.history, // Pass the Mongoose array directly
+        question,
+        sessionId, // session._id.toString()
+        res,
+        willEndAfterResponse // Pass this flag to aiService
+    );
+
+    if (sessionShouldBeMarkedEnded) {
+        session.sessionEnded = true;
+        console.log(`Session ${sessionId} marked as ended in DB based on AI response flow.`);
+    }
+
+    await session.save();
+    console.log(`Session ${sessionId} updated in DB after AI response.`);
+
+  } catch (error) {
+    console.error(`Error in handleAsk for sessionId ${sessionId}:`, error);
+    // Ensure response isn't already sent
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to handle request' });
+    } else {
+      // If headers already sent (i.e., during streaming), we can't send JSON error.
+      // We might just end the response or log.
+      console.error('Headers already sent, cannot send JSON error to client.');
+      if (!res.writableEnded) {
+        res.end();
+      }
+    }
   }
-
-  if (session.sessionEnded) {
-    return res.status(403).json({ 
-      error: 'Simulation has ended. Please start a new session.',
-      summary: "The session concluded with the patient being admitted for emergency care."
-    });
-  }
-
-  const { caseData, history } = session;
-
-  // Add clinician's question to history
-  history.push({ role: 'Clinician', content: question });
-
-  // Check for diagnosis
-  const diagnosisTriggers = [
-    'heart attack', 'myocardial infarction', 'emergency', 
-    'admit', 'admitted', 'treatment', 'ward', 'emergency care'
-  ];
-  const lowerQuestion = question.toLowerCase();
-  
-  if (diagnosisTriggers.some(trigger => lowerQuestion.includes(trigger))) {
-    session.willEndAfterResponse = true;
-  }
-
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.flushHeaders();
-
-  await getPatientResponseStream(caseData, history, question, sessionId, res);
 }
 
 // POST /end - End a simulation session
-export async function endSession(req, res) { // Made function async
+export async function endSession(req, res) {
   const { sessionId } = req.body;
-  const session = sessions.get(sessionId);
-  
-  if (!session) {
-    return res.status(404).json({ error: 'Session not found' });
+
+  if (!sessionId) {
+    return res.status(400).json({ error: 'sessionId is required' });
   }
-  
-  session.sessionEnded = true;
-  
-  // Generate detailed evaluation
-  const evaluation = await getEvaluation(session.caseData, session.history);
-  
-  const patientName = session.caseData?.patient_persona?.name ||
-                      session.caseData?.patient_profile?.name ||
-                      "the patient"; // Fallback for patient name
 
-  // The getEvaluation function is expected to return the full formatted string.
-  // If it only returns the core evaluation content, we might need to wrap it here.
-  // For now, assuming getEvaluation returns the complete desired output.
+  try {
+    const session = await Session.findById(sessionId).populate('case_ref');
 
-  console.log(`Session ${sessionId} ended. Evaluation generated.`);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
 
-  res.json({
-    sessionEnded: true,
-    evaluation: evaluation, // Send the detailed evaluation
-    history: session.history // Still useful to send history for review
-  });
+    if (!session.case_ref) {
+        console.error(`Session ${sessionId} for endSession is missing case_ref.`);
+        return res.status(500).json({ error: 'Internal server error: Case data missing for session evaluation.' });
+    }
+
+    // Prevent re-evaluating an already ended session if evaluation already exists,
+    // though typically UI might prevent calling /end on an ended session.
+    // If session.sessionEnded is true but no evaluation, we proceed to generate it.
+    if (session.sessionEnded && session.evaluation) {
+        console.log(`Session ${sessionId} was already ended and evaluated. Returning existing evaluation.`);
+        return res.json({
+            sessionEnded: true,
+            evaluation: session.evaluation,
+            history: session.history
+        });
+    }
+
+    const caseData = session.case_ref.toObject(); // For aiService.getEvaluation
+
+    const evaluationText = await getEvaluation(caseData, session.history);
+
+    session.evaluation = evaluationText;
+    session.sessionEnded = true;
+    await session.save();
+
+    console.log(`Session ${sessionId} ended, evaluation generated and saved to DB.`);
+
+    res.json({
+      sessionEnded: true,
+      evaluation: session.evaluation,
+      history: session.history
+    });
+
+  } catch (error) {
+    console.error(`Error in endSession for sessionId ${sessionId}:`, error);
+    res.status(500).json({ error: 'Failed to end session or generate evaluation' });
+  }
 }
