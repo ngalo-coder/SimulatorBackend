@@ -82,12 +82,14 @@ export async function login(req, res) {
 
     res.status(200).json({
       message: 'Login successful.',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-      },
+      data: { // Nest token and user under 'data'
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+        },
+      }
     });
   } catch (error) {
     console.error('Error during login:', error);
