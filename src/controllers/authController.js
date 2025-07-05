@@ -31,12 +31,14 @@ export async function register(req, res) {
 
     res.status(201).json({
       message: 'User registered successfully.',
-      token,
-      user: {
-        id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-      },
+      data: { // Nest token and user under 'data'
+        token,
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+        },
+      }
     });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
