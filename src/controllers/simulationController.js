@@ -44,20 +44,53 @@ export async function getCases(req, res) {
       }
     }
 
-    // Fetch only necessary fields from case_metadata for the list
+    // Fetch all necessary fields to construct the detailed patient queue cards
     const casesFromDB = await Case.find(query)
-      .select('case_metadata.case_id case_metadata.title case_metadata.difficulty case_metadata.program_area case_metadata.specialized_area case_metadata.tags case_metadata.estimated_duration_min')
+      .select(
+        'case_metadata.case_id ' +
+        'case_metadata.title ' +
+        'description ' + // Root level description
+        'case_metadata.difficulty ' +
+        'case_metadata.estimated_duration_min ' + // Will be returned as number
+        'case_metadata.program_area ' +
+        'case_metadata.specialized_area ' +
+        'patient_persona.age ' +
+        'patient_persona.gender ' +
+        'patient_persona.chief_complaint ' +
+        'clinical_dossier.history_of_presenting_illness.associated_symptoms ' + // Source for presenting_symptoms
+        'case_metadata.tags'
+      )
       .lean(); // .lean() returns plain JS objects, good for sending in response
 
-    const caseList = casesFromDB.map(c => ({
-      case_id: c.case_metadata.case_id,
-      title: c.case_metadata.title,
-      difficulty: c.case_metadata.difficulty,
-      program_area: c.case_metadata.program_area,
-      specialized_area: c.case_metadata.specialized_area,
-      estimated_duration_min: c.case_metadata.estimated_duration_min,
-      tags: c.case_metadata.tags,
-    }));
+    const caseList = casesFromDB.map(c => {
+      // Helper function to format estimated_duration_min if needed, or frontend can do it.
+      // For now, sending the raw minutes. Example: 30 -> "25-35 minutes"
+      // This simple example just returns the number.
+      const formatEstimatedTime = (minutes) => {
+        if (minutes == null) return "N/A";
+        // Simple range, e.g. if 20, show "15-25 minutes"
+        // const lower = Math.max(0, minutes - 5);
+        // const upper = minutes + 5;
+        // return `${lower}-${upper} minutes`;
+        return `${minutes} minutes`; // Or just return raw minutes: return minutes;
+      };
+
+      return {
+        id: c.case_metadata?.case_id,
+        title: c.case_metadata?.title,
+        description: c.description, // Root description
+        category: c.case_metadata?.specialized_area, // Mapping specialized_area to category
+        difficulty: c.case_metadata?.difficulty,
+        estimated_time: formatEstimatedTime(c.case_metadata?.estimated_duration_min), // Use raw minutes or format
+        program_area: c.case_metadata?.program_area,
+        specialized_area: c.case_metadata?.specialized_area, // Keep original specialized_area as well
+        patient_age: c.patient_persona?.age,
+        patient_gender: c.patient_persona?.gender,
+        chief_complaint: c.patient_persona?.chief_complaint,
+        presenting_symptoms: c.clinical_dossier?.history_of_presenting_illness?.associated_symptoms || [],
+        tags: c.case_metadata?.tags || [],
+      };
+    });
     res.json(caseList);
   } catch (error) {
     console.error('Error fetching cases with filters:', error);
