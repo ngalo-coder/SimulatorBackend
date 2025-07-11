@@ -1,18 +1,25 @@
 import express from 'express';
 import { 
   getCases, 
-  startSimulation, 
+  startSimulation,
   handleAsk,
   endSession,
-  getCaseCategories // Import the new controller function
+  getCaseCategories,
+  getPerformanceMetricsBySession, // Import new controller function
+  getPerformanceMetricsByUser // Import new controller function for future use
 } from '../controllers/simulationController.js';
 
 const router = express.Router();
 
 router.get('/cases', getCases);
-router.get('/case-categories', getCaseCategories); // Add new route for categories
+router.get('/case-categories', getCaseCategories);
 router.post('/start', startSimulation);
 router.get('/ask', handleAsk);
-router.post('/end', endSession);  // End session endpoint
+router.post('/end', endSession);
+
+// Routes for performance metrics
+router.get('/performance-metrics/session/:sessionId', getPerformanceMetricsBySession);
+// The following route is for future implementation when user tracking is in place:
+// router.get('/performance-metrics/user/:userId', getPerformanceMetricsByUser);
 
 export default router;
