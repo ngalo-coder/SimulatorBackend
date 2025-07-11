@@ -124,7 +124,9 @@ function parseEvaluationMetrics(evaluationText) {
     communication_and_empathy_rating: "Not Available",
     clinical_urgency_rating: "Not Available",
     overall_diagnosis_accuracy: "Not Available",
-    evaluation_summary: "Not Available"
+    evaluation_summary: "Not Available",
+    overall_score: null, // Default to null for number
+    performance_label: "Not Available" // Default for string
   };
 
   if (!evaluationText || typeof evaluationText !== 'string') {
@@ -170,6 +172,20 @@ function parseEvaluationMetrics(evaluationText) {
     }
   }
 
+  // Extract Overall Performance Score
+  const scoreRegex = /Overall Performance Score:\s*(\d{1,3})\s*%/;
+  match = evaluationText.match(scoreRegex);
+  if (match && match[1]) {
+    metrics.overall_score = parseInt(match[1], 10);
+  }
+
+  // Extract Performance Label
+  const labelRegex = /Performance Label:\s*(Excellent|Very Good|Good|Needs Improvement|Poor)/;
+  match = evaluationText.match(labelRegex);
+  if (match && match[1]) {
+    metrics.performance_label = match[1];
+  }
+
   return metrics;
 }
 
@@ -213,6 +229,13 @@ export async function getEvaluation(caseData, conversationHistory) {
 
     For each criterion, assess whether the clinician's actions were Good, Needs Improvement, or Needs Significant Improvement. Provide specific examples from the conversation to support your assessment.
     Conclude with an overall "Summary & Recommendations" section, highlighting key strengths and areas for development, and explicitly stating whether the likely diagnosis of "${hiddenDiagnosis}" was reached or missed.
+    Finally, provide an "Overall Performance Score: [0-100]%" based on your holistic assessment of all criteria.
+    Based on this score, provide a "Performance Label: [Excellent/Very Good/Good/Needs Improvement/Poor]" using the following thresholds:
+    - 90-100: Excellent
+    - 80-89: Very Good
+    - 70-79: Good
+    - 60-69: Needs Improvement
+    - <60: Poor
 
     Desired Output Format:
     SESSION END
@@ -231,9 +254,12 @@ export async function getEvaluation(caseData, conversationHistory) {
     [Your detailed assessment for Clinical Urgency, referencing conversation specifics]
     Summary & Recommendations:
     [Your overall summary and recommendations, explicitly stating if the diagnosis of "${hiddenDiagnosis}" was reached or missed.]
+    Overall Performance Score: [The calculated score]%
+    Performance Label: [The determined label]
   `;
   // Note: Updated prompt to use patient_persona.name and ensure evaluation_criteria keys are flexible (e.g. History_Taking or history_taking)
   // Also explicitly asked to state if the hidden diagnosis was reached or missed in the summary.
+  // Added instructions for Overall Performance Score and Performance Label.
 
   try {
     const response = await openai.chat.completions.create({

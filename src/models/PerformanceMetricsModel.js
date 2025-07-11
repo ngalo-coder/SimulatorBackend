@@ -25,7 +25,9 @@ const PerformanceMetricsSchema = new mongoose.Schema({
     differential_diagnosis_questioning_rating: { type: String, trim: true },
     communication_and_empathy_rating: { type: String, trim: true },
     clinical_urgency_rating: { type: String, trim: true },
-    overall_diagnosis_accuracy: { type: String, trim: true } // e.g., "Reached", "Missed", "Partially Reached"
+    overall_diagnosis_accuracy: { type: String, trim: true }, // e.g., "Reached", "Missed", "Partially Reached"
+    overall_score: { type: Number, default: null }, // Numerical score, e.g., 0-100
+    performance_label: { type: String, trim: true, default: null } // Qualitative label, e.g., "Excellent", "Good"
   },
   evaluation_summary: { // A brief summary, potentially extracted from the AI's "Summary & Recommendations"
     type: String,
