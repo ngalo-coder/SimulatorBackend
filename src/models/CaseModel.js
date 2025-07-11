@@ -19,7 +19,8 @@ const CaseMetadataSchema = new mongoose.Schema({
     // enum: [null, 'Ophthalmology', 'ENT', 'Reproductive health', 'Dermatology', 'Anesthesia', 'Family medicine', 'Pediatrics', 'Surgery']
   },
   difficulty: { type: String, trim: true },
-  tags: [{ type: String, trim: true }]
+  tags: [{ type: String, trim: true }],
+  estimated_duration_min: { type: Number } // Added for clarity and explicit schema definition
 }, { _id: false });
 
 const PatientPersonaSchema = new mongoose.Schema({
