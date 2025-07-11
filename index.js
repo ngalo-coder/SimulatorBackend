@@ -14,7 +14,31 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+// --- CORS Configuration ---
+const allowedOrigins = [
+  'https://kuiga.online', // Your production frontend
+  'http://localhost:3000', // Your local development frontend (if applicable)
+  'http://localhost:5173', // Another common local dev port (Vite)
+  // Add any other origins you need to allow
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      console.error(`CORS Error: Origin ${origin} not allowed.`); // Log CORS errors
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true, // Important if your frontend sends cookies or Authorization headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'], // Ensure 'Authorization' is included if you use tokens
+}));
+// --- End CORS Configuration ---
+
 app.use(express.json());
 
 // Mount Routers
