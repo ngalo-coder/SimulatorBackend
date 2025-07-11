@@ -115,14 +115,77 @@ export async function getPatientResponseStream(
   return { fullResponse, sessionShouldBeMarkedEnded };
 }
 
+// Helper function to parse metrics from evaluation text
+function parseEvaluationMetrics(evaluationText) {
+  const metrics = {
+    history_taking_rating: "Not Available",
+    risk_factor_assessment_rating: "Not Available",
+    differential_diagnosis_questioning_rating: "Not Available",
+    communication_and_empathy_rating: "Not Available",
+    clinical_urgency_rating: "Not Available",
+    overall_diagnosis_accuracy: "Not Available",
+    evaluation_summary: "Not Available"
+  };
+
+  if (!evaluationText || typeof evaluationText !== 'string') {
+    return metrics;
+  }
+
+  const ratingRegex = (criterion) => new RegExp(`${criterion}: \\(Rating: (Good|Needs Improvement|Needs Significant Improvement)\\)`);
+
+  let match;
+
+  match = evaluationText.match(ratingRegex("History Taking"));
+  if (match && match[1]) metrics.history_taking_rating = match[1];
+
+  match = evaluationText.match(ratingRegex("Risk Factor Assessment"));
+  if (match && match[1]) metrics.risk_factor_assessment_rating = match[1];
+
+  match = evaluationText.match(ratingRegex("Differential Diagnosis Questioning"));
+  if (match && match[1]) metrics.differential_diagnosis_questioning_rating = match[1];
+
+  match = evaluationText.match(ratingRegex("Communication and Empathy"));
+  if (match && match[1]) metrics.communication_and_empathy_rating = match[1];
+
+  match = evaluationText.match(ratingRegex("Clinical Urgency"));
+  if (match && match[1]) metrics.clinical_urgency_rating = match[1];
+
+  // Extract summary and diagnosis accuracy from "Summary & Recommendations"
+  const summaryRegex = /Summary & Recommendations:\s*([\s\S]*)/;
+  match = evaluationText.match(summaryRegex);
+  if (match && match[1]) {
+    const summaryContent = match[1].trim();
+    metrics.evaluation_summary = summaryContent; // Store the full summary for now
+
+    // Infer diagnosis accuracy
+    if (summaryContent.toLowerCase().includes("diagnosis was reached") || summaryContent.toLowerCase().includes("correctly identified")) {
+      metrics.overall_diagnosis_accuracy = "Reached";
+    } else if (summaryContent.toLowerCase().includes("diagnosis was missed") || summaryContent.toLowerCase().includes("failed to identify")) {
+      metrics.overall_diagnosis_accuracy = "Missed";
+    } else if (summaryContent.toLowerCase().includes("partially reached") || summaryContent.toLowerCase().includes("partially identified")) {
+      metrics.overall_diagnosis_accuracy = "Partially Reached";
+    } else {
+      // Fallback if no clear statement, could be improved with more keywords
+      metrics.overall_diagnosis_accuracy = "Undetermined";
+    }
+  }
+
+  return metrics;
+}
+
 // New function to get evaluation from the AI
 export async function getEvaluation(caseData, conversationHistory) {
-  const { clinical_dossier, evaluation_criteria } = caseData;
+  const { clinical_dossier, evaluation_criteria, patient_persona } = caseData; // Added patient_persona
   const hiddenDiagnosis = clinical_dossier?.hidden_diagnosis;
+  const patientName = patient_persona?.name || "the patient"; // Get patient name for prompt
 
   if (!hiddenDiagnosis || !evaluation_criteria) {
     console.error("Evaluation cannot be performed: Missing hidden diagnosis or evaluation criteria in case data.");
-    return "Evaluation data is missing from the case file. Cannot generate evaluation.";
+    // Return structure consistent with successful operation but indicating failure
+    return {
+      evaluationText: "Evaluation data is missing from the case file. Cannot generate evaluation.",
+      extractedMetrics: parseEvaluationMetrics(null) // Returns default "Not Available" metrics
+    };
   }
 
   const historyString = conversationHistory
@@ -142,18 +205,18 @@ export async function getEvaluation(caseData, conversationHistory) {
     Please evaluate the clinician's performance based on the following criteria. Provide a detailed, constructive assessment for each point, formatted exactly as the example below.
 
     Evaluation Criteria:
-    1. History Taking: ${evaluation_criteria.History_Taking}
-    2. Risk Factor Assessment: ${evaluation_criteria.Risk_Factor_Assessment}
-    3. Differential Diagnosis Questioning: ${evaluation_criteria.Differential_Diagnosis_Questioning}
-    4. Communication and Empathy: ${evaluation_criteria.Communication_and_Empathy}
-    5. Clinical Urgency: ${evaluation_criteria.Clinical_Urgency}
+    1. History Taking: ${evaluation_criteria.History_Taking || evaluation_criteria.history_taking || 'Assess thoroughness and relevance of questions asked to understand the patient\'s current condition and medical history.'}
+    2. Risk Factor Assessment: ${evaluation_criteria.Risk_Factor_Assessment || evaluation_criteria.risk_factor_assessment || 'Assess identification and exploration of relevant risk factors for the potential diagnoses.'}
+    3. Differential Diagnosis Questioning: ${evaluation_criteria.Differential_Diagnosis_Questioning || evaluation_criteria.differential_diagnosis_questioning || 'Assess the formulation of appropriate differential diagnoses and systematic questioning to narrow them down.'}
+    4. Communication and Empathy: ${evaluation_criteria.Communication_and_Empathy || evaluation_criteria.communication_empathy || 'Assess clarity of communication, active listening, and empathetic engagement with the patient.'}
+    5. Clinical Urgency: ${evaluation_criteria.Clinical_Urgency || evaluation_criteria.clinical_urgency || 'Assess recognition of and appropriate response to the severity and urgency of the patient\'s condition.'}
 
     For each criterion, assess whether the clinician's actions were Good, Needs Improvement, or Needs Significant Improvement. Provide specific examples from the conversation to support your assessment.
-    Conclude with an overall "Summary & Recommendations" section, highlighting key strengths and areas for development, and explicitly stating whether the likely diagnosis was reached or missed.
+    Conclude with an overall "Summary & Recommendations" section, highlighting key strengths and areas for development, and explicitly stating whether the likely diagnosis of "${hiddenDiagnosis}" was reached or missed.
 
     Desired Output Format:
     SESSION END
-    Thank you for completing the simulation. Here is an evaluation of your performance based on the case of [Patient Name from case data if available, otherwise use the hidden diagnosis name].
+    Thank you for completing the simulation. Here is an evaluation of your performance based on the case of ${patientName}.
     Hidden Diagnosis: ${hiddenDiagnosis}
     Evaluation of Your Performance:
     1. History Taking: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
@@ -167,8 +230,10 @@ export async function getEvaluation(caseData, conversationHistory) {
     5. Clinical Urgency: (Rating: [Good/Needs Improvement/Needs Significant Improvement])
     [Your detailed assessment for Clinical Urgency, referencing conversation specifics]
     Summary & Recommendations:
-    [Your overall summary and recommendations]
+    [Your overall summary and recommendations, explicitly stating if the diagnosis of "${hiddenDiagnosis}" was reached or missed.]
   `;
+  // Note: Updated prompt to use patient_persona.name and ensure evaluation_criteria keys are flexible (e.g. History_Taking or history_taking)
+  // Also explicitly asked to state if the hidden diagnosis was reached or missed in the summary.
 
   try {
     const response = await openai.chat.completions.create({
@@ -177,9 +242,17 @@ export async function getEvaluation(caseData, conversationHistory) {
       temperature: 0.5, // Lower temperature for more deterministic evaluation
       max_tokens: 1500, // Allow for a detailed evaluation
     });
-    return response.choices[0]?.message?.content || "Could not generate evaluation.";
+
+    const evaluationText = response.choices[0]?.message?.content || "Could not generate evaluation.";
+    const extractedMetrics = parseEvaluationMetrics(evaluationText);
+
+    return { evaluationText, extractedMetrics };
+
   } catch (error) {
     console.error("Error calling OpenAI for evaluation:", error);
-    return "An error occurred while generating the evaluation.";
+    return {
+      evaluationText: "An error occurred while generating the evaluation.",
+      extractedMetrics: parseEvaluationMetrics(null) // Default metrics on error
+    };
   }
 }

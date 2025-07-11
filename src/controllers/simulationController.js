@@ -1,13 +1,14 @@
-// import fs from 'fs'; // No longer needed for case loading
-// import path from 'path'; // No longer needed for case loading
-// import { fileURLToPath } from 'url'; // No longer needed for case loading
-// import { v4 as uuidv4 } from 'uuid'; // No longer using uuid for session IDs from this controller directly
+// import fs from 'fs';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+// import { v4 as uuidv4 } from 'uuid';
 import { getPatientResponseStream, getEvaluation } from '../services/aiService.js';
-import Case from '../models/CaseModel.js'; // Import Mongoose Case Model
-import Session from '../models/SessionModel.js'; // Import Mongoose Session Model
+import Case from '../models/CaseModel.js';
+import Session from '../models/SessionModel.js';
+import PerformanceMetrics from '../models/PerformanceMetricsModel.js'; // Import PerformanceMetrics model
 
-// const __filename = fileURLToPath(import.meta.url); // Not needed if not using __dirname for cases
-// const __dirname = path.dirname(__filename); // Not needed if not using path for cases
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 // const sessions = new Map(); // REMOVED: No longer using in-memory map for sessions
 // const cases = {}; // This is now removed, cases come from DB
@@ -302,17 +303,33 @@ export async function endSession(req, res) {
 
     const caseData = session.case_ref.toObject(); // For aiService.getEvaluation
 
-    const evaluationText = await getEvaluation(caseData, session.history);
+    // Get evaluation text and extracted metrics from aiService
+    const { evaluationText, extractedMetrics } = await getEvaluation(caseData, session.history);
 
-    session.evaluation = evaluationText;
+    session.evaluation = evaluationText; // Save raw evaluation text to session
     session.sessionEnded = true;
-    await session.save();
+    // We will save session and performanceMetrics in a single block if possible, or sequentially
 
-    console.log(`Session ${sessionId} ended, evaluation generated and saved to DB.`);
+    // Create and save PerformanceMetrics document
+    const performanceRecord = new PerformanceMetrics({
+      session_ref: session._id,
+      case_ref: session.case_ref._id, // Assuming case_ref is populated and has _id
+      // user_ref: session.userId, // Uncomment and use if/when userId is added to SessionModel
+      metrics: extractedMetrics,
+      evaluation_summary: extractedMetrics.evaluation_summary, // Already part of extractedMetrics from aiService
+      raw_evaluation_text: evaluationText,
+    });
+
+    // Save both session and performance metrics
+    // Consider if a transaction is needed here for atomicity if your DB supports it (MongoDB Atlas does)
+    await session.save();
+    await performanceRecord.save();
+
+    console.log(`Session ${sessionId} ended, evaluation generated, and performance metrics saved to DB.`);
 
     res.json({
       sessionEnded: true,
-      evaluation: session.evaluation,
+      evaluation: evaluationText, // Send the raw evaluation text
       history: session.history
     });
 
@@ -339,5 +356,58 @@ export async function getCaseCategories(req, res) {
   } catch (error) {
     console.error('Error fetching case categories:', error);
     res.status(500).json({ error: 'Failed to fetch case categories' });
+  }
+}
+
+// GET /performance-metrics/:sessionId - Retrieve performance metrics for a given session
+export async function getPerformanceMetricsBySession(req, res) {
+  const { sessionId } = req.params;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: 'sessionId parameter is required' });
+  }
+
+  try {
+    // Find the performance metrics record by session_ref
+    // Populate case_ref to include case details and user_ref if it were being used
+    const metrics = await PerformanceMetrics.findOne({ session_ref: sessionId })
+      .populate('case_ref', 'case_metadata.case_id case_metadata.title') // Populate with specific case fields
+      // .populate('user_ref', 'username email'); // Example if user_ref was active
+
+    if (!metrics) {
+      return res.status(404).json({ error: 'Performance metrics not found for this session.' });
+    }
+
+    res.json(metrics);
+  } catch (error) {
+    console.error(`Error fetching performance metrics for session ${sessionId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch performance metrics' });
+  }
+}
+
+// GET /performance-metrics/user/:userId - Retrieve all performance metrics for a given user (Future use)
+// This is a placeholder for when user authentication and user_ref are fully implemented.
+export async function getPerformanceMetricsByUser(req, res) {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId parameter is required' });
+  }
+
+  try {
+    // This query assumes user_ref is populated in PerformanceMetrics documents
+    const metrics = await PerformanceMetrics.find({ user_ref: userId })
+      .populate('case_ref', 'case_metadata.case_id case_metadata.title')
+      .populate('session_ref', 'original_case_id createdAt') // Populate some session info
+      .sort({ evaluated_at: -1 }); // Sort by most recent
+
+    if (!metrics || metrics.length === 0) {
+      return res.status(404).json({ error: 'No performance metrics found for this user.' });
+    }
+
+    res.json(metrics);
+  } catch (error) {
+    console.error(`Error fetching performance metrics for user ${userId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch performance metrics for user' });
   }
 }
