@@ -150,6 +150,13 @@ export async function getEvaluation(caseData, conversationHistory, parentLog) {
     };
   }
 
+  // Check if evaluation_criteria is a Map, if not convert it to one
+  const criteriaMap = evaluation_criteria instanceof Map ?
+    evaluation_criteria :
+    new Map(Object.entries(evaluation_criteria));
+  
+  log.info(`Evaluation criteria type: ${evaluation_criteria instanceof Map ? 'Map' : typeof evaluation_criteria}`);
+
   const historyString = conversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
   const evaluationPrompt = `
     You are an expert medical educator evaluating a clinician's performance with a simulated patient.
@@ -160,11 +167,11 @@ export async function getEvaluation(caseData, conversationHistory, parentLog) {
     --- END ---
 
     Evaluate based on these criteria:
-    1. History Taking: ${evaluation_criteria.History_Taking || evaluation_criteria.history_taking}
-    2. Risk Factor Assessment: ${evaluation_criteria.Risk_Factor_Assessment || evaluation_criteria.risk_factor_assessment}
-    3. Differential Diagnosis Questioning: ${evaluation_criteria.Differential_Diagnosis_Questioning || evaluation_criteria.differential_diagnosis_questioning}
-    4. Communication and Empathy: ${evaluation_criteria.Communication_and_Empathy || evaluation_criteria.communication_empathy}
-    5. Clinical Urgency: ${evaluation_criteria.Clinical_Urgency || evaluation_criteria.clinical_urgency}
+    1. History Taking: ${criteriaMap.get('History_Taking') || criteriaMap.get('history_taking') || 'Did the clinician take a complete history?'}
+    2. Risk Factor Assessment: ${criteriaMap.get('Risk_Factor_Assessment') || criteriaMap.get('risk_factor_assessment') || 'Did the clinician assess risk factors?'}
+    3. Differential Diagnosis Questioning: ${criteriaMap.get('Differential_Diagnosis_Questioning') || criteriaMap.get('differential_diagnosis_questioning') || 'Did the clinician explore differential diagnoses?'}
+    4. Communication and Empathy: ${criteriaMap.get('Communication_and_Empathy') || criteriaMap.get('communication_empathy') || 'How was the clinician\'s communication and empathy?'}
+    5. Clinical Urgency: ${criteriaMap.get('Clinical_Urgency') || criteriaMap.get('clinical_urgency') || 'Did the clinician recognize the urgency of the case?'}
 
     For each, rate as Good, Needs Improvement, or Needs Significant Improvement, with examples.
     Conclude with a "Summary & Recommendations", stating if the diagnosis was reached.
