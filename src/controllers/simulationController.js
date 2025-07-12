@@ -1,111 +1,61 @@
-// import fs from 'fs';
-// import path from 'path';
-// import { fileURLToPath } from 'url';
-// import { v4 as uuidv4 } from 'uuid';
 import { getPatientResponseStream, getEvaluation } from '../services/aiService.js';
 import Case from '../models/CaseModel.js';
 import Session from '../models/SessionModel.js';
-import PerformanceMetrics from '../models/PerformanceMetricsModel.js'; // Import PerformanceMetrics model
+import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
+import logger from '../config/logger.js';
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-// const sessions = new Map(); // REMOVED: No longer using in-memory map for sessions
-// const cases = {}; // This is now removed, cases come from DB
-
-// // Load all cases from the /cases directory into memory on startup - REMOVED
-// const casesDir = path.join(__dirname, '..', '..', 'cases');
-// fs.readdirSync(casesDir).forEach(file => {
-//   if (file.endsWith('.json')) {
-//     const caseId = path.basename(file, '.json');
-//     const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
-//     cases[caseId] = caseData;
-//   }
-// });
-
-// GET /cases - List all case metadata, now with filtering and pagination
+// GET /cases - List all case metadata, with filtering and pagination
 export async function getCases(req, res) {
+  const log = req.log.child({ query: req.query });
   try {
-    // Destructure query parameters
     const { program_area, specialized_area, page = 1, limit = 20 } = req.query;
     const query = {};
 
-    if (program_area) {
-      query['case_metadata.program_area'] = program_area;
-    }
+    if (program_area) query['case_metadata.program_area'] = program_area;
     if (specialized_area) {
-      if (specialized_area === "null" || specialized_area === "None" || specialized_area === "") {
+      if (["null", "None", ""].includes(specialized_area)) {
         query['case_metadata.specialized_area'] = { $in: [null, ""] };
       } else {
         query['case_metadata.specialized_area'] = specialized_area;
       }
     }
 
-    // Convert page and limit to numbers and set defaults
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const skip = (pageNum - 1) * limitNum;
 
-    // Fields to select for the patient queue cards
-    const fieldsToSelect = [
-      'case_metadata.case_id',
-      'case_metadata.title',
-      'description',
-      'case_metadata.difficulty',
-      'case_metadata.estimated_duration_min',
-      'case_metadata.program_area',
-      'case_metadata.specialized_area',
-      'patient_persona.age',
-      'patient_persona.gender',
-      'patient_persona.chief_complaint',
-      'clinical_dossier.history_of_presenting_illness.associated_symptoms',
-      'case_metadata.tags'
-    ].join(' ');
+    const fieldsToSelect = 'case_metadata.case_id case_metadata.title description case_metadata.difficulty case_metadata.estimated_duration_min case_metadata.program_area case_metadata.specialized_area patient_persona.age patient_persona.gender patient_persona.chief_complaint clinical_dossier.history_of_presenting_illness.associated_symptoms case_metadata.tags';
 
-    // Execute queries in parallel for efficiency
     const [casesFromDB, totalCases] = await Promise.all([
-      Case.find(query)
-        .select(fieldsToSelect)
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
+      Case.find(query).select(fieldsToSelect).skip(skip).limit(limitNum).lean(),
       Case.countDocuments(query)
     ]);
+    log.info({ count: casesFromDB.length, total: totalCases }, 'Fetched cases from DB.');
 
-    // Map the results to the desired frontend structure
-    const formattedCases = casesFromDB.map(c => {
-      const formatEstimatedTime = (minutes) => {
-        if (minutes == null) return "N/A";
-        return `${minutes} minutes`;
-      };
+    const formattedCases = casesFromDB.map(c => ({
+      id: c.case_metadata?.case_id,
+      title: c.case_metadata?.title,
+      description: c.description,
+      category: c.case_metadata?.specialized_area,
+      difficulty: c.case_metadata?.difficulty,
+      estimated_time: c.case_metadata?.estimated_duration_min ? `${c.case_metadata.estimated_duration_min} minutes` : "N/A",
+      program_area: c.case_metadata?.program_area,
+      specialized_area: c.case_metadata?.specialized_area,
+      patient_age: c.patient_persona?.age,
+      patient_gender: c.patient_persona?.gender,
+      chief_complaint: c.patient_persona?.chief_complaint,
+      presenting_symptoms: c.clinical_dossier?.history_of_presenting_illness?.associated_symptoms || [],
+      tags: c.case_metadata?.tags || [],
+    }));
 
-      return {
-        id: c.case_metadata?.case_id,
-        title: c.case_metadata?.title,
-        description: c.description,
-        category: c.case_metadata?.specialized_area,
-        difficulty: c.case_metadata?.difficulty,
-        estimated_time: formatEstimatedTime(c.case_metadata?.estimated_duration_min),
-        program_area: c.case_metadata?.program_area,
-        specialized_area: c.case_metadata?.specialized_area,
-        patient_age: c.patient_persona?.age,
-        patient_gender: c.patient_persona?.gender,
-        chief_complaint: c.patient_persona?.chief_complaint,
-        presenting_symptoms: c.clinical_dossier?.history_of_presenting_illness?.associated_symptoms || [],
-        tags: c.case_metadata?.tags || [],
-      };
-    });
-
-    // Send the paginated response
     res.json({
       cases: formattedCases,
       currentPage: pageNum,
       totalPages: Math.ceil(totalCases / limitNum),
       totalCases: totalCases,
     });
-
   } catch (error) {
-    console.error('Error fetching cases with filters:', error);
+    log.error(error, 'Error fetching cases with filters.');
     res.status(500).json({ error: 'Failed to fetch cases' });
   }
 }
@@ -113,94 +63,73 @@ export async function getCases(req, res) {
 // POST /start - Start a simulation session
 export async function startSimulation(req, res) {
   const { caseId } = req.body;
+  const log = req.log.child({ caseId });
+
   if (!caseId) {
+    log.warn('Start simulation failed: caseId is required.');
     return res.status(400).json({ error: 'caseId is required' });
   }
 
   try {
     const caseDataFromDB = await Case.findOne({ 'case_metadata.case_id': caseId });
-
     if (!caseDataFromDB) {
+      log.warn('Case not found.');
       return res.status(404).json({ error: 'Case not found' });
     }
 
-    // Convert Mongoose document to a plain JavaScript object for consistent use
     const plainCaseData = caseDataFromDB.toObject();
-
-    // Create a new session document in MongoDB
     const newSession = new Session({
-      case_ref: caseDataFromDB._id, // Link to the Case document's ObjectId
-      original_case_id: caseDataFromDB.case_metadata.case_id, // Store the string ID
-      history: [], // Initial history is empty
-      // sessionEnded defaults to false as per schema
+      case_ref: caseDataFromDB._id,
+      original_case_id: caseDataFromDB.case_metadata.case_id,
+      history: [],
     });
 
     await newSession.save();
     const mongoSessionId = newSession._id.toString();
-
-    // The call to aiService.createSession is removed as aiService should not maintain its own session map.
-    // If aiService needs caseData for other initialization, it should be passed directly when its methods are called.
-
-    // In-memory session map population is now removed.
-    // sessions.set(mongoSessionId, sessionDataForMemory); // REMOVED
-
-    console.log(`MongoDB Session started: ${mongoSessionId} for case: ${caseId}`);
+    log.info({ sessionId: mongoSessionId }, 'MongoDB Session started.');
 
     res.json({
-      sessionId: mongoSessionId, // Return the MongoDB session ID
+      sessionId: mongoSessionId,
       initialPrompt: plainCaseData.initial_prompt,
     });
   } catch (error) {
-    console.error(`Error starting simulation for caseId ${caseId}:`, error);
+    log.error(error, 'Error starting simulation.');
     res.status(500).json({ error: 'Failed to start simulation' });
   }
 }
 
 // GET /ask - Stream simulation response
 export async function handleAsk(req, res) {
-  const sessionId = req.query.sessionId;
-  const question = req.query.question;
+  const { sessionId, question } = req.query;
+  const log = req.log.child({ sessionId, question });
 
   if (!sessionId || !question) {
+    log.warn('Handle ask failed: sessionId and question are required.');
     return res.status(400).json({ error: 'sessionId and question are required' });
   }
 
   try {
     const session = await Session.findById(sessionId).populate('case_ref');
-
     if (!session) {
+      log.warn('Session not found.');
       return res.status(404).json({ error: 'Session not found' });
     }
-
     if (session.sessionEnded) {
-      return res.status(403).json({
-        error: 'Simulation has ended. Please start a new session.',
-        // Consider if a summary is still relevant or if evaluation should be fetched
-      });
+      log.info('Attempted to ask a question in an already ended session.');
+      return res.status(403).json({ error: 'Simulation has ended.' });
     }
-
     if (!session.case_ref) {
-        console.error(`Session ${sessionId} is missing case_ref.`);
-        return res.status(500).json({ error: 'Internal server error: Case data missing for session.' });
+      log.error('Session is missing case_ref.');
+      return res.status(500).json({ error: 'Internal server error: Case data missing.' });
     }
 
-    const caseData = session.case_ref.toObject(); // Get plain object for case data
-
-    // Add clinician's question to history
+    const caseData = session.case_ref.toObject();
     session.history.push({ role: 'Clinician', content: question, timestamp: new Date() });
-    // Note: We will save the session after the AI response is also added.
 
-    let willEndAfterResponse = false; // Local flag for this request/response cycle
-    const diagnosisTriggers = [
-      'heart attack', 'myocardial infarction', 'emergency',
-      'admit', 'admitted', 'treatment', 'ward', 'emergency care'
-    ];
-    const lowerQuestion = question.toLowerCase();
-
-    if (diagnosisTriggers.some(trigger => lowerQuestion.includes(trigger))) {
-      willEndAfterResponse = true;
-      // If this flag needs to be persisted in DB immediately, update session model and save here.
-      // session.willEndAfterResponse = true; // Example if field existed in SessionModel
+    const diagnosisTriggers = ['heart attack', 'myocardial infarction', 'emergency', 'admit', 'admitted', 'treatment', 'ward', 'emergency care'];
+    const willEndAfterResponse = diagnosisTriggers.some(trigger => question.toLowerCase().includes(trigger));
+    if (willEndAfterResponse) {
+      log.info('Diagnosis trigger detected, session will end after response.');
     }
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -208,108 +137,30 @@ export async function handleAsk(req, res) {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    // Modify getPatientResponseStream or use a wrapper to capture the full AI response
-    // For now, we assume getPatientResponseStream is modified or a new service is used
-    // that allows us to get the full response for saving, while still streaming.
-    // This is a simplified representation of how it might work if getPatientResponseStream
-    // internally updates the session history after full response is collected.
-    // A more robust way would be for getPatientResponseStream to take a callback
-    // that it calls with the full response text once available.
-
-    // Let's make a placeholder for how history update would work post-streaming.
-    // The actual implementation of capturing full response from stream
-    // while streaming needs careful handling in aiService.getPatientResponseStream.
-    // For this step, we'll simulate this by calling it, then imagine we got the full response.
-
-    // The current `getPatientResponseStream` in `aiService.js` has a side effect:
-    // `session.history.push({ role: 'Patient', content: fullResponse });`
-    // This was fine for in-memory, but for MongoDB, we need to ensure `session` object
-    // here is the one that gets this push and then is saved.
-
-    // To correctly handle this:
-    // 1. `getPatientResponseStream` should be adapted. It currently takes `history` as a parameter.
-    //    It should operate on a copy or be aware it's a Mongoose subdocument array.
-    // 2. The `session.save()` should happen *after* `getPatientResponseStream` has finished
-    //    and the AI's response has been pushed to `session.history`.
-
-    // Simulating the flow:
-    // `getPatientResponseStream` will internally push to the history array it receives.
-    // Since `session.history` is passed, it will be updated by `getPatientResponseStream`.
-
-    // The `aiService.getPatientResponseStream` is expected to handle adding the AI response to the history array
-    // and potentially updating the session's `sessionEnded` status if `willEndAfterResponse` is true.
-    // It will need the Mongoose `session` object to do this and then save it.
-    // OR, `handleAsk` can manage this.
-
-    // Let's adjust the call to getPatientResponseStream and handle history saving here.
-    // We'll need to modify getPatientResponseStream to return the full response.
-    // This is a significant change to aiService. For now, let's assume aiService
-    // is refactored to support this.
-
-    // Placeholder for what getPatientResponseStream should do:
-    // It streams to `res`, and also returns the full response string.
-    // This is a conceptual change for getPatientResponseStream
-
-    // For now, to make minimal changes to getPatientResponseStream's signature,
-    // we rely on its existing side-effect of pushing to the history array.
-    // We then save the session. This implies getPatientResponseStream must correctly
-    // handle the Mongoose array.
-
-    await getPatientResponseStream(
-        caseData,
-        session.history, // Pass the Mongoose array directly
-        question,
-        sessionId, // session._id.toString()
-        res,
-        willEndAfterResponse // Pass this flag to aiService
-    );
-
-    // After the stream has finished and getPatientResponseStream has pushed the AI's response
-    // to session.history (and potentially updated session.sessionEnded if willEndAfterResponse was true), save.
-    // This relies on getPatientResponseStream's internal logic in aiService.js to update these.
-    // Specifically, aiService.js's getPatientResponseStream has:
-    //   `sessionInMemory.history.push({ role: 'Patient', content: fullResponse });`
-    //   `if (sessionInMemory.willEndAfterResponse) { sessionInMemory.sessionEnded = true; ... }`
-    // This `sessionInMemory` was from its own map. Now it needs to operate on the passed `session` Mongoose object.
-    // This change to aiService is implied by this refactoring.
-    // Assuming aiService.getPatientResponseStream is updated to:
-    //    - take `willEndAfterResponse` as a parameter.
-    //    - push to the `history` array it receives.
-    //    - if `willEndAfterResponse` is true, set `session.sessionEnded = true` on the mongoose session object.
-
-    // If `willEndAfterResponse` was true, `getPatientResponseStream` (or logic within it) should have set `session.sessionEnded = true`.
-    // We save the session which now includes the clinician's question and
-    // the patient's response (pushed into session.history by getPatientResponseStream).
-    // Also, update sessionEnded status based on the flag returned from aiService.
     const { sessionShouldBeMarkedEnded } = await getPatientResponseStream(
         caseData,
-        session.history, // Pass the Mongoose array directly
+        session.history,
         question,
-        sessionId, // session._id.toString()
+        sessionId,
         res,
-        willEndAfterResponse // Pass this flag to aiService
+        willEndAfterResponse
     );
 
     if (sessionShouldBeMarkedEnded) {
         session.sessionEnded = true;
-        console.log(`Session ${sessionId} marked as ended in DB based on AI response flow.`);
+        log.info('Session marked as ended based on AI response flow.');
     }
 
     await session.save();
-    console.log(`Session ${sessionId} updated in DB after AI response.`);
+    log.info('Session updated in DB after AI response.');
 
   } catch (error) {
-    console.error(`Error in handleAsk for sessionId ${sessionId}:`, error);
-    // Ensure response isn't already sent
+    log.error(error, 'Error in handleAsk.');
     if (!res.headersSent) {
       res.status(500).json({ error: 'Failed to handle request' });
     } else {
-      // If headers already sent (i.e., during streaming), we can't send JSON error.
-      // We might just end the response or log.
-      console.error('Headers already sent, cannot send JSON error to client.');
-      if (!res.writableEnded) {
-        res.end();
-      }
+      log.error('Headers already sent, cannot send JSON error to client.');
+      if (!res.writableEnded) res.end();
     }
   }
 }
@@ -317,89 +168,73 @@ export async function handleAsk(req, res) {
 // POST /end - End a simulation session
 export async function endSession(req, res) {
   const { sessionId } = req.body;
+  const log = req.log.child({ sessionId });
 
   if (!sessionId) {
+    log.warn('End session failed: sessionId is required.');
     return res.status(400).json({ error: 'sessionId is required' });
   }
 
   try {
     const session = await Session.findById(sessionId).populate('case_ref');
-
     if (!session) {
+      log.warn('Session not found.');
       return res.status(404).json({ error: 'Session not found' });
     }
-
     if (!session.case_ref) {
-        console.error(`Session ${sessionId} for endSession is missing case_ref.`);
-        return res.status(500).json({ error: 'Internal server error: Case data missing for session evaluation.' });
+      log.error('Session is missing case_ref for evaluation.');
+      return res.status(500).json({ error: 'Internal server error: Case data missing.' });
     }
-
-    // Prevent re-evaluating an already ended session if evaluation already exists,
-    // though typically UI might prevent calling /end on an ended session.
-    // If session.sessionEnded is true but no evaluation, we proceed to generate it.
     if (session.sessionEnded && session.evaluation) {
-        console.log(`Session ${sessionId} was already ended and evaluated. Returning existing evaluation.`);
-        return res.json({
-            sessionEnded: true,
-            evaluation: session.evaluation,
-            history: session.history
-        });
+      log.info('Session was already ended and evaluated. Returning existing evaluation.');
+      return res.json({ sessionEnded: true, evaluation: session.evaluation, history: session.history });
     }
 
-    const caseData = session.case_ref.toObject(); // For aiService.getEvaluation
+    const caseData = session.case_ref.toObject();
+    log.info('Generating evaluation.');
+    const { evaluationText, extractedMetrics } = await getEvaluation(caseData, session.history, log);
 
-    // Get evaluation text and extracted metrics from aiService
-    const { evaluationText, extractedMetrics } = await getEvaluation(caseData, session.history);
-
-    session.evaluation = evaluationText; // Save raw evaluation text to session
+    session.evaluation = evaluationText;
     session.sessionEnded = true;
-    // We will save session and performanceMetrics in a single block if possible, or sequentially
 
-    // Create and save PerformanceMetrics document
     const performanceRecord = new PerformanceMetrics({
       session_ref: session._id,
-      case_ref: session.case_ref._id, // Assuming case_ref is populated and has _id
-      // user_ref: session.userId, // Uncomment and use if/when userId is added to SessionModel
+      case_ref: session.case_ref._id,
       metrics: extractedMetrics,
-      evaluation_summary: extractedMetrics.evaluation_summary, // Already part of extractedMetrics from aiService
+      evaluation_summary: extractedMetrics.evaluation_summary,
       raw_evaluation_text: evaluationText,
     });
 
-    // Save both session and performance metrics
-    // Consider if a transaction is needed here for atomicity if your DB supports it (MongoDB Atlas does)
     await session.save();
     await performanceRecord.save();
-
-    console.log(`Session ${sessionId} ended, evaluation generated, and performance metrics saved to DB.`);
+    log.info('Session ended, evaluation and performance metrics saved to DB.');
 
     res.json({
       sessionEnded: true,
-      evaluation: evaluationText, // Send the raw evaluation text
+      evaluation: evaluationText,
       history: session.history
     });
 
   } catch (error) {
-    console.error(`Error in endSession for sessionId ${sessionId}:`, error);
+    log.error(error, 'Error in endSession.');
     res.status(500).json({ error: 'Failed to end session or generate evaluation' });
   }
 }
 
 // GET /case-categories - List all unique program and specialized areas
 export async function getCaseCategories(req, res) {
+  const log = req.log;
   try {
     const programAreas = await Case.distinct('case_metadata.program_area');
-
-    // Fetch distinct specialized areas and filter out null/empty values
     const specializedAreasRaw = await Case.distinct('case_metadata.specialized_area');
     const specializedAreas = specializedAreasRaw.filter(area => area && area.trim() !== '');
-
+    log.info('Fetched case categories successfully.');
     res.json({
-      program_areas: programAreas.sort(), // Sort for consistent ordering
-      specialized_areas: specializedAreas.sort() // Sort for consistent ordering
+      program_areas: programAreas.sort(),
+      specialized_areas: specializedAreas.sort()
     });
-
   } catch (error) {
-    console.error('Error fetching case categories:', error);
+    log.error(error, 'Error fetching case categories.');
     res.status(500).json({ error: 'Failed to fetch case categories' });
   }
 }
@@ -407,52 +242,52 @@ export async function getCaseCategories(req, res) {
 // GET /performance-metrics/:sessionId - Retrieve performance metrics for a given session
 export async function getPerformanceMetricsBySession(req, res) {
   const { sessionId } = req.params;
+  const log = req.log.child({ sessionId });
 
   if (!sessionId) {
+    log.warn('Get performance metrics failed: sessionId is required.');
     return res.status(400).json({ error: 'sessionId parameter is required' });
   }
 
   try {
-    // Find the performance metrics record by session_ref
-    // Populate case_ref to include case details and user_ref if it were being used
     const metrics = await PerformanceMetrics.findOne({ session_ref: sessionId })
-      .populate('case_ref', 'case_metadata.case_id case_metadata.title') // Populate with specific case fields
-      // .populate('user_ref', 'username email'); // Example if user_ref was active
-
+      .populate('case_ref', 'case_metadata.case_id case_metadata.title');
     if (!metrics) {
+      log.warn('Performance metrics not found for this session.');
       return res.status(404).json({ error: 'Performance metrics not found for this session.' });
     }
-
+    log.info('Fetched performance metrics successfully.');
     res.json(metrics);
   } catch (error) {
-    console.error(`Error fetching performance metrics for session ${sessionId}:`, error);
+    log.error(error, 'Error fetching performance metrics.');
     res.status(500).json({ error: 'Failed to fetch performance metrics' });
   }
 }
 
-// GET /performance-metrics/user/:userId - Retrieve all performance metrics for a given user (Future use)
-// This is a placeholder for when user authentication and user_ref are fully implemented.
+// GET /performance-metrics/user/:userId - Retrieve all performance metrics for a user
 export async function getPerformanceMetricsByUser(req, res) {
   const { userId } = req.params;
+  const log = req.log.child({ userId });
 
   if (!userId) {
+    log.warn('Get user performance metrics failed: userId is required.');
     return res.status(400).json({ error: 'userId parameter is required' });
   }
 
   try {
-    // This query assumes user_ref is populated in PerformanceMetrics documents
     const metrics = await PerformanceMetrics.find({ user_ref: userId })
       .populate('case_ref', 'case_metadata.case_id case_metadata.title')
-      .populate('session_ref', 'original_case_id createdAt') // Populate some session info
-      .sort({ evaluated_at: -1 }); // Sort by most recent
+      .populate('session_ref', 'original_case_id createdAt')
+      .sort({ evaluated_at: -1 });
 
     if (!metrics || metrics.length === 0) {
+      log.info('No performance metrics found for this user.');
       return res.status(404).json({ error: 'No performance metrics found for this user.' });
     }
-
+    log.info({ count: metrics.length }, 'Fetched performance metrics for user.');
     res.json(metrics);
   } catch (error) {
-    console.error(`Error fetching performance metrics for user ${userId}:`, error);
+    log.error(error, 'Error fetching performance metrics for user.');
     res.status(500).json({ error: 'Failed to fetch performance metrics for user' });
   }
 }

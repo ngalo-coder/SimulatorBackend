@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import pinoHttp from 'pino-http';
+import logger from './src/config/logger.js';
 import simulationRoutes from './src/routes/simulationRoutes.js';
 import authRoutes from './src/routes/authRoutes.js'; // Import auth routes
 import queueRoutes from './src/routes/queueRoutes.js'; // Import queue routes
@@ -13,6 +15,10 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+// --- Centralized Logging ---
+app.use(pinoHttp({ logger }));
+// --- End Centralized Logging ---
 
 // --- CORS Configuration ---
 const allowedOrigins = [
@@ -28,7 +34,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      console.error(`CORS Error: Origin ${origin} not allowed.`); // Log CORS errors
+      logger.error(`CORS Error: Origin ${origin} not allowed.`); // Use logger
       return callback(new Error(msg), false);
     }
     return callback(null, true);
@@ -51,5 +57,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    logger.info(`Server is running on http://localhost:${PORT}`);
 });
