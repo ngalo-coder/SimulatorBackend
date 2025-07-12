@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: node-express-api
+    env: node
+    plan: free
+    buildCommand: 'npm install'
+    startCommand: 'npm start'
+    envVars:
+      - key: NODE_VERSION
+        value: 16.0.0
+      - key: PORT
+        value: 5001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vercel-postgres
+          property: connectionString
