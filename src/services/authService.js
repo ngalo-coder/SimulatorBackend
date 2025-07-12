@@ -1,21 +1,23 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import logger from '../config/logger.js';
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'yourSuperSecretKey123!'; // Fallback for local dev if .env is missing
+const JWT_SECRET = process.env.JWT_SECRET || 'yourSuperSecretKey123!';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
+
+if (!process.env.JWT_SECRET) {
+  logger.warn('JWT_SECRET is not defined in .env file. Using a default, non-secure key. This is not safe for production.');
+}
 
 /**
  * Generates a JSON Web Token (JWT) for a user.
- * @param {string} userId - The ID of the user.
- * @param {string} username - The username of the user.
- * @returns {string} The generated JWT.
  */
 export function generateToken(userId, username) {
   if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not defined. Please check your .env file.');
-    throw new Error('JWT secret is missing, cannot generate token.');
+    logger.error('JWT_SECRET is missing. Cannot generate token.');
+    throw new Error('JWT secret is missing.');
   }
   return jwt.sign({ id: userId, username }, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
@@ -24,21 +26,16 @@ export function generateToken(userId, username) {
 
 /**
  * Verifies a JSON Web Token (JWT).
- * @param {string} token - The JWT to verify.
- * @returns {object | null} The decoded token payload if verification is successful, otherwise null.
  */
 export function verifyToken(token) {
   if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not defined. Please check your .env file.');
-    throw new Error('JWT secret is missing, cannot verify token.');
+    logger.error('JWT_SECRET is missing. Cannot verify token.');
+    throw new Error('JWT secret is missing.');
   }
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    console.error('Invalid token:', error.message);
+    logger.warn({ token, error: error.message }, 'Invalid token verification attempt.');
     return null;
   }
 }
-
-// Note: Password hashing and comparison are handled within UserModel.js
-// using bcryptjs for better model encapsulation. This service is focused on JWTs.

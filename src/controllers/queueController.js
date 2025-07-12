@@ -5,6 +5,7 @@ import UserCaseProgress from '../models/UserCaseProgressModel.js';
 import UserQueueSession from '../models/UserQueueSessionModel.js';
 import { generateFilterContextHash } from '../services/queueService.js';
 import { v4 as uuidv4 } from 'uuid';
+import logger from '../config/logger.js';
 
 /**
  * @route   POST /api/users/queue/session/start
@@ -12,58 +13,50 @@ import { v4 as uuidv4 } from 'uuid';
  * @access  Private (Authenticated users only)
  */
 export async function startQueueSession(req, res) {
-  const userId = req.user.id; // From authMiddleware
-  const { filters } = req.body; // e.g., { program_area, specialized_area, difficulty }
+  const userId = req.user.id;
+  const { filters } = req.body;
+  const log = req.log.child({ userId, filters });
 
   if (!filters || typeof filters !== 'object') {
+    log.warn('Start queue session failed: Filters object is required.');
     return res.status(400).json({ message: 'Filters object is required.' });
   }
 
   try {
+    log.info('Starting queue session process.');
     const filterContextHash = generateFilterContextHash(filters);
+    log.info({ filterContextHash }, 'Generated filter context hash.');
 
-    // 1. Build the query for CaseModel based on filters
     const caseQuery = {};
-    if (filters.program_area) {
-      caseQuery['case_metadata.program_area'] = filters.program_area;
-    }
+    if (filters.program_area) caseQuery['case_metadata.program_area'] = filters.program_area;
     if (filters.specialized_area) {
-      if (filters.specialized_area === "null" || filters.specialized_area === "None" || filters.specialized_area === "") {
+      if (["null", "None", ""].includes(filters.specialized_area)) {
         caseQuery['case_metadata.specialized_area'] = { $in: [null, "", "None"] };
       } else {
         caseQuery['case_metadata.specialized_area'] = filters.specialized_area;
       }
     }
-    if (filters.difficulty) {
-      caseQuery['case_metadata.difficulty'] = filters.difficulty;
-    }
-    // Add other filterable fields from CaseModel.case_metadata as needed
+    if (filters.difficulty) caseQuery['case_metadata.difficulty'] = filters.difficulty;
 
-    // 2. Get all Case ObjectIds and originalCaseIdStrings matching filters
     const matchingCases = await Case.find(caseQuery).select('_id case_metadata.case_id').lean();
     if (!matchingCases.length) {
-      return res.status(200).json({
-        sessionId: null,
-        currentCase: null,
-        queuePosition: -1,
-        totalInQueue: 0,
-        message: 'No cases match the selected filters.'
-      });
+      log.info('No cases found matching the selected filters.');
+      return res.status(200).json({ message: 'No cases match the selected filters.' });
     }
     const matchingOriginalCaseIds = matchingCases.map(c => c.case_metadata.case_id);
+    log.info({ count: matchingCases.length }, 'Found matching cases.');
 
-    // 3. Get completed/skipped cases for this user and context
     const progressRecords = await UserCaseProgress.find({
       userId,
       filterContextHash,
       status: { $in: ['completed', 'skipped'] }
     }).select('originalCaseIdString').lean();
     const completedOrSkippedIds = progressRecords.map(p => p.originalCaseIdString);
+    log.info({ count: completedOrSkippedIds.length }, 'Found completed/skipped cases for user.');
 
-    // 4. Filter out completed/skipped cases
     let availableCaseIds = matchingOriginalCaseIds.filter(id => !completedOrSkippedIds.includes(id));
+    log.info({ count: availableCaseIds.length }, 'Calculated available cases.');
 
-    // 5. Check for an 'in_progress_queue' case for this user & context
     let currentInProgressRecord = await UserCaseProgress.findOne({
       userId,
       filterContextHash,
@@ -75,67 +68,61 @@ export async function startQueueSession(req, res) {
     let queuePosition = -1;
 
     if (currentInProgressRecord) {
-      // If an 'in_progress_queue' case exists, make it the current one.
-      // Ensure it's still in the available list (it might have been filtered out if filters changed, though less likely for resume)
+      log.info({ caseId: currentInProgressRecord.originalCaseIdString }, 'Found an in-progress case for this context.');
       if (availableCaseIds.includes(currentInProgressRecord.originalCaseIdString)) {
         currentCaseOriginalId = currentInProgressRecord.originalCaseIdString;
-        // Put this case at the beginning of the queue for this session
         availableCaseIds = availableCaseIds.filter(id => id !== currentCaseOriginalId);
         availableCaseIds.unshift(currentCaseOriginalId);
+        log.info({ caseId: currentCaseOriginalId }, 'Resuming with in-progress case.');
       } else {
-        // The 'in_progress_queue' case is no longer valid for the current filters (or was completed/skipped under a different context that now applies)
-        // Clear its 'in_progress_queue' status as it's not being resumed.
+        log.warn({ caseId: currentInProgressRecord.originalCaseIdString }, 'In-progress case is no longer valid with current filters. Deleting record.');
         await UserCaseProgress.deleteOne({ _id: currentInProgressRecord._id });
-        currentInProgressRecord = null; // Nullify to proceed as if no in_progress case
+        currentInProgressRecord = null;
       }
     }
 
     if (!currentCaseOriginalId && availableCaseIds.length > 0) {
-      // If no 'in_progress_queue' or it was invalid, pick the first available
       currentCaseOriginalId = availableCaseIds[0];
+      log.info({ caseId: currentCaseOriginalId }, 'No in-progress case found, picking first available case.');
     }
 
     if (currentCaseOriginalId) {
         const caseDetails = matchingCases.find(c => c.case_metadata.case_id === currentCaseOriginalId);
         if (caseDetails) {
-            currentCaseObject = await Case.findById(caseDetails._id).lean(); // Fetch full case object
+            currentCaseObject = await Case.findById(caseDetails._id).lean();
         }
         queuePosition = availableCaseIds.indexOf(currentCaseOriginalId);
     }
 
-
-    // 6. Session Management
     const newSessionId = uuidv4();
-    // Delete any old session for this user and filter context to ensure only one active session per context
     await UserQueueSession.deleteOne({ userId, filterContextHash });
+    log.info('Deleted old queue session for this context.');
 
     const newSession = new UserQueueSession({
       sessionId: newSessionId,
       userId,
       filterContextHash,
       filtersApplied: filters,
-      queuedCaseIds: availableCaseIds, // Store original string IDs
+      queuedCaseIds: availableCaseIds,
       currentCaseIndex: queuePosition,
     });
     await newSession.save();
+    log.info({ sessionId: newSessionId }, 'Created new queue session.');
 
-    // 7. Update UserCaseProgress for the current case
     if (currentCaseOriginalId) {
       const caseDetailsForProgress = matchingCases.find(c => c.case_metadata.case_id === currentCaseOriginalId);
       if (caseDetailsForProgress) {
-        // If there was a different 'in_progress_queue' case, mark it as 'viewed_in_queue'
         if (currentInProgressRecord && currentInProgressRecord.originalCaseIdString !== currentCaseOriginalId) {
             currentInProgressRecord.status = 'viewed_in_queue';
-            // currentInProgressRecord.sessionId = null; // Or the old session ID if relevant
             await currentInProgressRecord.save();
+            log.info({ caseId: currentInProgressRecord.originalCaseIdString }, 'Marked previous in-progress case as viewed.');
         }
 
-        // Mark the new current case as 'in_progress_queue'
         await UserCaseProgress.findOneAndUpdate(
           { userId, originalCaseIdString: currentCaseOriginalId, filterContextHash },
           {
             userId,
-            caseId: caseDetailsForProgress._id, // ObjectId of the case
+            caseId: caseDetailsForProgress._id,
             originalCaseIdString: currentCaseOriginalId,
             filterContextHash,
             status: 'in_progress_queue',
@@ -143,6 +130,7 @@ export async function startQueueSession(req, res) {
           },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         );
+        log.info({ caseId: currentCaseOriginalId, sessionId: newSessionId }, 'Marked current case as in_progress_queue.');
       }
     }
 
@@ -154,7 +142,7 @@ export async function startQueueSession(req, res) {
     });
 
   } catch (error) {
-    console.error('Error starting queue session:', error);
+    log.error(error, 'Error starting queue session.');
     if (error instanceof mongoose.Error.ValidationError) {
         return res.status(400).json({ message: 'Validation error.', errors: error.errors });
     }
@@ -170,50 +158,46 @@ export async function startQueueSession(req, res) {
 export async function getNextCaseInQueue(req, res) {
   const userId = req.user.id;
   const { sessionId } = req.params;
-  const { previousCaseId, previousCaseStatus } = req.body; // previousCaseId is originalCaseIdString
+  const { previousCaseId, previousCaseStatus } = req.body;
+  const log = req.log.child({ userId, sessionId, previousCaseId, previousCaseStatus });
 
   if (!sessionId) {
+    log.warn('Get next case failed: Session ID is required.');
     return res.status(400).json({ message: 'Session ID is required.' });
   }
 
   try {
+    log.info('Fetching next case in queue.');
     const session = await UserQueueSession.findOne({ sessionId, userId });
     if (!session) {
+      log.warn('Queue session not found or not owned by user.');
       return res.status(404).json({ message: 'Queue session not found or not owned by user.' });
     }
 
-    // 1. Update status of the previous case, if provided
     if (previousCaseId && previousCaseStatus) {
       if (!['completed', 'skipped', 'viewed_in_queue'].includes(previousCaseStatus)) {
+        log.warn('Invalid status for previous case.');
         return res.status(400).json({ message: 'Invalid status for previous case.' });
       }
       const caseDetails = await Case.findOne({ 'case_metadata.case_id': previousCaseId }).select('_id').lean();
       if (caseDetails) {
         await UserCaseProgress.findOneAndUpdate(
           { userId, originalCaseIdString: previousCaseId, filterContextHash: session.filterContextHash },
-          {
-            userId,
-            caseId: caseDetails._id,
-            originalCaseIdString: previousCaseId,
-            filterContextHash: session.filterContextHash,
-            status: previousCaseStatus,
-            sessionId: session.sessionId // Link to this session
-          },
+          { status: previousCaseStatus, sessionId: session.sessionId },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         );
+        log.info('Updated status of previous case.');
       } else {
-        console.warn(`Case details not found for previousCaseId: ${previousCaseId} during nextCase. Progress not updated.`);
+        log.warn(`Case details not found for previousCaseId: ${previousCaseId}. Progress not updated.`);
       }
     }
 
-    // 2. Determine the next case
     let nextCaseIndex = session.currentCaseIndex + 1;
     let nextCaseOriginalId = null;
     let nextCaseObject = null;
 
     while (nextCaseIndex < session.queuedCaseIds.length) {
       const potentialNextId = session.queuedCaseIds[nextCaseIndex];
-      // Check if this case is already completed or skipped in this context (should ideally not happen if queue is pre-filtered)
       const progress = await UserCaseProgress.findOne({
         userId,
         originalCaseIdString: potentialNextId,
@@ -225,45 +209,36 @@ export async function getNextCaseInQueue(req, res) {
         nextCaseOriginalId = potentialNextId;
         break;
       }
+      log.info({ caseId: potentialNextId }, 'Skipping already completed/skipped case in queue.');
       nextCaseIndex++;
     }
 
     if (nextCaseOriginalId) {
       const caseDetails = await Case.findOne({ 'case_metadata.case_id': nextCaseOriginalId }).lean();
       if (caseDetails) {
-        nextCaseObject = caseDetails; // Full case object
-
-        // Update current case in session
+        nextCaseObject = caseDetails;
         session.currentCaseIndex = nextCaseIndex;
         await session.save();
+        log.info({ caseId: nextCaseOriginalId, index: nextCaseIndex }, 'Found next case.');
 
-        // Mark new current case as 'in_progress_queue'
-        // First, ensure any other case for this user/context isn't 'in_progress_queue' or set it to 'viewed_in_queue'
         await UserCaseProgress.updateMany(
           { userId, filterContextHash: session.filterContextHash, status: 'in_progress_queue', originalCaseIdString: { $ne: nextCaseOriginalId } },
-          { $set: { status: 'viewed_in_queue', sessionId: null } } // Or keep session Id if preferred
+          { $set: { status: 'viewed_in_queue', sessionId: null } }
         );
 
         await UserCaseProgress.findOneAndUpdate(
           { userId, originalCaseIdString: nextCaseOriginalId, filterContextHash: session.filterContextHash },
-          {
-            userId,
-            caseId: nextCaseObject._id, // ObjectId
-            originalCaseIdString: nextCaseOriginalId,
-            filterContextHash: session.filterContextHash,
-            status: 'in_progress_queue',
-            sessionId: session.sessionId
-          },
+          { status: 'in_progress_queue', sessionId: session.sessionId, caseId: nextCaseObject._id },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         );
+        log.info({ caseId: nextCaseOriginalId }, 'Marked new case as in_progress_queue.');
       } else {
-        // Should not happen if queuedCaseIds are valid
-        console.error(`Case details not found for nextCaseOriginalId: ${nextCaseOriginalId}`);
+        log.error(`Case details not found for nextCaseOriginalId: ${nextCaseOriginalId}`);
         return res.status(500).json({ message: 'Error fetching next case details.' });
       }
     } else {
-      // End of queue
-      session.currentCaseIndex = session.queuedCaseIds.length; // Mark as past the end
+      log.info('End of queue reached.');
+      session.currentCaseIndex = session.queuedCaseIds.length;
       await session.save();
     }
 
@@ -275,7 +250,7 @@ export async function getNextCaseInQueue(req, res) {
     });
 
   } catch (error) {
-    console.error('Error getting next case:', error);
+    log.error(error, 'Error getting next case in queue.');
      if (error instanceof mongoose.Error.ValidationError) {
         return res.status(400).json({ message: 'Validation error.', errors: error.errors });
     }
@@ -291,31 +266,33 @@ export async function getNextCaseInQueue(req, res) {
 export async function markCaseStatus(req, res) {
   const userId = req.user.id;
   const { originalCaseIdString } = req.params;
-  const { status, filterContext, sessionId } = req.body; // filterContext is an object, sessionId is optional
+  const { status, filterContext, sessionId } = req.body;
+  const log = req.log.child({ userId, originalCaseIdString, status, sessionId });
 
   if (!originalCaseIdString) {
+    log.warn('Mark case status failed: Case ID is required.');
     return res.status(400).json({ message: 'Case ID (originalCaseIdString) is required in URL parameters.' });
   }
   if (!status || !['completed', 'skipped'].includes(status)) {
+    log.warn('Mark case status failed: Invalid status.');
     return res.status(400).json({ message: 'Invalid status. Must be "completed" or "skipped".' });
   }
   if (!filterContext || typeof filterContext !== 'object') {
-    // Making filterContext mandatory for this endpoint to ensure clarity of context.
-    // Alternatively, a "global" or default context could be assumed if not provided.
+    log.warn('Mark case status failed: filterContext object is required.');
     return res.status(400).json({ message: 'filterContext object is required.' });
   }
 
   try {
+    log.info('Marking case status.');
     const filterContextHash = generateFilterContextHash(filterContext);
 
     const caseDetails = await Case.findOne({ 'case_metadata.case_id': originalCaseIdString }).select('_id').lean();
     if (!caseDetails) {
+      log.warn('Case not found.');
       return res.status(404).json({ message: 'Case not found.' });
     }
     const caseObjectId = caseDetails._id;
 
-    // Create or update the UserCaseProgress record
-    // If status is 'completed' or 'skipped', it supersedes 'in_progress_queue' or 'viewed_in_queue'
     const updateData = {
       userId,
       caseId: caseObjectId,
@@ -327,17 +304,15 @@ export async function markCaseStatus(req, res) {
     if (sessionId) {
       updateData.sessionId = sessionId;
     } else {
-      // If no session ID provided with explicit status update,
-      // consider removing session ID if one was previously associated with 'in_progress_queue'
-      updateData.$unset = { sessionId: "" }; // Removes the field if it exists
+      updateData.$unset = { sessionId: "" };
     }
-
 
     const updatedProgress = await UserCaseProgress.findOneAndUpdate(
       { userId, originalCaseIdString, filterContextHash },
       updateData,
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+    log.info('Successfully marked case status.');
 
     res.status(200).json({
       message: `Case status updated to ${status} successfully.`,
@@ -345,7 +320,7 @@ export async function markCaseStatus(req, res) {
     });
 
   } catch (error) {
-    console.error('Error marking case status:', error);
+    log.error(error, 'Error marking case status.');
     if (error instanceof mongoose.Error.ValidationError) {
         return res.status(400).json({ message: 'Validation error.', errors: error.errors });
     }
