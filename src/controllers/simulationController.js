@@ -2,7 +2,9 @@ import { getPatientResponseStream, getEvaluation } from '../services/aiService.j
 import Case from '../models/CaseModel.js';
 import Session from '../models/SessionModel.js';
 import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
+import ClinicianProgress from '../models/ClinicianProgressModel.js';
 import logger from '../config/logger.js';
+import axios from 'axios';
 
 // GET /cases - List all case metadata, with filtering and pagination
 export async function getCases(req, res) {
@@ -290,6 +292,31 @@ export async function endSession(req, res) {
     await session.save();
     await performanceRecord.save();
     log.info('Session ended, evaluation and performance metrics saved to DB.');
+
+    // Update clinician progress if user is authenticated
+    if (req.user && req.user._id) {
+      try {
+        // Update clinician progress
+        const progressData = {
+          userId: req.user._id,
+          caseId: session.case_ref._id,
+          performanceMetricsId: performanceRecord._id
+        };
+
+        // Call the progress update endpoint
+        await axios.post(`${process.env.API_BASE_URL || 'http://localhost:5001'}/api/progress/update`, progressData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': req.headers.authorization
+          }
+        });
+        
+        log.info({ userId: req.user._id }, 'Updated clinician progress after case completion');
+      } catch (progressError) {
+        // Don't fail the whole request if progress update fails
+        log.error(progressError, 'Error updating clinician progress, but session ended successfully');
+      }
+    }
 
     res.json({
       sessionEnded: true,
