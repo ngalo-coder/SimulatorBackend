@@ -41,6 +41,11 @@ app.use(cors({
 
 app.use(express.json());
 
+// Add redirect for incorrect auth path
+app.use('/auth/login', (req, res) => {
+  res.redirect(307, '/api/auth/login');
+});
+
 // Mount Routers
 app.use('/api/auth', authRoutes);
 app.use('/api/users', queueRoutes); // Mount queue routes under /api/users
