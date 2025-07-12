@@ -26,7 +26,7 @@ export async function register(req, res) {
     await newUser.save();
     log.info({ userId: newUser._id, username }, 'User registered successfully.');
 
-    const token = generateToken(newUser._id, newUser.username);
+    const token = generateToken(newUser._id, newUser.username, newUser.role);
 
     res.status(201).json({
       message: 'User registered successfully.',
@@ -36,6 +36,7 @@ export async function register(req, res) {
           id: newUser._id,
           username: newUser.username,
           email: newUser.email,
+          role: newUser.role,
         },
       }
     });
@@ -76,7 +77,7 @@ export async function login(req, res) {
     }
 
     log.info({ userId: user._id, email }, 'User logged in successfully.');
-    const token = generateToken(user._id, user.username);
+    const token = generateToken(user._id, user.username, user.role);
 
     res.status(200).json({
       message: 'Login successful.',
@@ -86,6 +87,7 @@ export async function login(req, res) {
           id: user._id,
           username: user.username,
           email: user.email,
+          role: user.role,
         },
       }
     });

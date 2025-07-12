@@ -30,6 +30,7 @@ export async function protect(req, res, next) {
       req.user = {
         id: decoded.id,
         username: decoded.username,
+        role: decoded.role || 'user',
       };
 
       next();

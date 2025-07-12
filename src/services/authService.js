@@ -14,12 +14,12 @@ if (!process.env.JWT_SECRET) {
 /**
  * Generates a JSON Web Token (JWT) for a user.
  */
-export function generateToken(userId, username) {
+export function generateToken(userId, username, role = 'user') {
   if (!JWT_SECRET) {
     logger.error('JWT_SECRET is missing. Cannot generate token.');
     throw new Error('JWT secret is missing.');
   }
-  return jwt.sign({ id: userId, username }, JWT_SECRET, {
+  return jwt.sign({ id: userId, username, role }, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 }
