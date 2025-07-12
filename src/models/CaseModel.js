@@ -104,6 +104,7 @@ const CaseSchema = new mongoose.Schema({
 CaseSchema.index({ 'case_metadata.case_id': 1 });
 CaseSchema.index({ 'case_metadata.program_area': 1 });
 CaseSchema.index({ 'case_metadata.specialized_area': 1 });
+CaseSchema.index({ 'case_metadata.specialty': 1 });
 
 
 const Case = mongoose.model('Case', CaseSchema);

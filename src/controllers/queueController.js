@@ -29,6 +29,7 @@ export async function startQueueSession(req, res) {
 
     const caseQuery = {};
     if (filters.program_area) caseQuery['case_metadata.program_area'] = filters.program_area;
+    if (filters.specialty) caseQuery['case_metadata.specialty'] = filters.specialty;
     if (filters.specialized_area) {
       if (["null", "None", ""].includes(filters.specialized_area)) {
         caseQuery['case_metadata.specialized_area'] = { $in: [null, "", "None"] };

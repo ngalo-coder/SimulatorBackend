@@ -8,10 +8,11 @@ import logger from '../config/logger.js';
 export async function getCases(req, res) {
   const log = req.log.child({ query: req.query });
   try {
-    const { program_area, specialized_area, page = 1, limit = 20 } = req.query;
+    const { program_area, specialty, specialized_area, page = 1, limit = 20 } = req.query;
     const query = {};
 
     if (program_area) query['case_metadata.program_area'] = program_area;
+    if (specialty) query['case_metadata.specialty'] = specialty;
     if (specialized_area) {
       if (["null", "None", ""].includes(specialized_area)) {
         query['case_metadata.specialized_area'] = { $in: [null, ""] };
@@ -221,16 +222,26 @@ export async function endSession(req, res) {
   }
 }
 
-// GET /case-categories - List all unique program and specialized areas
+// GET /case-categories - List all unique program areas, specialties, and specialized areas
 export async function getCaseCategories(req, res) {
   const log = req.log;
+  const { program_area } = req.query;
+  
   try {
     const programAreas = await Case.distinct('case_metadata.program_area');
+    
+    // Query for specialties, optionally filtered by program_area
+    const specialtyQuery = program_area ? { 'case_metadata.program_area': program_area } : {};
+    const specialtiesRaw = await Case.distinct('case_metadata.specialty', specialtyQuery);
+    const specialties = specialtiesRaw.filter(specialty => specialty && specialty.trim() !== '');
+    
     const specializedAreasRaw = await Case.distinct('case_metadata.specialized_area');
     const specializedAreas = specializedAreasRaw.filter(area => area && area.trim() !== '');
+    
     log.info('Fetched case categories successfully.');
     res.json({
       program_areas: programAreas.sort(),
+      specialties: specialties.sort(),
       specialized_areas: specializedAreas.sort()
     });
   } catch (error) {
