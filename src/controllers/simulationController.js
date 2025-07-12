@@ -23,20 +23,17 @@ import PerformanceMetrics from '../models/PerformanceMetricsModel.js'; // Import
 //   }
 // });
 
-// GET /cases - List all case metadata, now with filtering
+// GET /cases - List all case metadata, now with filtering and pagination
 export async function getCases(req, res) {
   try {
-    const { program_area, specialized_area } = req.query;
+    // Destructure query parameters
+    const { program_area, specialized_area, page = 1, limit = 20 } = req.query;
     const query = {};
 
     if (program_area) {
       query['case_metadata.program_area'] = program_area;
     }
     if (specialized_area) {
-      // If specialized_area is 'None' or an empty string from query,
-      // we might want to specifically query for null or empty.
-      // For now, assuming a direct match or it's omitted.
-      // If specialized_area is "null" as a string, we'd query for actual null.
       if (specialized_area === "null" || specialized_area === "None" || specialized_area === "") {
         query['case_metadata.specialized_area'] = { $in: [null, ""] };
       } else {
@@ -44,46 +41,53 @@ export async function getCases(req, res) {
       }
     }
 
-    // Fetch all necessary fields to construct the detailed patient queue cards
-    const casesFromDB = await Case.find(query)
-      .select(
-        'case_metadata.case_id ' +
-        'case_metadata.title ' +
-        'description ' + // Root level description
-        'case_metadata.difficulty ' +
-        'case_metadata.estimated_duration_min ' + // Will be returned as number
-        'case_metadata.program_area ' +
-        'case_metadata.specialized_area ' +
-        'patient_persona.age ' +
-        'patient_persona.gender ' +
-        'patient_persona.chief_complaint ' +
-        'clinical_dossier.history_of_presenting_illness.associated_symptoms ' + // Source for presenting_symptoms
-        'case_metadata.tags'
-      )
-      .lean(); // .lean() returns plain JS objects, good for sending in response
+    // Convert page and limit to numbers and set defaults
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
 
-    const caseList = casesFromDB.map(c => {
-      // Helper function to format estimated_duration_min if needed, or frontend can do it.
-      // For now, sending the raw minutes. Example: 30 -> "25-35 minutes"
-      // This simple example just returns the number.
+    // Fields to select for the patient queue cards
+    const fieldsToSelect = [
+      'case_metadata.case_id',
+      'case_metadata.title',
+      'description',
+      'case_metadata.difficulty',
+      'case_metadata.estimated_duration_min',
+      'case_metadata.program_area',
+      'case_metadata.specialized_area',
+      'patient_persona.age',
+      'patient_persona.gender',
+      'patient_persona.chief_complaint',
+      'clinical_dossier.history_of_presenting_illness.associated_symptoms',
+      'case_metadata.tags'
+    ].join(' ');
+
+    // Execute queries in parallel for efficiency
+    const [casesFromDB, totalCases] = await Promise.all([
+      Case.find(query)
+        .select(fieldsToSelect)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Case.countDocuments(query)
+    ]);
+
+    // Map the results to the desired frontend structure
+    const formattedCases = casesFromDB.map(c => {
       const formatEstimatedTime = (minutes) => {
         if (minutes == null) return "N/A";
-        // Simple range, e.g. if 20, show "15-25 minutes"
-        // const lower = Math.max(0, minutes - 5);
-        // const upper = minutes + 5;
-        // return `${lower}-${upper} minutes`;
-        return `${minutes} minutes`; // Or just return raw minutes: return minutes;
+        return `${minutes} minutes`;
       };
 
       return {
         id: c.case_metadata?.case_id,
         title: c.case_metadata?.title,
-        description: c.description, // Root description
-        category: c.case_metadata?.specialized_area, // Mapping specialized_area to category
+        description: c.description,
+        category: c.case_metadata?.specialized_area,
         difficulty: c.case_metadata?.difficulty,
-        estimated_time: formatEstimatedTime(c.case_metadata?.estimated_duration_min), // Use raw minutes or format
+        estimated_time: formatEstimatedTime(c.case_metadata?.estimated_duration_min),
         program_area: c.case_metadata?.program_area,
-        specialized_area: c.case_metadata?.specialized_area, // Keep original specialized_area as well
+        specialized_area: c.case_metadata?.specialized_area,
         patient_age: c.patient_persona?.age,
         patient_gender: c.patient_persona?.gender,
         chief_complaint: c.patient_persona?.chief_complaint,
@@ -91,7 +95,15 @@ export async function getCases(req, res) {
         tags: c.case_metadata?.tags || [],
       };
     });
-    res.json(caseList);
+
+    // Send the paginated response
+    res.json({
+      cases: formattedCases,
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalCases / limitNum),
+      totalCases: totalCases,
+    });
+
   } catch (error) {
     console.error('Error fetching cases with filters:', error);
     res.status(500).json({ error: 'Failed to fetch cases' });
