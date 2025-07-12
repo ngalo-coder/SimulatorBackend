@@ -25,6 +25,7 @@ const allowedOrigins = [
   'https://kuiga.online', // Your production frontend
   'http://localhost:3000', // Your local development frontend (if applicable)
   'http://localhost:5173', // Another common local dev port (Vite)
+  'http://localhost:5174', // Additional Vite dev port
   // Add any other origins you need to allow
 ];
 
