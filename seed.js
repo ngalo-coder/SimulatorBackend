@@ -1,97 +1,68 @@
-// seed.js
-
-import mongoose from 'mongoose';
-import fs from 'fs';
-import path from 'path';
+import { MongoClient } from 'mongodb';
+import fs from 'fs'; // Node.js file system module to read the JSON file
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import Case from './src/models/CaseModel.js';
-import generateCase from './utils/generateCase.js';
+dotenv.config(); // Load environment variables from .env file
+// const fs = require('fs');
 
-dotenv.config();
-
-// Get __dirname in ES module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// MongoDB URI
-const MONGO_URI = process.env.MONGODB_URI;
-
-// Output directory for JSON files
-const OUTPUT_DIR = path.join(__dirname, 'data', 'cases');
-
-// Number of cases to generate
-const CASE_COUNT = 1000;
-
-// Define program areas
-const PROGRAM_AREAS = [
-  // Basic Program
-  { label: 'Internal Medicine', program: 'Basic Program' },
-  { label: 'Pediatrics', program: 'Basic Program' },
-  { label: 'Reproductive Health', program: 'Basic Program' },
-  { label: 'General Surgery', program: 'Basic Program' },
-
-  // Specialty Program
-  { label: 'Ophthalmology', program: 'Specialty Program' },
-  { label: 'ENT', program: 'Specialty Program' },
-  { label: 'Advanced Pediatrics', program: 'Specialty Program' },
-  { label: 'Obstetrics and Gynecology', program: 'Specialty Program' },
-  { label: 'Anesthesia', program: 'Specialty Program' }
-];
-
-const specialtyCount = {};
-
-async function seedDatabase() {
-  try {
-    // Connect to MongoDB
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('✅ Connected to MongoDB');
-
-    // Clear existing cases
-    await Case.deleteMany({});
-    console.log('🗑️ Cleared existing cases');
-
-    // Ensure output directory exists
-    if (!fs.existsSync(OUTPUT_DIR)) {
-      fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+// Step 1: Load the JSON file containing all cases
+function loadCasesFromJson(filePath) {
+    try {
+        const rawData = fs.readFileSync(filePath, 'utf-8');
+        const cases = JSON.parse(rawData);
+        console.log(`Successfully loaded ${cases.length} cases from ${filePath}.`);
+        return cases;
+    } catch (error) {
+        console.error(`Error loading JSON file: ${error.message}`);
+        return null;
     }
-
-    // Seed cases
-    for (let i = 1; i <= CASE_COUNT; i++) {
-      const programIndex = (i - 1) % PROGRAM_AREAS.length;
-      const { label: specialty, program: program_area } = PROGRAM_AREAS[programIndex];
-
-      const caseData = generateCase(i, specialty, program_area);
-
-      // Count specialties
-      specialtyCount[specialty] = (specialtyCount[specialty] || 0) + 1;
-
-      // Save to file
-      fs.writeFileSync(
-        path.join(OUTPUT_DIR, `case_${String(i).padStart(4, '0')}.json`),
-        JSON.stringify(caseData, null, 2)
-      );
-
-      // Save to MongoDB
-      await Case.create(caseData);
-      console.log(`📦 Inserted case ${i}: ${caseData.case_metadata.title}`);
-    }
-
-    // Summary log
-    console.log('\n📊 Specialty Summary:');
-    Object.entries(specialtyCount).forEach(([spec, count]) =>
-      console.log(` - ${spec}: ${count} cases`)
-    );
-
-    console.log(`\n✅ Successfully seeded ${CASE_COUNT} cases.\n`);
-    mongoose.connection.close();
-  } catch (err) {
-    console.error('❌ Error during seeding:', err.message);
-    process.exit(1);
-  }
 }
 
-seedDatabase();
+// Step 2: Connect to MongoDB and insert cases
+async function pushCasesToMongoDB(cases, mongoUri, dbName, collectionName) {
+    const client = new MongoClient(mongoUri);
+
+    try {
+        // Connect to MongoDB
+        await client.connect();
+        console.log("Connected to MongoDB successfully.");
+
+        // Select the database and collection
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        // Insert cases into the collection
+        const result = await collection.insertMany(cases);
+        console.log(`Successfully inserted ${result.insertedCount} cases into MongoDB.`);
+    } catch (error) {
+        console.error(`Error inserting cases into MongoDB: ${error.message}`);
+    } finally {
+        // Close the connection
+        await client.close();
+    }
+}
+
+// Main function to execute the script
+(async () => {
+    // Configuration
+    const MONGO_URI="mongodb+srv://odongolera:IzGzTDrsr3U4aBaA@cluster0.kha1r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"  // Replace with your MongoDB URI
+    const DB_NAME="test"            // Replace with your database name
+    const COLLECTION_NAME = "cases"                // Replace with your collection name                        
+    const JSON_FILE_PATH = "cases/case_100.json"       // Replace with the path to your consolidated JSON file
+
+    // Load cases from JSON
+    const cases = loadCasesFromJson(JSON_FILE_PATH);
+
+    if (cases) {
+        // Push cases to MongoDB
+        await pushCasesToMongoDB(cases, MONGO_URI, DB_NAME, COLLECTION_NAME);
+    }
+})();
+
+
+
+
+
+
+
+
+
