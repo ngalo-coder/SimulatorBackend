@@ -1,32 +1,34 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-// import { v4 as uuidv4 } from 'uuid';
-// import { getPatientResponseStream } from '../services/aiService.js';
+import axios from 'axios';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const API_BASE_URL = 'http://localhost:5001';
 
-// const sessions = new Map();
-const cases = {};
+async function runTest() {
+  try {
+    // Start a new session
+    const startResponse = await axios.post(`${API_BASE_URL}/api/simulation/start`, {
+      caseId: 'VP-ABD-002',
+    });
+    const { sessionId } = startResponse.data;
+    console.log(`Session started with ID: ${sessionId}`);
 
-// Load all cases from the /cases directory into memory on startup
-const casesDir = path.join(__dirname, 'cases');
-fs.readdirSync(casesDir).forEach(file => {
-    if (file.endsWith('.json')) {
-        const caseId = path.basename(file, '.json');
-        const caseData = JSON.parse(fs.readFileSync(path.join(casesDir, file), 'utf-8'));
-        cases[caseId] = caseData;
-    }
-});
+    // Ask a question
+    await axios.get(`${API_BASE_URL}/api/simulation/ask`, {
+      params: {
+        sessionId,
+        question: 'What is your diagnosis?',
+      },
+    });
+    console.log('Question asked.');
 
-// GET /cases - List all case metadata
+    // End the session
+    const endResponse = await axios.post(`${API_BASE_URL}/api/simulation/end`, {
+      sessionId,
+    });
+    console.log('Session ended successfully.');
+    console.log('Evaluation:', endResponse.data.evaluation);
+  } catch (error) {
+    console.error('Error:', error.response ? error.response.data : error.message);
+  }
+}
 
-    const caseList = Object.values(cases).map(c => ({
-        case_id: c.case_metadata?.case_id,
-        title: c.case_metadata?.title,
-        difficulty: c.case_metadata?.difficulty,
-        estimated_duration_min: c.case_metadata?.estimated_duration_min,
-        tags: c.case_metadata?.tags,
-    }));
-    console.log(caseList)
+runTest();
