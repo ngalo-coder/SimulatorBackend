@@ -128,9 +128,9 @@ function parseEvaluationMetrics(evaluationText, log) {
   match = evaluationText.match(scoreRegex);
   if (match) metrics.overall_score = parseInt(match[1], 10);
 
-  const labelRegex = /Performance Label:\s*(Excellent|Very Good|Good|Needs Improvement|Poor)/;
+  const labelRegex = /Performance Label:\s*(very good|good|fair|poor)/i;
   match = evaluationText.match(labelRegex);
-  if (match) metrics.performance_label = match[1];
+  if (match) metrics.performance_label = match[1].toLowerCase();
 
   log.info({ parsedMetrics: metrics }, 'Parsed evaluation metrics from text.');
   return metrics;
@@ -175,7 +175,7 @@ export async function getEvaluation(caseData, conversationHistory, parentLog) {
 
     For each, rate as Excellent, Very Good, Good, Needs Improvement, or Poor, with examples.
     Conclude with a "Summary & Recommendations", stating if the diagnosis was reached.
-    Provide an "Overall Performance Score: [0-100]%" and a "Performance Label: [Excellent/Very Good/Good/Needs Improvement/Poor]" based on these thresholds: 90-100: Excellent, 80-89: Very Good, 70-79: Good, 60-69: Needs Improvement, <60: Poor.
+    Provide an "Overall Performance Score: [0-100]%" and a "Performance Label: [very good/good/fair/poor]" based on these thresholds: 75-100: very good, 65-74: good, 50-64: fair, 0-49: poor.
 
     Format exactly as follows:
     SESSION END
