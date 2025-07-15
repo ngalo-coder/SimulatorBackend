@@ -90,7 +90,7 @@ function parseEvaluationMetrics(evaluationText, log) {
     return metrics;
   }
 
-  const ratingRegex = (criterion) => new RegExp(`${criterion}: \\(Rating: (Excellent|Very Good|Good|Needs Improvement|Poor)\\)`);
+  const ratingRegex = (criterion) => new RegExp(`${criterion}: \\(Rating: (very good|good|fair|poor)\\)`, 'i');
   let match;
 
   match = evaluationText.match(ratingRegex("History Taking"));
@@ -173,7 +173,7 @@ export async function getEvaluation(caseData, conversationHistory, parentLog) {
     4. Communication and Empathy: ${criteriaMap.get('Communication_and_Empathy') || criteriaMap.get('communication_empathy') || 'How was the clinician\'s communication and empathy?'}
     5. Clinical Urgency: ${criteriaMap.get('Clinical_Urgency') || criteriaMap.get('clinical_urgency') || 'Did the clinician recognize the urgency of the case?'}
 
-    For each, rate as Excellent, Very Good, Good, Needs Improvement, or Poor, with examples.
+    For each, rate as very good, good, fair, or poor, with examples.
     Conclude with a "Summary & Recommendations", stating if the diagnosis was reached.
     Provide an "Overall Performance Score: [0-100]%" and a "Performance Label: [very good/good/fair/poor]" based on these thresholds: 75-100: very good, 65-74: good, 50-64: fair, 0-49: poor.
 
