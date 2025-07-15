@@ -2,6 +2,8 @@ import User from '../models/UserModel.js';
 import { generateToken } from '../services/authService.js';
 import mongoose from 'mongoose';
 import logger from '../config/logger.js'; // Import logger
+import crypto from 'crypto';
+import sendEmail from '../services/emailService.js';
 
 /**
  * Handles user registration.
@@ -94,5 +96,101 @@ export async function login(req, res) {
   } catch (error) {
     log.error(error, 'Server error during login.');
     res.status(500).json({ message: 'Server error during login.' });
+  }
+}
+
+export async function forgotPassword(req, res) {
+  const { email } = req.body;
+  const log = req.log;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      log.warn({ email }, 'Password reset failed: User not found.');
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const passwordResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    user.passwordResetToken = passwordResetToken;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await user.save();
+
+    const resetURL = `${req.protocol}://${req.get(
+      'host'
+    )}/api/auth/reset-password/${resetToken}`;
+
+    const message = `Forgot your password? Submit a PATCH request with your new password to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Your password reset token (valid for 10 min)',
+        message,
+      });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Token sent to email!',
+      });
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      log.error(err, 'Error sending password reset email.');
+      return res.status(500).json({ message: 'There was an error sending the email. Try again later!' });
+    }
+  } catch (error) {
+    log.error(error, 'Server error during forgot password.');
+    res.status(500).json({ message: 'Server error during forgot password.' });
+  }
+}
+
+export async function resetPassword(req, res) {
+  const log = req.log;
+  try {
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      log.warn('Password reset failed: Token is invalid or has expired.');
+      return res.status(400).json({ message: 'Token is invalid or has expired.' });
+    }
+
+    user.password = req.body.password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    const token = generateToken(user._id, user.username, user.role);
+
+    res.status(200).json({
+      message: 'Password reset successful.',
+      data: {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
+      },
+    });
+  } catch (error) {
+    log.error(error, 'Server error during password reset.');
+    res.status(500).json({ message: 'Server error during password reset.' });
   }
 }
