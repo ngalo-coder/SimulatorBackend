@@ -1,4 +1,5 @@
 import User from '../models/UserModel.js';
+import Case from '../models/CaseModel.js';
 import mongoose from 'mongoose';
 import logger from '../config/logger.js';
 
@@ -143,5 +144,45 @@ export async function deleteUser(req, res) {
   } catch (error) {
     log.error(error, 'Server error during user deletion.');
     res.status(500).json({ message: 'Server error during user deletion.' });
+  }
+}
+
+/**
+ * Update a case
+ */
+export async function updateCase(req, res) {
+  const { caseId } = req.params;
+  const { program_area, specialty } = req.body;
+  const log = req.log || logger;
+
+  if (!program_area && !specialty) {
+    log.warn({ body: req.body }, 'No fields to update provided for case update.');
+    return res.status(400).json({ message: 'Please provide at least one field to update (program_area or specialty).' });
+  }
+
+  try {
+    const caseToUpdate = await Case.findOne({ 'case_metadata.case_id': caseId });
+    if (!caseToUpdate) {
+      log.warn({ caseId }, 'Case not found for update.');
+      return res.status(404).json({ message: 'Case not found.' });
+    }
+
+    if (program_area) {
+      caseToUpdate.case_metadata.program_area = program_area;
+    }
+    if (specialty) {
+      caseToUpdate.case_metadata.specialty = specialty;
+    }
+
+    await caseToUpdate.save();
+    log.info({ caseId }, 'Case updated successfully.');
+
+    res.status(200).json({
+      message: 'Case updated successfully.',
+      data: caseToUpdate,
+    });
+  } catch (error) {
+    log.error(error, 'Server error during case update.');
+    res.status(500).json({ message: 'Server error during case update.' });
   }
 }
