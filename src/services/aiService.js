@@ -90,7 +90,7 @@ function parseEvaluationMetrics(evaluationText, log) {
     return metrics;
   }
 
-  const ratingRegex = (criterion) => new RegExp(`${criterion}: \\(Rating: (very good|good|fair|poor)\\)`, 'i');
+  const ratingRegex = (criterion) => new RegExp(`${criterion}: \\(Rating: (Excellent|Very Good|Good|Fair|Poor)\\)`, 'i');
   let match;
 
   match = evaluationText.match(ratingRegex("History Taking"));
@@ -128,9 +128,9 @@ function parseEvaluationMetrics(evaluationText, log) {
   match = evaluationText.match(scoreRegex);
   if (match) metrics.overall_score = parseInt(match[1], 10);
 
-  const labelRegex = /Performance Label:\s*(very good|good|fair|poor)/i;
+  const labelRegex = /Performance Label:\s*(Excellent|Very Good|Good|Fair|Poor)/i;
   match = evaluationText.match(labelRegex);
-  if (match) metrics.performance_label = match[1].toLowerCase();
+  if (match) metrics.performance_label = match[1];
 
   log.info({ parsedMetrics: metrics }, 'Parsed evaluation metrics from text.');
   return metrics;
@@ -173,9 +173,9 @@ export async function getEvaluation(caseData, conversationHistory, parentLog) {
     4. Communication and Empathy: ${criteriaMap.get('Communication_and_Empathy') || criteriaMap.get('communication_empathy') || 'How was the clinician\'s communication and empathy?'}
     5. Clinical Urgency: ${criteriaMap.get('Clinical_Urgency') || criteriaMap.get('clinical_urgency') || 'Did the clinician recognize the urgency of the case?'}
 
-    For each, rate as very good, good, fair, or poor, with examples.
+    For each, rate as:{0-49: Poor, 50-64: Fair, 65-74: Good, 75-84: Very Good, 85-100: Excellent} with examples.
     Conclude with a "Summary & Recommendations", stating if the diagnosis was reached.
-    Provide an "Overall Performance Score: [0-100]%" and a "Performance Label: [very good/good/fair/poor]" based on these thresholds: 75-100: very good, 65-74: good, 50-64: fair, 0-49: poor.
+    Provide an "Overall Performance Score: [0-100]%" and a "Performance Label: {0-49: Poor, 50-64: Fair, 65-74: Good, 75-84: Very Good, 85-100: Excellent}".
 
     Format exactly as follows:
     SESSION END
