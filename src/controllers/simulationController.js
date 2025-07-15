@@ -290,7 +290,13 @@ export async function endSession(req, res) {
     });
 
     await session.save();
-    await performanceRecord.save();
+    log.info('Performance record to be saved:', performanceRecord);
+    try {
+      await performanceRecord.save();
+      log.info('Performance metrics saved to DB.');
+    } catch (error) {
+      log.error(error, 'Error saving performance metrics.');
+    }
     log.info('Session ended, evaluation and performance metrics saved to DB.');
 
     // Update clinician progress if user is authenticated
