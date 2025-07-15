@@ -1,4 +1,85 @@
-# Frontend API Integration Instructions
+# Frontend Instructions for Forgot Password Feature
+
+This document provides instructions for frontend developers to integrate the forgot password feature.
+
+## 1. Forgot Password
+
+To initiate the forgot password process, send a POST request to the following endpoint:
+
+**Endpoint:** `POST /api/auth/forgot-password`
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response:**
+
+*   **200 OK:** If the email is valid and the user exists, a password reset token will be sent to the user's email address.
+
+    ```json
+    {
+      "status": "success",
+      "message": "Token sent to email!"
+    }
+    ```
+
+*   **404 Not Found:** If the user with the given email does not exist.
+
+    ```json
+    {
+      "message": "User not found."
+    }
+    ```
+
+## 2. Reset Password
+
+To reset the password, the user will click on a link in their email which will redirect them to a page on your frontend. This page should have a form with a new password and password confirmation fields.
+
+The link in the email will look like this: `http://<your-frontend-url>/reset-password/<reset-token>`
+
+You will need to extract the `reset-token` from the URL and send a PATCH request to the following endpoint:
+
+**Endpoint:** `PATCH /api/auth/reset-password/:token`
+
+**Request Body:**
+
+```json
+{
+  "password": "newPassword123"
+}
+```
+
+**Response:**
+
+*   **200 OK:** If the token is valid and the password is reset successfully. The response will include a new JWT token.
+
+    ```json
+    {
+      "message": "Password reset successful.",
+      "data": {
+        "token": "new-jwt-token",
+        "user": {
+          "id": "user-id",
+          "username": "username",
+          "email": "user@example.com",
+          "role": "user"
+        }
+      }
+    }
+    ```
+
+*   **400 Bad Request:** If the token is invalid or has expired.
+
+    ```json
+    {
+      "message": "Token is invalid or has expired."
+    }
+    ```
+# Existing API Integration Instructions
 
 ## API Endpoint Structure
 
