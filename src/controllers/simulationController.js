@@ -37,7 +37,7 @@ export async function getCases(req, res) {
 
     const formattedCases = casesFromDB.map(c => ({
       id: c.case_metadata?.case_id,
-      title: c.case_metadata?.title,
+      title: c.case_metadata?.title.replace(/ with.*$/, ''),
       description: c.description,
       category: c.case_metadata?.specialized_area,
       difficulty: c.case_metadata?.difficulty,
