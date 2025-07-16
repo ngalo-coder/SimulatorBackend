@@ -1,5 +1,6 @@
 import User from '../models/UserModel.js';
 import Case from '../models/CaseModel.js';
+import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
 import mongoose from 'mongoose';
 import logger from '../config/logger.js';
 
@@ -184,5 +185,38 @@ export async function updateCase(req, res) {
   } catch (error) {
     log.error(error, 'Server error during case update.');
     res.status(500).json({ message: 'Server error during case update.' });
+  }
+}
+
+/**
+ * Get all users and their scores
+ */
+export async function getUsersWithScores(req, res) {
+  const log = req.log || logger;
+
+  try {
+    const users = await User.find({}).select('-password');
+    const usersWithScores = await Promise.all(
+      users.map(async (user) => {
+        const performance = await PerformanceMetrics.findOne({ user_ref: user._id })
+          .sort({ evaluated_at: -1 })
+          .select('metrics.overall_score evaluated_at');
+        return {
+          ...user.toObject(),
+          overall_performance: performance ? performance.metrics.overall_score : null,
+          date_last_evaluated: performance ? performance.evaluated_at : null,
+        };
+      })
+    );
+
+    log.info({ count: usersWithScores.length }, 'Retrieved all users with scores');
+
+    res.status(200).json({
+      message: 'Users with scores retrieved successfully.',
+      data: usersWithScores,
+    });
+  } catch (error) {
+    log.error(error, 'Server error while retrieving users with scores.');
+    res.status(500).json({ message: 'Server error while retrieving users with scores.' });
   }
 }
