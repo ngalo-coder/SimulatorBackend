@@ -1,12 +1,7 @@
 import mongoose from "mongoose";
 
-<<<<<<< HEAD
 const RatingEnum = ["Excellent", "Very Good", "Good", "Fair", "Poor"];
 const AccuracyEnum = ["Reached", "Missed", "Partially Reached", "Undetermined"];
-=======
-const RatingEnum = ['Excellent', 'Very good', 'Good', 'Fair', 'Poor'];
-const AccuracyEnum = ['Reached', 'Missed', 'Partially Reached', 'Undetermined'];
->>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
 
 const PerformanceMetricsSchema = new mongoose.Schema(
   {
@@ -80,12 +75,6 @@ const PerformanceMetricsSchema = new mongoose.Schema(
 PerformanceMetricsSchema.index({ user_ref: 1, evaluated_at: -1 });
 PerformanceMetricsSchema.index({ case_ref: 1, evaluated_at: -1 });
 
-<<<<<<< HEAD
-const PerformanceMetrics = mongoose.model(
-  "PerformanceMetrics",
-  PerformanceMetricsSchema
-);
-=======
 // Pre-save hook to set performance_label based on overall_score
 PerformanceMetricsSchema.pre('save', function(next) {
   if (this.metrics.overall_score !== null && this.metrics.overall_score !== undefined) {
@@ -93,7 +82,7 @@ PerformanceMetricsSchema.pre('save', function(next) {
     if (score >= 85) {
       this.metrics.performance_label = 'Excellent';
     } else if (score >= 75) {
-      this.metrics.performance_label = 'Very good';
+      this.metrics.performance_label = 'Very Good';
     } else if (score >= 65) {
       this.metrics.performance_label = 'Good';
     } else if (score >= 50) {
@@ -105,7 +94,9 @@ PerformanceMetricsSchema.pre('save', function(next) {
   next();
 });
 
-const PerformanceMetrics = mongoose.model('PerformanceMetrics', PerformanceMetricsSchema);
->>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
+const PerformanceMetrics = mongoose.model(
+  "PerformanceMetrics",
+  PerformanceMetricsSchema
+);
 
 export default PerformanceMetrics;
