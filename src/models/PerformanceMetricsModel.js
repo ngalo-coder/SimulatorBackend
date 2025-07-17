@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const RatingEnum = ['Excellent', 'Very Good', 'Good', 'Needs Improvement', 'Poor', 'Not Assessed'];
+const RatingEnum = ['Excellent', 'Very good', 'Good', 'Fair', 'Poor'];
 const AccuracyEnum = ['Reached', 'Missed', 'Partially Reached', 'Undetermined'];
 
 const PerformanceMetricsSchema = new mongoose.Schema({
