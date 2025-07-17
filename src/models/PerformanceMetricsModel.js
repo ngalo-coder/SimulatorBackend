@@ -29,6 +29,25 @@ const PerformanceMetricsSchema = new mongoose.Schema({
 PerformanceMetricsSchema.index({ user_ref: 1, evaluated_at: -1 });
 PerformanceMetricsSchema.index({ case_ref: 1, evaluated_at: -1 });
 
+// Pre-save hook to set performance_label based on overall_score
+PerformanceMetricsSchema.pre('save', function(next) {
+  if (this.metrics.overall_score !== null && this.metrics.overall_score !== undefined) {
+    const score = this.metrics.overall_score;
+    if (score >= 85) {
+      this.metrics.performance_label = 'Excellent';
+    } else if (score >= 75) {
+      this.metrics.performance_label = 'Very good';
+    } else if (score >= 65) {
+      this.metrics.performance_label = 'Good';
+    } else if (score >= 50) {
+      this.metrics.performance_label = 'Fair';
+    } else {
+      this.metrics.performance_label = 'Poor';
+    }
+  }
+  next();
+});
+
 const PerformanceMetrics = mongoose.model('PerformanceMetrics', PerformanceMetricsSchema);
 
 export default PerformanceMetrics;
