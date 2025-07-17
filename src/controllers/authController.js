@@ -81,6 +81,8 @@ export async function login(req, res) {
     log.info({ userId: user._id, email }, 'User logged in successfully.');
     const token = generateToken(user._id, user.username, user.role);
 
+    const redirectTo = user.role === 'admin' ? '/admin/dashboard' : '/';
+
     res.status(200).json({
       message: 'Login successful.',
       data: {
@@ -91,6 +93,7 @@ export async function login(req, res) {
           email: user.email,
           role: user.role,
         },
+        redirectTo,
       }
     });
   } catch (error) {

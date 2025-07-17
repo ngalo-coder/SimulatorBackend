@@ -1,7 +1,10 @@
 import User from '../models/UserModel.js';
 import Case from '../models/CaseModel.js';
 import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
+<<<<<<< HEAD
 import Session from '../models/SessionModel.js';
+=======
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
 import mongoose from 'mongoose';
 import logger from '../config/logger.js';
 
@@ -159,6 +162,7 @@ export async function deleteUser(req, res) {
 }
 
 /**
+<<<<<<< HEAD
  * Get all program areas from cases
  */
 export async function getProgramAreas(req, res) {
@@ -243,10 +247,13 @@ export async function getAllCases(req, res) {
 }
 
 /**
+=======
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
  * Update a case
  */
 export async function updateCase(req, res) {
   const { caseId } = req.params;
+<<<<<<< HEAD
   const { programArea, specialty } = req.body;
   const log = req.log || logger;
 
@@ -254,21 +261,40 @@ export async function updateCase(req, res) {
     // Find the case by case_id
     const caseToUpdate = await Case.findOne({ 'case_metadata.case_id': caseId });
     
+=======
+  const { program_area, specialty } = req.body;
+  const log = req.log || logger;
+
+  if (!program_area && !specialty) {
+    log.warn({ body: req.body }, 'No fields to update provided for case update.');
+    return res.status(400).json({ message: 'Please provide at least one field to update (program_area or specialty).' });
+  }
+
+  try {
+    const caseToUpdate = await Case.findOne({ 'case_metadata.case_id': caseId });
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
     if (!caseToUpdate) {
       log.warn({ caseId }, 'Case not found for update.');
       return res.status(404).json({ message: 'Case not found.' });
     }
 
+<<<<<<< HEAD
     // Update the case metadata
     if (programArea) {
       caseToUpdate.case_metadata.program_area = programArea;
     }
     
+=======
+    if (program_area) {
+      caseToUpdate.case_metadata.program_area = program_area;
+    }
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
     if (specialty) {
       caseToUpdate.case_metadata.specialty = specialty;
     }
 
     await caseToUpdate.save();
+<<<<<<< HEAD
     log.info({ caseId, programArea, specialty }, 'Case updated successfully.');
 
     res.status(200).json({
@@ -280,6 +306,13 @@ export async function updateCase(req, res) {
         specialty: caseToUpdate.case_metadata.specialty,
         difficulty: caseToUpdate.case_metadata.difficulty
       }
+=======
+    log.info({ caseId }, 'Case updated successfully.');
+
+    res.status(200).json({
+      message: 'Case updated successfully.',
+      data: caseToUpdate,
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
     });
   } catch (error) {
     log.error(error, 'Server error during case update.');
@@ -288,6 +321,7 @@ export async function updateCase(req, res) {
 }
 
 /**
+<<<<<<< HEAD
  * Delete a case
  */
 export async function deleteCase(req, res) {
@@ -315,11 +349,15 @@ export async function deleteCase(req, res) {
 
 /**
  * Get all users with their performance scores
+=======
+ * Get all users and their scores
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
  */
 export async function getUsersWithScores(req, res) {
   const log = req.log || logger;
 
   try {
+<<<<<<< HEAD
     // Get all users
     const users = await User.find({}).select('-password');
     
@@ -363,10 +401,34 @@ export async function getUsersWithScores(req, res) {
     log.info({ count: usersWithScores.length }, 'Retrieved all users with scores');
     
     res.status(200).json(usersWithScores);
+=======
+    const users = await User.find({}).select('-password');
+    const usersWithScores = await Promise.all(
+      users.map(async (user) => {
+        const performance = await PerformanceMetrics.findOne({ user_ref: user._id })
+          .sort({ evaluated_at: -1 })
+          .select('metrics.overall_score metrics.overall_diagnosis_accuracy evaluated_at');
+        return {
+          ...user.toObject(),
+          overall_performance: performance ? performance.metrics.overall_score : null,
+          overall_diagnosis_accuracy: performance ? performance.metrics.overall_diagnosis_accuracy : null,
+          date_last_evaluated: performance ? performance.evaluated_at : null,
+        };
+      })
+    );
+
+    log.info({ count: usersWithScores.length }, 'Retrieved all users with scores');
+
+    res.status(200).json({
+      message: 'Users with scores retrieved successfully.',
+      data: usersWithScores,
+    });
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
   } catch (error) {
     log.error(error, 'Server error while retrieving users with scores.');
     res.status(500).json({ message: 'Server error while retrieving users with scores.' });
   }
+<<<<<<< HEAD
 }
 /**
  * Get system statistics for admin dashboard
@@ -431,4 +493,6 @@ export async function getSystemStats(req, res) {
     log.error(error, 'Server error while retrieving system statistics.');
     res.status(500).json({ message: 'Server error while retrieving system statistics.' });
   }
+=======
+>>>>>>> 2b98e45a07534089e6377ff59b69676303c5eb95
 }
