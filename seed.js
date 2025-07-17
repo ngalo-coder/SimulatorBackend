@@ -47,7 +47,7 @@ async function pushCasesToMongoDB(cases, mongoUri, dbName, collectionName) {
     const MONGO_URI="mongodb+srv://odongolera:IzGzTDrsr3U4aBaA@cluster0.kha1r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"  // Replace with your MongoDB URI
     const DB_NAME="test"            // Replace with your database name
     const COLLECTION_NAME = "cases"                // Replace with your collection name                        
-    const JSON_FILE_PATH = "cases/case_100.json"       // Replace with the path to your consolidated JSON file
+    const JSON_FILE_PATH = "cases/case_5.json"       // Replace with the path to your consolidated JSON file
 
     // Load cases from JSON
     const cases = loadCasesFromJson(JSON_FILE_PATH);

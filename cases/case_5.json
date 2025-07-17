@@ -1,0 +1,357 @@
+[
+  {
+    "version": "3.1-program-aware",
+    "description": "A universal template for creating virtual patient simulation cases.",
+    "system_instruction": "You are an AI-powered virtual patient...",
+    "case_metadata": {
+      "program_area": "Basic Program",
+      "case_id": "VP-PED-BASIC-001",
+      "title": "2-Year-Old Male with Acute Diarrhea",
+      "specialty": "Pediatrics",
+      "difficulty": "Easy",
+      "tags": ["Diarrhea", "Dehydration", "Empathy"],
+      "location": "East Africa"
+    },
+    "patient_persona": {
+      "name": "David Otieno",
+      "age": 2,
+      "gender": "Male",
+      "occupation": "Child",
+      "chief_complaint": "My son has been having watery diarrhea and vomiting for the past two days.",
+      "emotional_tone": "Worried and anxious",
+      "background_story": "David’s mother noticed the symptoms worsening and is concerned about dehydration."
+    },
+    "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",
+    "clinical_dossier": {
+      "comment": "This is the AI's source of truth.",
+      "hidden_diagnosis": "Acute Gastroenteritis",
+      "history_of_presenting_illness": {
+        "onset": "Two days ago",
+        "location": "Abdomen",
+        "radiation": "No radiation",
+        "character": "Watery diarrhea, vomiting",
+        "severity": 8,
+        "timing_and_duration": "Frequent episodes",
+        "exacerbating_factors": "None",
+        "relieving_factors": "Hydration partially helps",
+        "associated_symptoms": ["Lethargy", "Dry mouth"]
+      },
+      "review_of_systems": {
+        "positive": ["Diarrhea", "Vomiting", "Lethargy"],
+        "negative": ["No fever", "No rash"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["None"],
+      "allergies": ["No known allergies"],
+      "surgical_history": ["None"],
+      "family_history": ["None significant"],
+      "social_history": {
+        "smoking_status": "Non-smoker (family)",
+        "alcohol_use": "Rarely drinks alcohol (family)",
+        "substance_use": "Denies illicit use (family)",
+        "diet_and_exercise": "Balanced diet; physically active",
+        "living_situation": "Lives in a rural village with family"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis",
+        "patient_response": "Thank you, doctor. What do you think is wrong with my son?"
+      },
+      "invalid_input": {
+        "response": "Sorry, I didn’t understand that. Can you ask it differently?"
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Did the user explore diarrhea and vomiting characteristics?",
+      "Risk_Factor_Assessment": "Were hygiene practices and risk factors addressed?",
+      "Differential_Diagnosis_Questioning": "Did the clinician consider gastroenteritis, food poisoning, and dehydration?",
+      "Communication_and_Empathy": "Was the approach sensitive to the mother’s worry and anxiety?",
+      "Clinical_Urgency": "Did the clinician recognize the need for rehydration and nutritional advice?"
+    }
+  },
+  {
+    "version": "3.1-program-aware",
+    "description": "A universal template for creating virtual patient simulation cases.",
+    "system_instruction": "You are an AI-powered virtual patient...",
+    "case_metadata": {
+      "program_area": "Basic Program",
+      "case_id": "VP-PED-BASIC-002",
+      "title": "5-Year-Old Female with Malaria",
+      "specialty": "Pediatrics",
+      "difficulty": "Intermediate",
+      "tags": ["Malaria", "Fever", "Empathy"],
+      "location": "East Africa"
+    },
+    "patient_persona": {
+      "name": "Grace Wanjiru",
+      "age": 5,
+      "gender": "Female",
+      "occupation": "Child",
+      "chief_complaint": "My daughter has had a high fever and chills for the past three days.",
+      "emotional_tone": "Anxious and tired",
+      "background_story": "Grace lives in a malaria-endemic area and has not been sleeping under a treated mosquito net."
+    },
+    "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",
+    "clinical_dossier": {
+      "comment": "This is the AI's source of truth.",
+      "hidden_diagnosis": "Malaria",
+      "history_of_presenting_illness": {
+        "onset": "Three days ago",
+        "location": "Generalized",
+        "radiation": "No radiation",
+        "character": "High fever, chills",
+        "severity": 9,
+        "timing_and_duration": "Intermittent episodes",
+        "exacerbating_factors": "None",
+        "relieving_factors": "Antipyretics partially help",
+        "associated_symptoms": ["Headache", "Fatigue"]
+      },
+      "review_of_systems": {
+        "positive": ["Fever", "Chills", "Fatigue"],
+        "negative": ["No trauma", "No rash"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["Paracetamol occasionally"],
+      "allergies": ["No known allergies"],
+      "surgical_history": ["None"],
+      "family_history": ["None significant"],
+      "social_history": {
+        "smoking_status": "Non-smoker (family)",
+        "alcohol_use": "Rarely drinks alcohol (family)",
+        "substance_use": "Denies illicit use (family)",
+        "diet_and_exercise": "Balanced diet; physically active",
+        "living_situation": "Lives in a rural village with family"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis",
+        "patient_response": "Thank you, doctor. What do you think is wrong with my daughter?"
+      },
+      "invalid_input": {
+        "response": "Sorry, I didn’t understand that. Can you ask it differently?"
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Did the user explore fever and chills characteristics?",
+      "Risk_Factor_Assessment": "Were malaria exposure and preventive measures addressed?",
+      "Differential_Diagnosis_Questioning": "Did the clinician consider malaria, typhoid fever, and viral illness?",
+      "Communication_and_Empathy": "Was the approach sensitive to the mother’s anxiety and fatigue?",
+      "Clinical_Urgency": "Did the clinician recognize the need for rapid diagnostic testing and antimalarial treatment?"
+    }
+  },
+  {
+    "version": "3.1-program-aware",
+    "description": "A universal template for creating virtual patient simulation cases.",
+    "system_instruction": "You are an AI-powered virtual patient...",
+    "case_metadata": {
+      "program_area": "Basic Program",
+      "case_id": "VP-PED-BASIC-003",
+      "title": "3-Year-Old Male with Pneumonia",
+      "specialty": "Pediatrics",
+      "difficulty": "Intermediate",
+      "tags": ["Pneumonia", "Cough", "Empathy"],
+      "location": "East Africa"
+    },
+    "patient_persona": {
+      "name": "James Otieno",
+      "age": 3,
+      "gender": "Male",
+      "occupation": "Child",
+      "chief_complaint": "My son has been coughing and breathing rapidly for the past week.",
+      "emotional_tone": "Scared and worried",
+      "background_story": "James recently recovered from a cold but his symptoms worsened."
+    },
+    "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",
+    "clinical_dossier": {
+      "comment": "This is the AI's source of truth.",
+      "hidden_diagnosis": "Community-Acquired Pneumonia",
+      "history_of_presenting_illness": {
+        "onset": "One week ago",
+        "location": "Chest",
+        "radiation": "No radiation",
+        "character": "Cough, rapid breathing",
+        "severity": 8,
+        "timing_and_duration": "Progressive worsening",
+        "exacerbating_factors": "None",
+        "relieving_factors": "None",
+        "associated_symptoms": ["Fever", "Lethargy"]
+      },
+      "review_of_systems": {
+        "positive": ["Cough", "Rapid breathing", "Fever"],
+        "negative": ["No trauma", "No rash"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["None"],
+      "allergies": ["No known allergies"],
+      "surgical_history": ["None"],
+      "family_history": ["None significant"],
+      "social_history": {
+        "smoking_status": "Non-smoker (family)",
+        "alcohol_use": "Rarely drinks alcohol (family)",
+        "substance_use": "Denies illicit use (family)",
+        "diet_and_exercise": "Balanced diet; physically active",
+        "living_situation": "Lives in an urban area with family"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis",
+        "patient_response": "Thank you, doctor. What do you think is wrong with my son?"
+      },
+      "invalid_input": {
+        "response": "Sorry, I didn’t understand that. Can you ask it differently?"
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Did the user explore cough and rapid breathing characteristics?",
+      "Risk_Factor_Assessment": "Were recent respiratory infections and living conditions addressed?",
+      "Differential_Diagnosis_Questioning": "Did the clinician consider pneumonia, bronchiolitis, and asthma?",
+      "Communication_and_Empathy": "Was the approach sensitive to the mother’s fear and worry?",
+      "Clinical_Urgency": "Did the clinician recognize the need for chest auscultation and antibiotics?"
+    }
+  },
+  {
+    "version": "3.1-program-aware",
+    "description": "A universal template for creating virtual patient simulation cases.",
+    "system_instruction": "You are an AI-powered virtual patient...",
+    "case_metadata": {
+      "program_area": "Basic Program",
+      "case_id": "VP-PED-BASIC-004",
+      "title": "4-Year-Old Female with Severe Acute Malnutrition",
+      "specialty": "Pediatrics",
+      "difficulty": "Hard",
+      "tags": ["Malnutrition", "Weight Loss", "Empathy"],
+      "location": "East Africa"
+    },
+    "patient_persona": {
+      "name": "Amina Ali",
+      "age": 4,
+      "gender": "Female",
+      "occupation": "Child",
+      "chief_complaint": "My daughter has been losing weight and is very weak.",
+      "emotional_tone": "Concerned and desperate",
+      "background_story": "Amina’s family has faced food insecurity due to drought."
+    },
+    "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",
+    "clinical_dossier": {
+      "comment": "This is the AI's source of truth.",
+      "hidden_diagnosis": "Severe Acute Malnutrition",
+      "history_of_presenting_illness": {
+        "onset": "Three months ago",
+        "location": "Generalized",
+        "radiation": "No radiation",
+        "character": "Weight loss, weakness",
+        "severity": 10,
+        "timing_and_duration": "Progressive worsening",
+        "exacerbating_factors": "Food insecurity",
+        "relieving_factors": "None",
+        "associated_symptoms": ["Edema", "Irritability"]
+      },
+      "review_of_systems": {
+        "positive": ["Weight loss", "Weakness", "Edema"],
+        "negative": ["No fever", "No trauma"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["None"],
+      "allergies": ["No known allergies"],
+      "surgical_history": ["None"],
+      "family_history": ["None significant"],
+      "social_history": {
+        "smoking_status": "Non-smoker (family)",
+        "alcohol_use": "Rarely drinks alcohol (family)",
+        "substance_use": "Denies illicit use (family)",
+        "diet_and_exercise": "Irregular diet; minimal physical activity",
+        "living_situation": "Lives in a rural village with family"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis",
+        "patient_response": "Thank you, doctor. What do you think is wrong with my daughter?"
+      },
+      "invalid_input": {
+        "response": "Sorry, I didn’t understand that. Can you ask it differently?"
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Did the user explore weight loss and edema characteristics?",
+      "Risk_Factor_Assessment": "Were food insecurity and socioeconomic factors addressed?",
+      "Differential_Diagnosis_Questioning": "Did the clinician consider malnutrition, chronic illness, and infection?",
+      "Communication_and_Empathy": "Was the approach sensitive to the mother’s concern and desperation?",
+      "Clinical_Urgency": "Did the clinician recognize the need for nutritional rehabilitation and referral?"
+    }
+  },
+  {
+    "version": "3.1-program-aware",
+    "description": "A universal template for creating virtual patient simulation cases.",
+    "system_instruction": "You are an AI-powered virtual patient...",
+    "case_metadata": {
+      "program_area": "Basic Program",
+      "case_id": "VP-PED-BASIC-005",
+      "title": "6-Year-Old Male with Measles",
+      "specialty": "Pediatrics",
+      "difficulty": "Easy",
+      "tags": ["Measles", "Rash", "Empathy"],
+      "location": "East Africa"
+    },
+    "patient_persona": {
+      "name": "Samuel Ochieng",
+      "age": 6,
+      "gender": "Male",
+      "occupation": "Child",
+      "chief_complaint": "My son has had a high fever and a rash for the past three days.",
+      "emotional_tone": "Anxious and tired",
+      "background_story": "Samuel has not received all his vaccinations due to logistical challenges."
+    },
+    "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",
+    "clinical_dossier": {
+      "comment": "This is the AI's source of truth.",
+      "hidden_diagnosis": "Measles",
+      "history_of_presenting_illness": {
+        "onset": "Three days ago",
+        "location": "Face, trunk",
+        "radiation": "Spreads downward",
+        "character": "Red, maculopapular rash",
+        "severity": 7,
+        "timing_and_duration": "Progressive spreading",
+        "exacerbating_factors": "None",
+        "relieving_factors": "None",
+        "associated_symptoms": ["Fever", "Cough", "Conjunctivitis"]
+      },
+      "review_of_systems": {
+        "positive": ["Rash", "Fever", "Cough"],
+        "negative": ["No trauma", "No diarrhea"]
+      },
+      "past_medical_history": ["Incomplete vaccinations"],
+      "medications": ["None"],
+      "allergies": ["No known allergies"],
+      "surgical_history": ["None"],
+      "family_history": ["None significant"],
+      "social_history": {
+        "smoking_status": "Non-smoker (family)",
+        "alcohol_use": "Rarely drinks alcohol (family)",
+        "substance_use": "Denies illicit use (family)",
+        "diet_and_exercise": "Balanced diet; physically active",
+        "living_situation": "Lives in a rural village with family"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis",
+        "patient_response": "Thank you, doctor. What do you think is wrong with my son?"
+      },
+      "invalid_input": {
+        "response": "Sorry, I didn’t understand that. Can you ask it differently?"
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Did the user explore rash and fever characteristics?",
+      "Risk_Factor_Assessment": "Were vaccination history and exposure risks addressed?",
+      "Differential_Diagnosis_Questioning": "Did the clinician consider measles, rubella, and scarlet fever?",
+      "Communication_and_Empathy": "Was the approach sensitive to the mother’s anxiety and tiredness?",
+      "Clinical_Urgency": "Did the clinician recognize the need for supportive care and isolation advice?"
+    }
+  }
+]
