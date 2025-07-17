@@ -200,10 +200,11 @@ export async function getUsersWithScores(req, res) {
       users.map(async (user) => {
         const performance = await PerformanceMetrics.findOne({ user_ref: user._id })
           .sort({ evaluated_at: -1 })
-          .select('metrics.overall_score evaluated_at');
+          .select('metrics.overall_score metrics.overall_diagnosis_accuracy evaluated_at');
         return {
           ...user.toObject(),
           overall_performance: performance ? performance.metrics.overall_score : null,
+          overall_diagnosis_accuracy: performance ? performance.metrics.overall_diagnosis_accuracy : null,
           date_last_evaluated: performance ? performance.evaluated_at : null,
         };
       })
