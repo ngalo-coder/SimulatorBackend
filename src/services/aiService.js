@@ -137,7 +137,10 @@ function parseEvaluationMetrics(evaluationText, log) {
 }
 
 export async function getEvaluation(caseData, conversationHistory, parentLog) {
-  const log = parentLog.child({ service: 'aiService', function: 'getEvaluation' });
+  // Use the provided parentLog or create a new logger instance
+  const log = parentLog ? 
+    parentLog.child({ service: 'aiService', function: 'getEvaluation' }) : 
+    logger.child({ service: 'aiService', function: 'getEvaluation' });
   const { clinical_dossier, evaluation_criteria, patient_persona } = caseData;
   const hiddenDiagnosis = clinical_dossier?.hidden_diagnosis;
   const patientName = patient_persona?.name || "the patient";
