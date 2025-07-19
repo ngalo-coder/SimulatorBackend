@@ -44,3 +44,18 @@ export async function protect(req, res, next) {
     return res.status(401).json({ message: 'Not authorized, no token provided.' });
   }
 }
+/**
+ * Middleware to check if the user is an admin.
+ * Must be used after the protect middleware.
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ */
+export function isAdmin(req, res, next) {
+  // Check if user exists and has admin role
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+  }
+}

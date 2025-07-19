@@ -8,6 +8,7 @@ import authRoutes from "./src/routes/authRoutes.js"; // Import auth routes
 import queueRoutes from "./src/routes/queueRoutes.js"; // Import queue routes
 import clinicianProgressRoutes from "./src/routes/clinicianProgressRoutes.js"; // Import clinician progress routes
 import adminRoutes from "./src/routes/adminRoutes.js"; // Import admin routes
+import adminProgramRoutes from "./src/routes/adminProgramRoutes.js"; // Import admin program routes
 import connectDB from "./src/config/db.js"; // Import connectDB
 
 dotenv.config();
@@ -66,6 +67,7 @@ app.use("/api/users", queueRoutes); // Mount queue routes under /api/users
 app.use("/api/simulation", simulationRoutes);
 app.use("/api/progress", clinicianProgressRoutes); // Mount clinician progress routes
 app.use("/api/admin", adminRoutes); // Mount admin routes
+app.use("/api/admin", adminProgramRoutes); // Mount admin program routes
 
 app.get("/", (req, res) => {
   res.send("Virtual Patient Simulation API is running!");
