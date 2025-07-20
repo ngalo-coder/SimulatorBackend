@@ -1,0 +1,76 @@
+{
+    "program": "Internal Medicine Basic Program",
+    "modules": [
+        {
+            "name": "Tropical Medicine",
+            "label": "InternalMed → Tropical Medicine",
+            "description": "Covers infectious diseases common in tropical regions and globally.",
+            "examples": [
+                "Malaria",
+                "Tuberculosis (Pulmonary and Extrapulmonary)",
+                "Typhoid fever",
+                "HIV/AIDS and opportunistic infections",
+                "Dengue fever",
+                "Leishmaniasis",
+                "COVID-19",
+                "Schistosomiasis"
+            ]
+        },
+        {
+            "name": "Genital Urinary System",
+            "label": "InternalMed → Genital Urinary System",
+            "description": "Covers nephrology and urinary tract disorders.",
+            "examples": [
+                "Acute kidney injury (AKI)",
+                "Chronic kidney disease (CKD)",
+                "Nephrotic syndrome",
+                "Glomerulonephritis",
+                "Urinary tract infections",
+                "Polycystic kidney disease",
+                "Renal tubular acidosis"
+            ]
+        },
+        {
+            "name": "Central Nervous System",
+            "label": "InternalMed → Central Nervous System",
+            "description": "Covers neurology-related disorders affecting brain, spine, and nerves.",
+            "examples": [
+                "Stroke (Ischemic, Hemorrhagic)",
+                "Epilepsy and seizures",
+                "Meningitis and encephalitis",
+                "Multiple sclerosis",
+                "Parkinson’s disease",
+                "Peripheral neuropathies",
+                "Guillain-Barré syndrome"
+            ]
+        },
+        {
+            "name": "Respiratory System",
+            "label": "InternalMed → Respiratory System",
+            "description": "Covers diseases affecting the lungs and respiratory tract.",
+            "examples": [
+                "Pneumonia",
+                "Asthma",
+                "Chronic obstructive pulmonary disease (COPD)",
+                "Pulmonary embolism",
+                "Interstitial lung disease",
+                "Pleural effusion",
+                "Bronchiectasis"
+            ]
+        },
+        {
+            "name": "Musculoskeletal System",
+            "label": "InternalMed → Musculoskeletal System",
+            "description": "Covers rheumatologic and musculoskeletal disorders.",
+            "examples": [
+                "Rheumatoid arthritis",
+                "Systemic lupus erythematosus (SLE)",
+                "Osteoarthritis",
+                "Gout",
+                "Ankylosing spondylitis",
+                "Vasculitis syndromes",
+                "Dermatomyositis"
+            ]
+        }
+    ]
+}
