@@ -24,7 +24,10 @@
     "occupation": "[Patient's Occupation, e.g., Teacher]",
     "chief_complaint": "[The patient's main reason for visit, e.g., 'Severe abdominal pain since morning']",
     "emotional_tone": "[Mood, e.g., Irritable, scared, or calm]",
-    "background_story": "[Non-clinical background info to enhance realism]"
+    "background_story": "[Non-clinical background info to enhance realism]",
+    "speaks_for": "[e.g., Mother, Father, Guardian]",
+    "patient_is_present": true,
+    "patient_age_for_communication": 5
   },
 
   "initial_prompt": "You are now interacting with a virtual patient. Begin by asking your clinical questions.",

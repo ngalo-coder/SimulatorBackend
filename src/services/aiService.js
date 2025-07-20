@@ -13,18 +13,26 @@ function buildPrompt(caseData, conversationHistory, newQuestion, willEndCurrentR
   const patient = caseData.patient_profile || caseData.patient_persona || {};
   const historyString = conversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
   const endInstructions = willEndCurrentResponse
-    ? "\n\nIMPORTANT: The clinician has diagnosed you and is admitting you to the hospital. Express trust, relief, and bring the conversation to a natural close."
+    ? "\n\nIMPORTANT: The clinician has diagnosed the patient and is admitting them to the hospital. Express trust, relief, and bring the conversation to a natural close."
     : "";
-  
+
+  let personaDescription = `You are ${patient.name || 'the patient'}, a ${patient.age || 'unknown'}-year-old.`;
+  if (patient.speaks_for) {
+    personaDescription = `You are the ${patient.speaks_for} of ${patient.name}, a ${patient.age || 'unknown'}-year-old. You are speaking on their behalf.`;
+    if (patient.patient_is_present) {
+      personaDescription += ` The patient is in the room with you. You can ask them simple questions if appropriate, but you should answer most questions yourself.`;
+    }
+  }
+
   return `
-    You are ${patient.name || 'the patient'}, a ${patient.age || 'unknown'}-year-old.
-    Role Guidelines: Respond as the patient. Only reveal info when asked. Never self-diagnose. Maintain a ${caseData.response_rules?.emotional_tone || patient.emotional_tone || 'concerned'} tone.
+    ${personaDescription}
+    Role Guidelines: Respond from your assigned persona. Only reveal info when asked. Never self-diagnose. Maintain a ${caseData.response_rules?.emotional_tone || patient.emotional_tone || 'concerned'} tone.
     Background: ${patient.case_notes || patient.background_story || 'No additional notes'}
     Conversation History:
     ${historyString}
     Clinician's latest question: "${newQuestion}"
     ${endInstructions}
-    Your response as the patient (1-2 sentences):
+    Your response (1-2 sentences):
   `;
 }
 
