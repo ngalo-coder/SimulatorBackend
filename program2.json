@@ -1,0 +1,45 @@
+{
+    "program": "Internal Medicine Basic Program",
+    "modules": [
+        {
+            "name": "Cardiovascular System",
+            "label": "InternalMed → Cardiovascular",
+            "description": "Covers heart and vascular system disorders.",
+            "examples": [
+                "Hypertension",
+                "Heart failure (Acute/Chronic)",
+                "Myocardial infarction",
+                "Arrhythmias (AF, VT, Bradycardia)",
+                "Valvular heart diseases (Mitral stenosis, Aortic regurgitation)",
+                "Cardiomyopathies (Dilated, Hypertrophic)",
+                "Pericarditis and Pericardial effusion"
+            ]
+        },
+        {
+            "name": "Endocrine System",
+            "label": "InternalMed → Endocrine",
+            "description": "Covers hormonal and metabolic disorders.",
+            "examples": [
+                "Diabetes Mellitus (Type 1, Type 2, DKA, HHS)",
+                "Thyroid disorders (Hypo-/Hyperthyroidism, Thyroid storm)",
+                "Adrenal disorders (Addison's disease, Cushing’s syndrome)",
+                "Pituitary disorders (Prolactinoma, Acromegaly)",
+                "Parathyroid and calcium metabolism disorders"
+            ]
+        },
+        {
+            "name": "Gastrointestinal System",
+            "label": "InternalMed → Gastrointestinal",
+            "description": "Covers diseases of the digestive tract, liver, pancreas, and gallbladder.",
+            "examples": [
+                "Peptic ulcer disease, Gastritis",
+                "GERD, Esophageal varices",
+                "Hepatitis (A-E), Cirrhosis, Hepatic encephalopathy",
+                "Pancreatitis (Acute/Chronic)",
+                "Inflammatory Bowel Disease (Crohn’s, Ulcerative colitis)",
+                "GI bleeding (Upper, Lower)",
+                "Malabsorption syndromes"
+            ]
+        }
+    ]
+}
