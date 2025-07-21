@@ -11,6 +11,7 @@ const CaseMetadataSchema = new mongoose.Schema({
     trim: true,
     enum: ['Basic Program', 'Specialty Program'] // Updated enum values
   },
+  module: { type: String, trim: true }, // Added module field for Internal Medicine specialization
   difficulty: { 
     type: String, 
     required: true, 
