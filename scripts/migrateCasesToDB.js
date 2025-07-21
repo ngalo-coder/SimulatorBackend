@@ -26,7 +26,7 @@ const migrateCases = async () => {
   try {
     await connectToDBForScript();
 
-    const casesDir = path.join(process.cwd(), 'cases'); // Assuming 'cases' is in project root
+    const casesDir = path.join(process.cwd(), 'data', 'cases'); // Cases are in data/cases directory
     const files = await fs.readdir(casesDir);
 
     let successCount = 0;
@@ -37,31 +37,35 @@ const migrateCases = async () => {
         const filePath = path.join(casesDir, file);
         try {
           const fileContent = await fs.readFile(filePath, 'utf-8');
-          const caseData = JSON.parse(fileContent);
+          const casesArray = JSON.parse(fileContent);
 
-          // Basic validation/transformation if needed.
-          // For now, assuming the JSON structure directly matches the CaseModel schema.
-          // The schema itself will perform validation based on its definition.
+          // Handle both single case objects and arrays of cases
+          const cases = Array.isArray(casesArray) ? casesArray : [casesArray];
 
-          if (!caseData.case_metadata || !caseData.case_metadata.case_id) {
-            console.error(`Skipping file ${file}: Missing case_metadata.case_id.`);
-            errorCount++;
-            continue;
+          for (const caseData of cases) {
+            // Basic validation/transformation if needed.
+            // For now, assuming the JSON structure directly matches the CaseModel schema.
+            // The schema itself will perform validation based on its definition.
+
+            if (!caseData.case_metadata || !caseData.case_metadata.case_id) {
+              console.error(`Skipping case in file ${file}: Missing case_metadata.case_id.`);
+              errorCount++;
+              continue;
+            }
+
+            // Ensure evaluation_criteria is a Map as expected by the schema if it's an object
+            if (caseData.evaluation_criteria && typeof caseData.evaluation_criteria === 'object' && !(caseData.evaluation_criteria instanceof Map)) {
+              caseData.evaluation_criteria = new Map(Object.entries(caseData.evaluation_criteria));
+            }
+
+            const result = await Case.findOneAndUpdate(
+              { 'case_metadata.case_id': caseData.case_metadata.case_id },
+              caseData,
+              { upsert: true, new: true, runValidators: true }
+            );
+            console.log(`Successfully upserted case: ${result.case_metadata.title} (ID: ${result.case_metadata.case_id})`);
+            successCount++;
           }
-
-          // Ensure evaluation_criteria is a Map as expected by the schema if it's an object
-          if (caseData.evaluation_criteria && typeof caseData.evaluation_criteria === 'object' && !(caseData.evaluation_criteria instanceof Map)) {
-            caseData.evaluation_criteria = new Map(Object.entries(caseData.evaluation_criteria));
-          }
-
-
-          const result = await Case.findOneAndUpdate(
-            { 'case_metadata.case_id': caseData.case_metadata.case_id },
-            caseData,
-            { upsert: true, new: true, runValidators: true }
-          );
-          console.log(`Successfully upserted case: ${result.case_metadata.title} (ID: ${result.case_metadata.case_id})`);
-          successCount++;
         } catch (err) {
           console.error(`Error processing file ${file}:`, err.message);
           if (err.errors) { // Mongoose validation errors

@@ -52,17 +52,38 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
       stream: true,
     });
 
+    const patient = caseData.patient_profile || caseData.patient_persona || {};
+    
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
         fullResponse += content;
-        res.write(`data: ${JSON.stringify({ type: 'chunk', content })}\n\n`);
+        const chunkData = { type: 'chunk', content };
+        
+        // Include speaks_for information if present
+        if (patient.speaks_for) {
+          chunkData.speaks_for = patient.speaks_for;
+        }
+        
+        res.write(`data: ${JSON.stringify(chunkData)}\n\n`);
       }
     }
     log.info('Successfully streamed patient response.');
 
     if (fullResponse) {
-      conversationHistory.push({ role: 'Patient', content: fullResponse, timestamp: new Date() });
+      const patient = caseData.patient_profile || caseData.patient_persona || {};
+      const historyEntry = { 
+        role: 'Patient', 
+        content: fullResponse, 
+        timestamp: new Date() 
+      };
+      
+      // Add speaks_for information if present
+      if (patient.speaks_for) {
+        historyEntry.speaks_for = patient.speaks_for;
+      }
+      
+      conversationHistory.push(historyEntry);
     }
 
     if (willEndCurrentResponse) {

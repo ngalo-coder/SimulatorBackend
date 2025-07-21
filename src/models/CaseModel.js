@@ -32,7 +32,18 @@ const PatientPersonaSchema = new mongoose.Schema({
   background_story: { type: String, trim: true },
   speaks_for: { type: String, trim: true },
   patient_is_present: { type: Boolean },
-  patient_age_for_communication: { type: Number }
+  patient_age_for_communication: { type: Number },
+  is_pediatric: { type: Boolean },
+  pediatric_threshold: { type: Number },
+  guardian: {
+    name: { type: String, trim: true },
+    relationship: { type: String, trim: true },
+    age: { type: Number },
+    occupation: { type: String, trim: true },
+    emotional_state: { type: String, trim: true },
+    background_info: { type: String, trim: true },
+    communication_style: { type: String, trim: true }
+  }
 }, { _id: false });
 
 // History of Presenting Illness Schema
