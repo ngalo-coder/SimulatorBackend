@@ -27,31 +27,44 @@ app.use(pinoHttp({ logger }));
 
 // --- CORS Configuration ---
 const allowedOrigins = [
-  'https://kuiga.online',
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:5002',
-  'http://localhost:5003',
+  'https://kuiga.online', // Your production frontend
+  'https://simuatech.netlify.app', // Netlify deployment
+  'http://localhost:3000', // Your local development frontend (if applicable)
+  'http://localhost:5173', // Another common local dev port (Vite)
+  'http://localhost:5174', // Additional Vite dev port
+  'http://localhost:5002', // Backend server port (for same-origin requests)
+  'http://localhost:5003', // Backend server port (for same-origin requests)
+  // Add any other origins you need to allow
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        logger.error(`CORS Error: Origin ${origin} not allowed.`);
+        const msg =
+          'The CORS policy for this site does not allow access from the specified Origin.';
+        logger.error(`CORS Error: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.join(', ')}`); // Use logger
         return callback(new Error(msg), false);
       }
       return callback(null, true);
     },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true, // Important if your frontend sends cookies or Authorization headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-Timestamp', 'X-Client-Version'], // Ensure 'Authorization' is included if you use tokens
+    exposedHeaders: ['X-Request-ID'], // Allow frontend to access these headers
+    preflightContinue: false,
+    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
   })
 );
 // --- End CORS Configuration ---
+
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path} - Origin: ${req.get('Origin') || 'none'}`);
+  next();
+});
 
 app.use(express.json());
 
