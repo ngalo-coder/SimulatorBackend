@@ -63,12 +63,13 @@ app.use('/auth/login', (req, res) => {
   res.redirect(307, '/api/auth/login');
 });
 
-import { redisCache } from './src/config/redis.js';
+// import { redisCache } from './src/config/redis.js';
 
 // Mount Routers
 app.use('/api/auth', authRoutes);
 app.use('/api/users', queueRoutes); // Mount queue routes under /api/users
-app.use('/api/simulation', redisCache.route(), simulationRoutes);
+// app.use('/api/simulation', redisCache.route(), simulationRoutes);
+app.use('/api/simulation', simulationRoutes);
 app.use('/api/progress', clinicianProgressRoutes); // Mount clinician progress routes
 app.use('/api/admin', adminRoutes); // Mount admin routes
 app.use('/api/admin', adminProgramRoutes); // Mount admin program routes
