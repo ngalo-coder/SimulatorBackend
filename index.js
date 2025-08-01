@@ -87,6 +87,17 @@ app.get('/', (req, res) => {
   res.send('Virtual Patient Simulation API is running!');
 });
 
+// Health check endpoint with CORS info
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    origin: req.get('Origin') || 'none',
+    allowedOrigins: allowedOrigins,
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 app.listen(PORT, () => {
   logger.info(`Server is running on http://localhost:${PORT}`);
 });
