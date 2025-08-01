@@ -3,16 +3,14 @@ services:
     name: simulator-backend
     env: node
     buildCommand: |
-      npm cache clean --force &&
+      echo "Starting clean build process..." &&
       rm -rf node_modules package-lock.json &&
-      npm install --legacy-peer-deps --no-optional &&
-      npm install gopd@^1.0.1 get-intrinsic@^1.2.4 side-channel@^1.0.6
+      npm cache clean --force &&
+      npm install --no-package-lock --no-audit --no-fund
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-      - key: NPM_CONFIG_LEGACY_PEER_DEPS
-        value: true
     healthCheckPath: /
