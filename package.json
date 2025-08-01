@@ -8,7 +8,13 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "build": "echo 'No build step required'",
+    "postinstall": "echo 'Dependencies installed successfully'",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "author": "Google LLC",
   "license": "Apache-2.0",
@@ -19,7 +25,6 @@
     "dotenv": "^17.0.1",
     "express": "^4.21.2",
     "express-redis-cache": "^0.5.0",
-    "gopd": "^1.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
     "nodemailer": "^7.0.5",
