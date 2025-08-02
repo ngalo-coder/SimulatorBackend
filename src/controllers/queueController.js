@@ -67,3 +67,45 @@ export async function markCaseStatus(req, res) {
         handleError(res, error, log);
     }
 }
+
+export async function getQueueSession(req, res) {
+    const log = req.log.child({ userId: req.user.id, sessionId: req.params.sessionId });
+    try {
+        const { sessionId } = req.params;
+        
+        if (!sessionId) {
+            log.warn('Get queue session failed: Session ID is required.');
+            return res.status(400).json({ message: 'Session ID is required.' });
+        }
+
+        const result = await queueService.getQueueSession(req.user.id, sessionId);
+        log.info('Fetched queue session successfully.');
+        handleSuccess(res, result);
+    } catch (error) {
+        log.error(error, 'Error getting queue session.');
+        handleError(res, error, log);
+    }
+}
+
+export async function getCaseHistory(req, res) {
+    const log = req.log.child({ userId: req.user.id, targetUserId: req.params.userId });
+    try {
+        // If userId is provided in params, use it (for admin), otherwise use current user
+        const targetUserId = req.params.userId || req.user.id;
+        
+        // If requesting another user's history, check if current user is admin
+        if (req.params.userId && req.params.userId !== req.user.id) {
+            if (!req.user.isAdmin) {
+                log.warn('Get case history failed: Insufficient permissions.');
+                return res.status(403).json({ message: 'Insufficient permissions to view other users\' case history.' });
+            }
+        }
+
+        const result = await queueService.getCaseHistory(targetUserId);
+        log.info('Fetched case history successfully.');
+        handleSuccess(res, result);
+    } catch (error) {
+        log.error(error, 'Error getting case history.');
+        handleError(res, error, log);
+    }
+}

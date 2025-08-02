@@ -9,6 +9,7 @@ import queueRoutes from './src/routes/queueRoutes.js';
 import clinicianProgressRoutes from './src/routes/clinicianProgressRoutes.js';
 import adminRoutes from './src/routes/adminRoutes.js';
 import adminProgramRoutes from './src/routes/adminProgramRoutes.js';
+import adminContributionRoutes from './src/routes/adminContributionRoutes.js';
 import contributeCaseRoutes from './src/routes/contributeCaseRoutes.js';
 import performanceRoutes from './src/routes/performanceRoutes.js';
 import connectDB from './src/config/db.js';
@@ -80,6 +81,7 @@ app.use('/api/simulation', simulationRoutes); // Removed Redis cache
 app.use('/api/progress', clinicianProgressRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminProgramRoutes);
+app.use('/api/admin', adminContributionRoutes);
 app.use('/api/contribute', contributeCaseRoutes);
 app.use('/api/performance', performanceRoutes);
 

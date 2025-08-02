@@ -237,3 +237,76 @@ export async function markCaseStatus(userId, originalCaseIdString, status, filte
 
     return updatedProgress;
 }
+
+export async function getQueueSession(userId, sessionId) {
+    const session = await UserQueueSession.findOne({ sessionId, userId }).lean();
+    if (!session) {
+        throw { status: 404, message: 'Queue session not found or not owned by user.' };
+    }
+
+    // Get current case details if available
+    let currentCase = null;
+    if (session.currentCaseIndex >= 0 && session.currentCaseIndex < session.queuedCaseIds.length) {
+        const currentCaseId = session.queuedCaseIds[session.currentCaseIndex];
+        const caseDetails = await Case.findOne({ 'case_metadata.case_id': currentCaseId }).lean();
+        if (caseDetails) {
+            currentCase = caseDetails;
+        }
+    }
+
+    // Get completed cases count
+    const completedCases = await UserCaseProgress.find({
+        userId,
+        filterContextHash: session.filterContextHash,
+        status: { $in: ['completed', 'skipped'] }
+    }).select('originalCaseIdString').lean();
+
+    return {
+        sessionId: session.sessionId,
+        userId: session.userId,
+        programArea: session.filtersApplied.program_area,
+        specialty: session.filtersApplied.specialty,
+        currentCaseIndex: session.currentCaseIndex,
+        totalCases: session.queuedCaseIds.length,
+        completedCases: completedCases.map(c => c.originalCaseIdString),
+        createdAt: session.createdAt,
+        lastAccessedAt: session.updatedAt,
+        currentCase
+    };
+}
+
+export async function getCaseHistory(userId) {
+    // Get all performance metrics for the user
+    const PerformanceMetrics = mongoose.model('PerformanceMetrics');
+    
+    const performanceRecords = await PerformanceMetrics.find({ userId })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    // Get case details for each performance record
+    const caseHistory = [];
+    
+    for (const record of performanceRecords) {
+        try {
+            const caseDetails = await Case.findOne({ 'case_metadata.case_id': record.caseId }).lean();
+            if (caseDetails) {
+                caseHistory.push({
+                    caseId: record.caseId,
+                    title: caseDetails.case_metadata.title,
+                    specialty: caseDetails.case_metadata.specialty,
+                    programArea: caseDetails.case_metadata.program_area,
+                    status: 'completed',
+                    completedAt: record.createdAt,
+                    score: record.totalScore || 0,
+                    rating: record.overallRating || 'Not Rated',
+                    duration: record.duration || 0,
+                    messagesExchanged: record.messagesExchanged || 0
+                });
+            }
+        } catch (error) {
+            console.error(`Error fetching case details for ${record.caseId}:`, error);
+        }
+    }
+
+    return caseHistory;
+}
