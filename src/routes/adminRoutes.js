@@ -11,37 +11,77 @@ const router = express.Router();
 // Get system statistics
 router.get('/stats', protect, isAdmin, async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalCases = await Case.countDocuments();
-    const totalSessions = await PerformanceMetrics.countDocuments();
+    const { startDate, endDate } = req.query;
     
-    // Get user registrations in the last 30 days
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const recentUsers = await User.countDocuments({ 
-      createdAt: { $gte: thirtyDaysAgo } 
-    });
-    
-    // Get active users (users who have completed at least one case)
-    const activeUsers = await PerformanceMetrics.distinct('user_ref').then(userIds => userIds.length);
-    
-    // Get cases by specialty
-    const casesBySpecialty = await Case.aggregate([
-      {
-        $group: {
-          _id: '$case_metadata.specialty',
-          count: { $sum: 1 }
+    // Build date filter if provided
+    let dateFilter = {};
+    if (startDate && endDate) {
+      dateFilter = {
+        createdAt: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
         }
-      },
-      { $sort: { count: -1 } }
-    ]);
+      };
+    }
     
-    // Get recent activity (last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentSessions = await PerformanceMetrics.countDocuments({
-      createdAt: { $gte: sevenDaysAgo }
-    });
+    // Use Promise.all for parallel execution
+    const [
+      totalUsers,
+      totalCases,
+      totalSessions,
+      recentUsers,
+      activeUsers,
+      casesBySpecialty,
+      recentSessions,
+      userGrowth
+    ] = await Promise.all([
+      User.countDocuments(dateFilter),
+      Case.countDocuments(),
+      PerformanceMetrics.countDocuments(dateFilter),
+      
+      // Recent users (last 30 days)
+      User.countDocuments({
+        createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+      }),
+      
+      // Active users (users who have completed at least one case)
+      PerformanceMetrics.distinct('user_ref').then(userIds => userIds.length),
+      
+      // Cases by specialty
+      Case.aggregate([
+        {
+          $group: {
+            _id: '$case_metadata.specialty',
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } }
+      ]),
+      
+      // Recent sessions (last 7 days)
+      PerformanceMetrics.countDocuments({
+        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+      }),
+      
+      // User growth over last 12 months
+      User.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' }
+            },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { '_id.year': 1, '_id.month': 1 } }
+      ])
+    ]);
     
     res.json({
       totalUsers,
@@ -50,11 +90,42 @@ router.get('/stats', protect, isAdmin, async (req, res) => {
       recentUsers,
       activeUsers,
       recentSessions,
-      casesBySpecialty
+      casesBySpecialty,
+      userGrowth,
+      generatedAt: new Date().toISOString(),
+      dateRange: startDate && endDate ? { startDate, endDate } : null
     });
   } catch (error) {
     console.error('Error fetching system stats:', error);
     res.status(500).json({ error: 'Failed to fetch system statistics' });
+  }
+});
+
+// Get real-time statistics (lightweight)
+router.get('/stats/realtime', protect, isAdmin, async (req, res) => {
+  try {
+    const [activeUsers, recentSessions, pendingReviews] = await Promise.all([
+      PerformanceMetrics.distinct('user_ref', {
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24 hours
+      }).then(userIds => userIds.length),
+      
+      PerformanceMetrics.countDocuments({
+        createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) } // Last hour
+      }),
+      
+      // Assuming ContributedCase model exists
+      mongoose.model('ContributedCase').countDocuments({ status: 'submitted' })
+    ]);
+    
+    res.json({
+      activeUsers,
+      recentSessions,
+      pendingReviews,
+      lastUpdated: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error fetching real-time stats:', error);
+    res.status(500).json({ error: 'Failed to fetch real-time statistics' });
   }
 });
 
