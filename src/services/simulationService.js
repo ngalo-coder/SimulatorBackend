@@ -67,9 +67,17 @@ export async function startSimulation(caseId) {
     });
 
     await newSession.save();
+    
+    // Extract patient information for the frontend
+    const patientPersona = caseDataFromDB.patient_persona;
+    const patientName = patientPersona?.name || 'Virtual Patient';
+    const speaksFor = patientPersona?.speaks_for;
+    
     return {
         sessionId: newSession._id.toString(),
         initialPrompt: caseDataFromDB.initial_prompt,
+        patientName: patientName,
+        speaks_for: speaksFor
     };
 }
 
