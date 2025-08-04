@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect } from '../middleware/jwtAuthMiddleware.js';
+import { protect, optionalAuth } from '../middleware/jwtAuthMiddleware.js';
 import { 
   getCases, 
   startSimulation,
@@ -12,8 +12,15 @@ import {
 
 const router = express.Router();
 
-// Protect all simulation routes
-router.use(protect);
+// Most routes need protection
+router.use('/cases', protect);
+router.use('/case-categories', protect);
+router.use('/start', protect);
+router.use('/end', protect);
+router.use('/performance-metrics', protect);
+
+// EventSource endpoint needs special handling (can't send Authorization headers)
+router.use('/ask', optionalAuth);
 
 router.get('/cases', getCases);
 router.get('/case-categories', getCaseCategories);
