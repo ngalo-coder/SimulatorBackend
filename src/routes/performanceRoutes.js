@@ -1,7 +1,13 @@
 import express from 'express';
 import ClinicianPerformance from '../models/ClinicianPerformanceModel.js';
+import ClinicianProgress from '../models/ClinicianProgressModel.js';
+import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Add authentication middleware to all routes
+router.use(protect);
 
 // Record evaluation result and update performance
 router.post('/record-evaluation', async (req, res) => {
@@ -79,13 +85,96 @@ router.get('/summary/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     
-    const performance = await ClinicianPerformance.findOne({ userId });
+    // First try to get data from ClinicianPerformance (new system)
+    let performance = await ClinicianPerformance.findOne({ userId });
     
+    // If not found, create summary from ClinicianProgress (legacy system)
     if (!performance) {
-      return res.status(404).json({ error: 'Performance record not found' });
+      const progress = await ClinicianProgress.findOne({ userId });
+      const recentMetrics = await PerformanceMetrics.find({ user_ref: userId })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .populate('case_ref', 'case_metadata.title case_metadata.specialty case_metadata.difficulty');
+
+      if (!progress) {
+        return res.status(404).json({ error: 'Performance record not found' });
+      }
+
+      // Convert ClinicianProgress to PerformanceSummary format
+      const totalEvaluations = progress.totalCasesCompleted;
+      const excellentCount = recentMetrics.filter(m => m.metrics?.overall_score >= 90).length;
+      const goodCount = recentMetrics.filter(m => m.metrics?.overall_score >= 70 && m.metrics?.overall_score < 90).length;
+      const needsImprovementCount = recentMetrics.filter(m => m.metrics?.overall_score < 70).length;
+
+      // Group metrics by specialty
+      const specialtyStats = {};
+      recentMetrics.forEach(metric => {
+        const specialty = metric.case_ref?.case_metadata?.specialty || 'General';
+        if (!specialtyStats[specialty]) {
+          specialtyStats[specialty] = {
+            totalCases: 0,
+            excellentCount: 0,
+            averageScore: 0,
+            scores: []
+          };
+        }
+        specialtyStats[specialty].totalCases++;
+        specialtyStats[specialty].scores.push(metric.metrics?.overall_score || 0);
+        if (metric.metrics?.overall_score >= 90) {
+          specialtyStats[specialty].excellentCount++;
+        }
+      });
+
+      // Calculate averages
+      Object.keys(specialtyStats).forEach(specialty => {
+        const stats = specialtyStats[specialty];
+        stats.averageScore = stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length;
+        delete stats.scores; // Remove scores array from response
+      });
+
+      const summary = {
+        userId: userId,
+        name: req.user?.name || 'User',
+        email: req.user?.email || '',
+        
+        overallStats: {
+          totalEvaluations,
+          excellentCount,
+          goodCount,
+          needsImprovementCount,
+          excellentRate: totalEvaluations > 0 ? (excellentCount / totalEvaluations * 100).toFixed(1) : 0
+        },
+        
+        specialtyStats,
+        
+        contributorStatus: {
+          isEligible: false,
+          eligibleSpecialties: [],
+          qualificationDate: null,
+          eligibilityCriteria: {}
+        },
+        
+        contributionStats: {
+          totalSubmissions: 0,
+          approvedSubmissions: 0,
+          rejectedSubmissions: 0,
+          pendingSubmissions: 0
+        },
+        
+        recentEvaluations: recentMetrics.map(m => ({
+          caseTitle: m.case_ref?.case_metadata?.title || 'Unknown Case',
+          specialty: m.case_ref?.case_metadata?.specialty || 'General',
+          rating: m.metrics?.overall_score >= 90 ? 'Excellent' : 
+                  m.metrics?.overall_score >= 70 ? 'Good' : 'Needs Improvement',
+          score: m.metrics?.overall_score || 0,
+          completedAt: m.createdAt
+        }))
+      };
+
+      return res.json(summary);
     }
 
-    // Calculate overall statistics
+    // Original ClinicianPerformance logic
     const totalEvaluations = performance.evaluationHistory.length;
     const excellentCount = performance.evaluationHistory.filter(e => e.overallRating === 'Excellent').length;
     const goodCount = performance.evaluationHistory.filter(e => e.overallRating === 'Good').length;
@@ -179,42 +268,41 @@ router.get('/leaderboard', async (req, res) => {
   try {
     const { specialty, limit = 10 } = req.query;
     
-    let query = {};
-    if (specialty) {
-      query[`specialtyStats.${specialty}`] = { $exists: true };
-    }
+    // Get data from ClinicianProgress (which has the actual completion data)
+    const progressRecords = await ClinicianProgress.find({})
+      .populate('userId', 'username email')
+      .limit(parseInt(limit))
+      .sort({ overallAverageScore: -1 });
 
-    const performers = await ClinicianPerformance.find(query)
-      .select('userId name specialtyStats contributorStatus')
-      .limit(parseInt(limit));
+    const leaderboard = await Promise.all(progressRecords.map(async (progress) => {
+      // Get recent performance metrics for this user to calculate excellence rate
+      const recentMetrics = await PerformanceMetrics.find({ user_ref: progress.userId })
+        .sort({ createdAt: -1 })
+        .limit(20);
 
-    const leaderboard = performers.map(p => {
-      let stats;
-      if (specialty && p.specialtyStats.has(specialty)) {
-        stats = p.specialtyStats.get(specialty);
-      } else {
-        // Calculate overall stats
-        const allStats = Array.from(p.specialtyStats.values());
-        stats = {
-          totalCases: allStats.reduce((sum, s) => sum + s.totalCases, 0),
-          excellentCount: allStats.reduce((sum, s) => sum + s.excellentCount, 0),
-          averageScore: allStats.length > 0 ? 
-            allStats.reduce((sum, s) => sum + s.averageScore, 0) / allStats.length : 0
-        };
-      }
-
+      const excellentCount = recentMetrics.filter(m => m.metrics?.overall_score >= 90).length;
+      const totalCases = progress.totalCasesCompleted;
+      
       return {
-        userId: p.userId,
-        name: p.name,
-        totalCases: stats.totalCases,
-        excellentCount: stats.excellentCount,
-        excellentRate: stats.totalCases > 0 ? (stats.excellentCount / stats.totalCases * 100).toFixed(1) : 0,
-        averageScore: stats.averageScore?.toFixed(1) || 0,
-        isContributor: p.contributorStatus.isEligible
+        userId: progress.userId,
+        name: progress.userId?.username || 'Anonymous',
+        totalCases: totalCases,
+        excellentCount: excellentCount,
+        excellentRate: totalCases > 0 ? (excellentCount / totalCases * 100).toFixed(1) : 0,
+        averageScore: progress.overallAverageScore?.toFixed(1) || 0,
+        isContributor: false // TODO: Check contributor status
       };
-    }).sort((a, b) => b.excellentRate - a.excellentRate);
+    }));
 
-    res.json(leaderboard);
+    // Sort by excellence rate, then by total cases
+    leaderboard.sort((a, b) => {
+      if (b.excellentRate !== a.excellentRate) {
+        return b.excellentRate - a.excellentRate;
+      }
+      return b.totalCases - a.totalCases;
+    });
+
+    res.json(leaderboard.slice(0, parseInt(limit)));
 
   } catch (error) {
     console.error('Error fetching leaderboard:', error);

@@ -2,7 +2,6 @@ import { getPatientResponseStream, getEvaluation } from './aiService.js';
 import Case from '../models/CaseModel.js';
 import Session from '../models/SessionModel.js';
 import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
-import axios from 'axios';
 
 export async function getCases(queryParams) {
     const { program_area, specialty, specialized_area, page = 1, limit = 20 } = queryParams;
@@ -144,22 +143,15 @@ export async function endSession(sessionId, user, headers) {
     await session.save();
     await performanceRecord.save();
 
+    // Update clinician progress directly (no need for HTTP request)
     if (user && user._id) {
         try {
-            const progressData = {
-                userId: user._id,
-                caseId: session.case_ref._id,
-                performanceMetricsId: performanceRecord._id
-            };
-            await axios.post(`${process.env.API_BASE_URL || 'http://localhost:5001'}/api/progress/update`, progressData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': headers.authorization
-                }
-            });
+            const { updateProgressAfterCase } = await import('./clinicianProgressService.js');
+            await updateProgressAfterCase(user._id, session.case_ref._id, performanceRecord._id);
+            console.log('✅ Clinician progress updated successfully for user:', user._id);
         } catch (progressError) {
             // Log the error but don't fail the request
-            console.error('Error updating clinician progress, but session ended successfully', progressError);
+            console.error('❌ Error updating clinician progress, but session ended successfully:', progressError.message);
         }
     }
 

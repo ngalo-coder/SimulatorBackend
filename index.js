@@ -33,8 +33,9 @@ const allowedOrigins = [
   'http://localhost:3000', // Your local development frontend (if applicable)
   'http://localhost:5173', // Another common local dev port (Vite)
   'http://localhost:5174', // Additional Vite dev port
-  'http://localhost:5002', // Backend server port (for same-origin requests)
   'http://localhost:5003', // Backend server port (for same-origin requests)
+  'http://localhost:3003', // Backend server port (for same-origin requests)
+  'https://preview-virtual-patient-api-kzmoqedp61tnz9rz9idx.vusercontent.net'
   // Add any other origins you need to allow
 ];
 
@@ -46,17 +47,25 @@ app.use(
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
           'The CORS policy for this site does not allow access from the specified Origin.';
-        logger.error(`CORS Error: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.join(', ')}`); // Use logger
+        logger.error(
+          `CORS Error: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.join(', ')}`
+        ); // Use logger
         return callback(new Error(msg), false);
       }
       return callback(null, true);
     },
     credentials: true, // Important if your frontend sends cookies or Authorization headers
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-Timestamp', 'X-Client-Version'], // Ensure 'Authorization' is included if you use tokens
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Request-ID',
+      'X-Timestamp',
+      'X-Client-Version',
+    ], // Ensure 'Authorization' is included if you use tokens
     exposedHeaders: ['X-Request-ID'], // Allow frontend to access these headers
     preflightContinue: false,
-    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
   })
 );
 // --- End CORS Configuration ---
@@ -96,7 +105,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     origin: req.get('Origin') || 'none',
     allowedOrigins: allowedOrigins,
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
