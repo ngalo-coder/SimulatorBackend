@@ -2,7 +2,7 @@ import express from 'express';
 import ClinicianPerformance from '../models/ClinicianPerformanceModel.js';
 import ClinicianProgress from '../models/ClinicianProgressModel.js';
 import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/jwtAuthMiddleware.js';
 
 const router = express.Router();
 

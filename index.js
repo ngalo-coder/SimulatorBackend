@@ -35,7 +35,7 @@ const allowedOrigins = [
   'http://localhost:5174', // Additional Vite dev port
   'http://localhost:5003', // Backend server port (for same-origin requests)
   'http://localhost:3003', // Backend server port (for same-origin requests)
-  'https://preview-virtual-patient-api-kzmoqedp61tnz9rz9idx.vusercontent.net'
+  'https://preview-virtual-patient-api-kzmoqedp61tnz9rz9idx.vusercontent.net',
   // Add any other origins you need to allow
 ];
 

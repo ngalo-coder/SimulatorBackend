@@ -11,7 +11,7 @@ import {
   getProgramAreasWithCounts,
   getSpecialtiesWithCounts
 } from '../controllers/adminProgramController.js';
-import { protect, isAdmin } from '../middleware/authMiddleware.js';
+import { protect, isAdmin } from '../middleware/jwtAuthMiddleware.js';
 
 const router = express.Router();
 

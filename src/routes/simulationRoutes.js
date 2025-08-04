@@ -1,4 +1,5 @@
 import express from 'express';
+import { protect } from '../middleware/jwtAuthMiddleware.js';
 import { 
   getCases, 
   startSimulation,
@@ -10,6 +11,9 @@ import {
 } from '../controllers/simulationController.js';
 
 const router = express.Router();
+
+// Protect all simulation routes
+router.use(protect);
 
 router.get('/cases', getCases);
 router.get('/case-categories', getCaseCategories);

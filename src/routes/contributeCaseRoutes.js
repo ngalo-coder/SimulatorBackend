@@ -2,7 +2,7 @@ import express from 'express';
 import ContributedCase from '../models/ContributedCaseModel.js';
 import Case from '../models/CaseModel.js';
 import { checkContributorEligibility } from '../middleware/performanceMiddleware.js';
-import { extractUserInfo, requireAuth } from '../middleware/authMiddleware.js';
+import { protect as requireAuth, optionalAuth as extractUserInfo } from '../middleware/jwtAuthMiddleware.js';
 
 const router = express.Router();
 

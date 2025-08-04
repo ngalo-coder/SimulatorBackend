@@ -2,7 +2,7 @@ import express from 'express';
 import User from '../models/UserModel.js';
 import Case from '../models/CaseModel.js';
 import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
-import { protect, isAdmin } from '../middleware/authMiddleware.js';
+import { protect, isAdmin } from '../middleware/jwtAuthMiddleware.js';
 
 const router = express.Router();
 
