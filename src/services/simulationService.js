@@ -2,55 +2,9 @@ import { getPatientResponseStream, getEvaluation } from './aiService.js';
 import Case from '../models/CaseModel.js';
 import Session from '../models/SessionModel.js';
 import PerformanceMetrics from '../models/PerformanceMetricsModel.js';
+import CaseService from './caseService.js';
 
-export async function getCases(queryParams) {
-    const { program_area, specialty, specialized_area, page = 1, limit = 20 } = queryParams;
-    const query = {};
-
-    if (program_area) query['case_metadata.program_area'] = program_area;
-    if (specialty) query['case_metadata.specialty'] = specialty;
-    if (specialized_area) {
-        if (["null", "None", ""].includes(specialized_area)) {
-            query['case_metadata.specialized_area'] = { $in: [null, ""] };
-        } else {
-            query['case_metadata.specialized_area'] = specialized_area;
-        }
-    }
-
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
-
-    const fieldsToSelect = 'case_metadata.case_id case_metadata.title description case_metadata.difficulty case_metadata.estimated_duration_min case_metadata.program_area case_metadata.specialized_area patient_persona.age patient_persona.gender patient_persona.chief_complaint clinical_dossier.history_of_presenting_illness.associated_symptoms case_metadata.tags';
-
-    const [casesFromDB, totalCases] = await Promise.all([
-        Case.find(query).select(fieldsToSelect).skip(skip).limit(limitNum).lean(),
-        Case.countDocuments(query)
-    ]);
-
-    const formattedCases = casesFromDB.map(c => ({
-        id: c.case_metadata?.case_id,
-        title: c.case_metadata?.title.replace(/ with.*$/, ''),
-        description: c.description,
-        category: c.case_metadata?.specialized_area,
-        difficulty: c.case_metadata?.difficulty,
-        estimated_time: c.case_metadata?.estimated_duration_min ? `${c.case_metadata.estimated_duration_min} minutes` : "N/A",
-        program_area: c.case_metadata?.program_area,
-        specialized_area: c.case_metadata?.specialized_area,
-        patient_age: c.patient_persona?.age,
-        patient_gender: c.patient_persona?.gender,
-        chief_complaint: c.patient_persona?.chief_complaint,
-        presenting_symptoms: c.clinical_dossier?.history_of_presenting_illness?.associated_symptoms || [],
-        tags: c.case_metadata?.tags || [],
-    }));
-
-    return {
-        cases: formattedCases,
-        currentPage: pageNum,
-        totalPages: Math.ceil(totalCases / limitNum),
-        totalCases: totalCases,
-    };
-}
+export const getCases = CaseService.getCases.bind(CaseService);
 
 export async function startSimulation(caseId) {
     let caseDataFromDB = await Case.findOne({ 'case_metadata.case_id': caseId });
@@ -95,8 +49,7 @@ export async function handleAsk(sessionId, question, res) {
     const caseData = session.case_ref.toObject();
     session.history.push({ role: 'Clinician', content: question, timestamp: new Date() });
 
-    const diagnosisTriggers = ['heart attack', 'myocardial infarction', 'emergency', 'admit', 'admitted', 'treatment', 'ward', 'emergency care'];
-    const willEndAfterResponse = diagnosisTriggers.some(trigger => question.toLowerCase().includes(trigger));
+    const willEndAfterResponse = CaseService.shouldEndSession(question);
 
     const { sessionShouldBeMarkedEnded } = await getPatientResponseStream(
         caseData,
@@ -114,7 +67,7 @@ export async function handleAsk(sessionId, question, res) {
     await session.save();
 }
 
-export async function endSession(sessionId, user, headers) {
+export async function endSession(sessionId, user) {
     const session = await Session.findById(sessionId).populate('case_ref');
     if (!session) {
         throw { status: 404, message: 'Session not found' };
@@ -162,20 +115,7 @@ export async function endSession(sessionId, user, headers) {
     };
 }
 
-export async function getCaseCategories(program_area) {
-    const programAreas = await Case.distinct('case_metadata.program_area');
-    const specialtyQuery = program_area ? { 'case_metadata.program_area': program_area } : {};
-    const specialtiesRaw = await Case.distinct('case_metadata.specialty', specialtyQuery);
-    const specialties = specialtiesRaw.filter(specialty => specialty && specialty.trim() !== '');
-    const specializedAreasRaw = await Case.distinct('case_metadata.specialized_area');
-    const specializedAreas = specializedAreasRaw.filter(area => area && area.trim() !== '');
-
-    return {
-        program_areas: programAreas.sort(),
-        specialties: specialties.sort(),
-        specialized_areas: specializedAreas.sort()
-    };
-}
+export const getCaseCategories = CaseService.getCaseCategories.bind(CaseService);
 
 export async function getPerformanceMetricsBySession(sessionId) {
     const metrics = await PerformanceMetrics.findOne({ session_ref: sessionId })

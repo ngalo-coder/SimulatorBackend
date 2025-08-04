@@ -1,64 +1,112 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import logger from '../config/logger.js';
+import Case from '../models/CaseModel.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+export class CaseService {
+  static CASE_FIELDS = [
+    'case_metadata.case_id',
+    'case_metadata.title',
+    'description',
+    'case_metadata.difficulty',
+    'case_metadata.estimated_duration_min',
+    'case_metadata.program_area',
+    'case_metadata.specialized_area',
+    'patient_persona.age',
+    'patient_persona.gender',
+    'patient_persona.chief_complaint',
+    'clinical_dossier.history_of_presenting_illness.associated_symptoms',
+    'case_metadata.tags'
+  ].join(' ');
 
-const casesDir = path.join(__dirname, '..', '..', 'cases');
-const loadedCases = {};
+  static DIAGNOSIS_TRIGGERS = [
+    'heart attack',
+    'myocardial infarction',
+    'emergency',
+    'admit',
+    'admitted',
+    'treatment',
+    'ward',
+    'emergency care'
+  ];
 
-function transformCaseData(rawJsonContent, caseIdFromFile) {
-    const sourceData = rawJsonContent.case_metadata || {};
-    const patientProfile = rawJsonContent.patient_profile || {};
+  static buildQuery(filters) {
+    const { program_area, specialty, specialized_area } = filters;
+    const query = {};
 
-    const transformed = {
-        id: caseIdFromFile,
-        title: sourceData.title || "Untitled Case",
-        description: rawJsonContent.description || `Case ID: ${caseIdFromFile}`,
-        category: sourceData.category || "General",
-        difficulty: sourceData.difficulty || "Intermediate",
-        estimated_time: sourceData.estimated_duration_min,
-        tags: sourceData.tags,
-        patient_age: patientProfile.age,
-        patient_gender: patientProfile.gender,
-        chief_complaint: patientProfile.chief_complaint,
-        presenting_symptoms: sourceData.presenting_symptoms,
+    if (program_area) query['case_metadata.program_area'] = program_area;
+    if (specialty) query['case_metadata.specialty'] = specialty;
+    
+    if (specialized_area) {
+      query['case_metadata.specialized_area'] = ["null", "None", ""].includes(specialized_area)
+        ? { $in: [null, ""] }
+        : specialized_area;
+    }
+
+    return query;
+  }
+
+  static formatCase(caseData) {
+    const { case_metadata: meta, patient_persona: patient, clinical_dossier: clinical } = caseData;
+    
+    return {
+      id: meta?.case_id,
+      title: meta?.title?.replace(/ with.*$/, ''),
+      description: caseData.description,
+      category: meta?.specialized_area,
+      difficulty: meta?.difficulty,
+      estimated_time: meta?.estimated_duration_min 
+        ? `${meta.estimated_duration_min} minutes` 
+        : "N/A",
+      program_area: meta?.program_area,
+      specialized_area: meta?.specialized_area,
+      patient_age: patient?.age,
+      patient_gender: patient?.gender,
+      chief_complaint: patient?.chief_complaint,
+      presenting_symptoms: clinical?.history_of_presenting_illness?.associated_symptoms || [],
+      tags: meta?.tags || []
     };
+  }
 
-    Object.keys(transformed).forEach(key => {
-        if (transformed[key] === undefined) delete transformed[key];
-    });
+  static async getCases(queryParams) {
+    const { page = 1, limit = 20 } = queryParams;
+    const query = this.buildQuery(queryParams);
+    
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const [casesFromDB, totalCases] = await Promise.all([
+      Case.find(query).select(this.CASE_FIELDS).skip(skip).limit(limitNum).lean(),
+      Case.countDocuments(query)
+    ]);
 
     return {
-        id: caseIdFromFile,
-        originalData: rawJsonContent,
-        case_metadata: transformed
+      cases: casesFromDB.map(this.formatCase),
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalCases / limitNum),
+      totalCases
     };
+  }
+
+  static async getCaseCategories(program_area) {
+    const baseQuery = program_area ? { 'case_metadata.program_area': program_area } : {};
+    
+    const [programAreas, specialties, specializedAreas] = await Promise.all([
+      Case.distinct('case_metadata.program_area'),
+      Case.distinct('case_metadata.specialty', baseQuery),
+      Case.distinct('case_metadata.specialized_area')
+    ]);
+
+    return {
+      program_areas: programAreas.sort(),
+      specialties: specialties.filter(s => s?.trim()).sort(),
+      specialized_areas: specializedAreas.filter(a => a?.trim()).sort()
+    };
+  }
+
+  static shouldEndSession(question) {
+    return this.DIAGNOSIS_TRIGGERS.some(trigger => 
+      question.toLowerCase().includes(trigger)
+    );
+  }
 }
 
-fs.readdirSync(casesDir).forEach(file => {
-    if (file.endsWith('.json')) {
-        const caseId = path.basename(file, '.json');
-        const filePath = path.join(casesDir, file);
-        try {
-            const rawContent = fs.readFileSync(filePath, 'utf-8');
-            const rawJson = JSON.parse(rawContent);
-            loadedCases[caseId] = transformCaseData(rawJson, caseId);
-            logger.info({ caseId }, 'Successfully loaded and transformed case file.');
-        } catch (error) {
-            logger.error({ caseId, file, error: error.message }, 'Error loading or parsing case file.');
-            // Optionally store a placeholder to prevent crashes downstream
-            loadedCases[caseId] = { id: caseId, originalData: { error: `Failed to load ${file}` }, case_metadata: { title: `Error loading ${caseId}` } };
-        }
-    }
-});
-
-export function getAllCasesData() {
-    return loadedCases;
-}
-
-export function getCaseById(caseId) {
-    return loadedCases[caseId];
-}
+export default CaseService;
