@@ -13,10 +13,15 @@ export async function startSimulation(caseId) {
         throw { status: 404, message: 'Case not found' };
     }
 
+    const history = [];
+    if (caseDataFromDB.initial_prompt) {
+        history.push({ role: 'Patient', content: caseDataFromDB.initial_prompt, timestamp: new Date() });
+    }
+
     const newSession = new Session({
         case_ref: caseDataFromDB._id,
         original_case_id: caseDataFromDB.case_metadata.case_id,
-        history: [],
+        history: history,
     });
 
     await newSession.save();
