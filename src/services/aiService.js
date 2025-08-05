@@ -58,7 +58,7 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
         fullResponse += content;
-        const chunkData = { type: 'chunk', content };
+        const chunkData = { type: 'chunk', content, role: 'Patient', name: patient.name };
         
         // Include speaks_for information if present
         if (patient.speaks_for) {
@@ -74,6 +74,7 @@ export async function getPatientResponseStream(caseData, conversationHistory, ne
       const patient = caseData.patient_profile || caseData.patient_persona || {};
       const historyEntry = { 
         role: 'Patient', 
+        name: patient.name,
         content: fullResponse, 
         timestamp: new Date() 
       };

@@ -15,7 +15,7 @@ export async function startSimulation(caseId) {
 
     const history = [];
     if (caseDataFromDB.initial_prompt) {
-        history.push({ role: 'Patient', content: caseDataFromDB.initial_prompt, timestamp: new Date() });
+        history.push({ role: 'Patient', name: caseDataFromDB.patient_persona.name, content: caseDataFromDB.initial_prompt, timestamp: new Date() });
     }
 
     const newSession = new Session({
