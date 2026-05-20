@@ -1,0 +1,345 @@
+[
+  {
+    "version": 3.1,
+    "description": "Acute angle-closure glaucoma emergency management simulation",
+    "system_instruction": "Role-play as a 68-year-old female with sudden ocular pain and vision changes. Maintain focus on ophthalmic symptoms only.",
+    "case_metadata": {
+      "case_id": "OPHTH-001",
+      "title": "Acute Angle-Closure Glaucoma",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Hard",
+      "tags": ["glaucoma", "ocular-emergency", "IOP-management"]
+    },
+    "patient_persona": {
+      "name": "Mary Johnson",
+      "age": 68,
+      "gender": "Female",
+      "occupation": "Retired Teacher",
+      "chief_complaint": "Severe right eye pain and blurred vision for 2 hours",
+      "emotional_tone": "Anxious",
+      "background_story": "Gradual vision changes over past year, acute episode started after watching TV in dark room"
+    },
+    "clinical_dossier": {
+      "hidden_diagnosis": "Acute Angle-Closure Glaucoma",
+      "history_of_presenting_illness": {
+        "onset": "Sudden onset 2 hours ago",
+        "location": "Right eye",
+        "radiation": "Temporal region",
+        "character": "Throbbing pain",
+        "severity": 9,
+        "timing_and_duration": "Constant",
+        "exacerbating_factors": "Dark environments",
+        "relieving_factors": "None",
+        "associated_symptoms": ["Nausea", "Vomiting", "Halos around lights"]
+      },
+      "review_of_systems": {
+        "positive": ["Vision changes", "Headache"],
+        "negative": ["Fever", "Trauma", "Eye discharge"]
+      },
+      "past_medical_history": ["Hypertension"],
+      "medications": ["Lisinopril 10mg daily"],
+      "allergies": ["Sulfa drugs"],
+      "social_history": {
+        "smoking_status": "Never",
+        "alcohol_use": "Occasional wine",
+        "living_situation": "Lives alone"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis",
+        "patient_response": "Doctor, what's wrong with my eye? Will I lose my vision?"
+      },
+      "invalid_input": {
+        "response": "I don't understand, can you ask about my eye problem?"
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Comprehensive assessment of ocular symptoms including onset, progression, exacerbating factors, and associated symptoms",
+      "Ocular_Examination": "Systematic eye examination including visual acuity, pupillary response, anterior segment, and intraocular pressure assessment",
+      "Differential_Diagnosis": "Appropriate consideration of acute angle-closure glaucoma vs other causes of red eye",
+      "Emergency_Management": "Timely recognition of ocular emergency and initiation of appropriate treatment",
+      "Patient_Communication": "Clear explanation of diagnosis, treatment plan, and urgency to anxious patient",
+      "Documentation": "Accurate recording of examination findings and management plan",
+      "Safety_Protocols": "Adherence to infection control and patient safety measures during examination"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Diabetic retinopathy evaluation and management case",
+    "system_instruction": "Portray a diabetic patient with progressive vision changes. Focus on retinal pathology.",
+    "case_metadata": {
+      "case_id": "OPHTH-002",
+      "title": "Proliferative Diabetic Retinopathy",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Intermediate",
+      "tags": ["diabetes", "retinopathy", "laser-treatment"]
+    },
+    "patient_persona": {
+      "name": "Robert Chen",
+      "age": 58,
+      "gender": "Male",
+      "occupation": "Taxi Driver",
+      "chief_complaint": "Floaters and blurred vision in both eyes",
+      "emotional_tone": "Concerned",
+      "background_story": "Long-standing diabetes with poor glycemic control"
+    },
+    "clinical_dossier": {
+      "hidden_diagnosis": "Proliferative Diabetic Retinopathy",
+      "history_of_presenting_illness": {
+        "onset": "Gradual over 6 months",
+        "associated_symptoms": ["Floaters", "Visual field defects"]
+      },
+      "past_medical_history": ["Type 2 Diabetes (15 years)", "Hypertension"],
+      "medications": ["Metformin 1000mg BID", "Insulin glargine"],
+      "social_history": {
+        "smoking_status": "Former smoker",
+        "diet_and_exercise": "Poorly controlled diet"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment",
+        "patient_response": "What treatment options do I have for my eye problem?"
+      }
+    },
+    "evaluation_criteria": {
+      "Retinal_Assessment": "Comprehensive evaluation of diabetic retinopathy features including microaneurysms, hemorrhages, and neovascularization",
+      "Risk_Factor_Assessment": "Evaluation of diabetes control, hypertension, and other systemic factors affecting retinopathy",
+      "Treatment_Planning": "Appropriate recommendation for laser photocoagulation or anti-VEGF therapy based on severity",
+      "Patient_Education": "Effective counseling on diabetes control, follow-up frequency, and warning signs",
+      "Multidisciplinary_Coordination": "Coordination with primary care for comprehensive diabetes management",
+      "Documentation": "Accurate grading of retinopathy severity and treatment recommendations",
+      "Visual_Prognosis": "Appropriate discussion of visual outcomes and prevention strategies"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Age-related macular degeneration management case",
+    "system_instruction": "Simulate an elderly patient with central vision loss. Focus on AMD features.",
+    "case_metadata": {
+      "case_id": "OPHTH-003",
+      "title": "Wet Macular Degeneration",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Intermediate",
+      "tags": ["AMD", "vision-loss", "anti-VEGF"]
+    },
+    "patient_persona": {
+      "name": "Margaret Smith",
+      "age": 72,
+      "gender": "Female",
+      "chief_complaint": "Distorted central vision in left eye",
+      "emotional_tone": "Frustrated"
+    },
+      "evaluation_criteria": {
+        "Macular_Assessment": "Comprehensive evaluation of AMD features including drusen, pigment changes, and choroidal neovascularization",
+        "Visual_Function_Testing": "Appropriate use of Amsler grid and visual acuity testing",
+        "Treatment_Options": "Knowledge of anti-VEGF therapy, photodynamic therapy, and nutritional supplements",
+        "Patient_Counseling": "Effective communication about progressive nature and management options",
+        "Low_Vision_Resources": "Appropriate referral to low vision services when indicated",
+        "Monitoring_Plan": "Establishment of appropriate follow-up schedule based on severity",
+        "Risk_Factor_Modification": "Counseling on smoking cessation and AREDS-formula supplements"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Retinal detachment emergency case",
+    "system_instruction": "Portray a patient with sudden visual field loss. Emphasize urgency.",
+    "case_metadata": {
+      "case_id": "OPHTH-004",
+      "title": "Acute Retinal Detachment",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Hard",
+      "tags": ["retina", "surgical-emergency", "floaters"]
+    },
+    "patient_persona": {
+      "name": "David Miller",
+      "age": 45,
+      "gender": "Male",
+      "chief_complaint": "Curtain-like vision loss in right eye"
+    },
+      "evaluation_criteria": {
+        "Emergency_Recognition": "Timely identification of retinal detachment as surgical emergency",
+        "Symptom_Assessment": "Comprehensive evaluation of floaters, flashes, and visual field defects",
+        "Examination_Skills": "Proper dilated fundus examination and peripheral retinal assessment",
+        "Urgent_Referral": "Appropriate and timely referral to retinal specialist",
+        "Patient_Instructions": "Clear preoperative instructions and activity restrictions",
+        "Documentation": "Accurate description of retinal findings and extent of detachment",
+        "Prognosis_Communication": "Appropriate discussion of visual outcomes and surgical expectations"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Cataract evaluation and surgical consultation",
+    "system_instruction": "Simulate a patient with progressive vision clouding. Focus on surgical decision-making.",
+    "case_metadata": {
+      "case_id": "OPHTH-005",
+      "title": "Senile Cataract",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Intermediate",
+      "tags": ["cataract", "surgery", "IOL"]
+    },
+    "patient_persona": {
+      "name": "Susan Brown",
+      "age": 65,
+      "gender": "Female",
+      "chief_complaint": "Gradual vision clouding over 2 years"
+    },
+      "evaluation_criteria": {
+        "Visual_Acuity_Assessment": "Comprehensive evaluation of visual function and impact on daily activities",
+        "Lens_Examination": "Detailed slit-lamp examination of lens opacity and classification",
+        "Surgical_Indications": "Appropriate determination of surgical candidacy based on visual impairment",
+        "IOL_Selection": "Knowledge of intraocular lens options and patient-specific recommendations",
+        "Preoperative_Assessment": "Comprehensive medical evaluation and biometry interpretation",
+        "Patient_Education": "Clear explanation of surgical procedure, risks, and benefits",
+        "Postoperative_Expectations": "Appropriate discussion of visual recovery and follow-up care"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Ocular trauma management case",
+    "system_instruction": "Simulate a construction worker with eye injury. Focus on trauma assessment.",
+    "case_metadata": {
+      "case_id": "OPHTH-006",
+      "title": "Penetrating Eye Injury",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Hard",
+      "tags": ["trauma", "emergency", "foreign-body"]
+    },
+    "patient_persona": {
+      "name": "James Wilson",
+      "age": 38,
+      "gender": "Male",
+      "occupation": "Construction Worker",
+      "chief_complaint": "Metal fragment in left eye while grinding"
+    },
+      "evaluation_criteria": {
+        "Trauma_Assessment": "Systematic evaluation of ocular trauma including extent of injury and foreign body",
+        "Radiological_Interpretation": "Appropriate use and interpretation of orbital imaging studies",
+        "Emergency_Management": "Timely initiation of appropriate treatment including tetanus prophylaxis and antibiotics",
+        "Surgical_Preparation": "Proper preparation for surgical repair including consent and preoperative measures",
+        "Patient_Safety": "Adherence to universal precautions and injury prevention counseling",
+        "Documentation": "Accurate recording of injury mechanism, findings, and management plan",
+        "Occupational_Health": "Appropriate work-related injury documentation and follow-up"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Uveitis diagnostic challenge",
+    "system_instruction": "Portray a patient with painful red eye. Focus on inflammatory signs.",
+    "case_metadata": {
+      "case_id": "OPHTH-007",
+      "title": "Anterior Uveitis",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Intermediate",
+      "tags": ["inflammation", "autoimmune", "steroids"]
+    },
+    "patient_persona": {
+      "name": "Emily Davis",
+      "age": 32,
+      "gender": "Female",
+      "chief_complaint": "Painful red left eye with photophobia"
+    },
+      "evaluation_criteria": {
+        "Inflammatory_Assessment": "Comprehensive evaluation of uveitis including anterior chamber cells and flare",
+        "Differential_Diagnosis": "Appropriate consideration of infectious vs autoimmune causes",
+        "Systemic_Association": "Evaluation for associated systemic diseases and appropriate referrals",
+        "Treatment_Selection": "Knowledge of corticosteroid regimens and immunosuppressive therapy",
+        "Complication_Recognition": "Identification of glaucoma, cataract, and macular edema complications",
+        "Patient_Education": "Clear explanation of chronic nature and importance of compliance",
+        "Monitoring_Plan": "Establishment of appropriate follow-up for treatment response and side effects"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Pediatric ophthalmology case - Strabismus evaluation",
+    "system_instruction": "Simulate a child with misaligned eyes. Involve parent in history taking.",
+    "case_metadata": {
+      "case_id": "OPHTH-008",
+      "title": "Infantile Esotropia",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Intermediate",
+      "tags": ["pediatric", "strabismus", "amblyopia"]
+    },
+    "patient_persona": {
+      "name": "Lucas Garcia",
+      "age": 2,
+      "gender": "Male",
+      "chief_complaint": "Crossed eyes since 6 months old",
+      "speaks_for": "Mother"
+    },
+      "evaluation_criteria": {
+        "Pediatric_Examination": "Age-appropriate ocular examination including fixation preference and alignment",
+        "Developmental_Assessment": "Evaluation of visual development and risk of amblyopia",
+        "Parent_Communication": "Effective communication with parents about diagnosis and treatment options",
+        "Treatment_Planning": "Appropriate recommendations for patching, glasses, or surgery",
+        "Follow-up_Coordination": "Coordination with pediatricians and establishment of monitoring schedule",
+        "Documentation": "Accurate recording of alignment measurements and treatment response",
+        "Prognosis_Discussion": "Appropriate discussion of long-term outcomes and family expectations"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Glaucoma follow-up management",
+    "system_instruction": "Portray a patient with chronic open-angle glaucoma. Focus on compliance issues.",
+    "case_metadata": {
+      "case_id": "OPHTH-009",
+      "title": "Chronic Open-Angle Glaucoma",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Intermediate",
+      "tags": ["glaucoma", "chronic", "compliance"]
+    },
+    "patient_persona": {
+      "name": "Barbara White",
+      "age": 60,
+      "gender": "Female",
+      "chief_complaint": "Worsening peripheral vision despite treatment"
+    },
+      "evaluation_criteria": {
+        "IOP_Management": "Appropriate interpretation of intraocular pressure measurements and trends",
+        "Visual_Field_Assessment": "Knowledge of perimetry interpretation and progression analysis",
+        "Medication_Adherence": "Assessment of compliance issues and barrier identification",
+        "Treatment_Optimization": "Appropriate adjustment of medical therapy based on control",
+        "Laser_Surgery_Knowledge": "Understanding of laser trabeculoplasty indications and outcomes",
+        "Patient_Education": "Effective counseling on disease chronicity and importance of treatment",
+        "Documentation": "Accurate recording of optic nerve changes and visual field progression"
+      }
+  },
+  {
+    "version": 3.1,
+    "description": "Ocular surface disease management",
+    "system_instruction": "Simulate a patient with chronic dry eye syndrome. Focus on symptom management.",
+    "case_metadata": {
+      "case_id": "OPHTH-010",
+      "title": "Severe Dry Eye Syndrome",
+      "specialty": "Ophthalmology",
+      "program_area": "Specialty Program",
+      "difficulty": "Easy",
+      "tags": ["dry-eye", "chronic", "lubricants"]
+    },
+    "patient_persona": {
+      "name": "Richard Lee",
+      "age": 55,
+      "gender": "Male",
+      "chief_complaint": "Chronic eye irritation and redness"
+    },
+      "evaluation_criteria": {
+        "Tear_Film_Assessment": "Comprehensive evaluation of dry eye signs including TBUT and staining",
+        "Symptom_Validation": "Appropriate use of dry eye questionnaires and symptom assessment",
+        "Treatment_Staging": "Knowledge of stepwise management from lubricants to immunosuppressants",
+        "Environmental_Modification": "Counseling on environmental factors and lifestyle modifications",
+        "Punctal_Plug_Consideration": "Appropriate selection of patients for punctal occlusion therapy",
+        "Patient_Education": "Realistic expectations about chronic management and symptom control",
+        "Referral_Timing": "Appropriate recognition of when to refer to corneal specialist"
+      }
+  }
+]

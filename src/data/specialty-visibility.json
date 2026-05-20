@@ -1,0 +1,77 @@
+{
+  "specialties": [
+    {
+      "specialtyId": "internal_medicine",
+      "isVisible": true,
+      "programAreas": [
+        "basic",
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "gastroenterology",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "ophthalmology",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "cardiology",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "neurology",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "emergency_medicine",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "pediatrics",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    },
+    {
+      "specialtyId": "psychiatry",
+      "isVisible": true,
+      "programAreas": [
+        "specialty"
+      ],
+      "lastModified": "2025-09-22T20:10:32.801Z",
+      "modifiedBy": "system"
+    }
+  ]
+}

@@ -1,0 +1,310 @@
+[
+  {
+    "version": 3.1,
+    "description": "Chest X-ray interpretation for pneumonia with systematic review approach",
+    "system_instruction": "Present a case requiring comprehensive analysis of chest imaging findings. Focus on systematic review and differential diagnosis.",
+    "case_metadata": {
+      "case_id": "RAD-001",
+      "title": "Community-Acquired Pneumonia",
+      "program_area": "Basic Program",
+      "specialty": "Radiology",
+      "difficulty": "Intermediate",
+      "tags": ["chest-xray", "pneumonia", "imaging", "thoracic"],
+      "location": "Emergency Radiology",
+      "case_type": "imaging_interpretation"
+    },
+    "patient_persona": {
+      "name": "Sarah Wilson",
+      "age": 45,
+      "gender": "Female",
+      "occupation": "Teacher",
+      "chief_complaint": "Fever and productive cough for 5 days",
+      "emotional_tone": "Fatigued",
+      "background_story": "Previously healthy, developed symptoms after family gathering",
+      "speaks_for": "self",
+      "patient_is_present": false
+    },
+    "initial_prompt": "The patient presents with fever and cough. Please review the chest X-ray findings.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Community-Acquired Pneumonia",
+      "history_of_presenting_illness": {
+        "onset": "Gradual over 5 days",
+        "location": "Chest",
+        "character": "Productive cough with yellow sputum",
+        "severity": 7,
+        "timing_and_duration": "Progressive worsening",
+        "exacerbating_factors": ["Deep breathing", "Lying down"],
+        "relieving_factors": ["Sitting upright", "Rest"],
+        "associated_symptoms": ["Fever 38.5°C", "Chills", "Malaise"]
+      },
+      "review_of_systems": {
+        "positive": ["Cough", "Fever", "Sputum production"],
+        "negative": ["Chest pain", "Hemoptysis", "Shortness of breath at rest"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["Acetaminophen PRN"],
+      "allergies": ["None known"],
+      "social_history": {
+        "smoking_status": "Never",
+        "alcohol_use": "Social drinker",
+        "living_situation": "Lives with family"
+      }
+    },
+    "imaging_findings": {
+      "modality": "Chest X-ray",
+      "study_type": "PA and Lateral Views",
+      "technique": {
+        "kvp": 120,
+        "ma": 3.2,
+        "exposure": "Adequate",
+        "positioning": "Satisfactory"
+      },
+      "description": "Left lower lobe consolidation with air bronchograms and silhouette sign",
+      "key_findings": [
+        "Alveolar infiltrate in left lower lobe",
+        "Air bronchograms present",
+        "Silhouette sign of left hemidiaphragm",
+        "No pleural effusion",
+        "Normal cardiac silhouette",
+        "Clear right lung fields"
+      ],
+      "measurements": {
+        "consolidation_size": "5 x 7 cm",
+        "cardiothoracic_ratio": "0.48"
+      },
+      "quality_assessment": {
+        "technical_quality": "Good",
+        "artifacts": "None significant",
+        "limitations": "Mild rotation"
+      }
+    },
+    "systematic_review": {
+      "airways": "Normal trachea and bronchi",
+      "lungs": {
+        "right": "Clear lung fields",
+        "left": "Consolidation in lower lobe"
+      },
+      "pleura": "No pleural effusion or pneumothorax",
+      "mediastinum": "Normal contours and width",
+      "heart": "Normal size and configuration",
+      "bones": "No fractures or destructive lesions",
+      "soft_tissues": "Unremarkable",
+      "tubes_and_lines": "None present"
+    },
+    "differential_diagnosis": [
+      {
+        "diagnosis": "Bacterial Pneumonia",
+        "confidence": "High",
+        "supporting_evidence": ["Lobar consolidation", "Air bronchograms", "Clinical presentation"],
+        "contradicting_evidence": ["No cavitation", "No effusion"]
+      },
+      {
+        "diagnosis": "Atypical Pneumonia",
+        "confidence": "Low",
+        "supporting_evidence": ["Patchy distribution possible"],
+        "contradicting_evidence": ["Lobar pattern unusual"]
+      },
+      {
+        "diagnosis": "Pulmonary Infarction",
+        "confidence": "Low",
+        "supporting_evidence": ["Wedge-shaped opacity possible"],
+        "contradicting_evidence": ["Air bronchograms not typical"]
+      }
+    ],
+    "radiation_safety": {
+      "dose_parameters": {
+        "effective_dose": "0.1 mSv",
+        "dose_area_product": "0.3 Gy·cm²",
+        "comparison": "Equivalent to 10 days natural background radiation"
+      },
+      "optimization_techniques": [
+        "Appropriate collimation",
+        "Optimal exposure factors",
+        "Digital receptor"
+      ],
+      "clinical_justification": "Suspected pulmonary infection requiring imaging confirmation"
+    },
+    "reporting_components": {
+      "clinical_history": "45-year-old female with fever and productive cough for 5 days",
+      "comparison_studies": "No prior chest imaging available",
+      "findings_description": "Left lower lobe consolidation with air bronchograms",
+      "impression": "Findings consistent with community-acquired pneumonia",
+      "recommendations": [
+        "Antibiotic therapy as clinically indicated",
+        "Follow-up chest X-ray in 4-6 weeks to ensure resolution",
+        "Clinical correlation recommended"
+      ]
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "impression",
+        "patient_response": "Thank you for the detailed interpretation. I'll discuss treatment options with the physician."
+      },
+      "critical_finding": {
+        "condition_keyword": "critical",
+        "response": "This finding requires immediate communication to the treating physician."
+      }
+    },
+    "evaluation_criteria": {
+      "Systematic_Approach": "Comprehensive review of all anatomical structures using standardized approach",
+      "Finding_Identification": "Accurate detection and characterization of pathological findings",
+      "Differential_Diagnosis": "Appropriate differential considerations with supporting evidence",
+      "Report_Quality": "Clear, structured reporting with appropriate recommendations",
+      "Radiation_Safety": "Awareness of radiation dose and optimization principles",
+      "Clinical_Correlation": "Integration of clinical information with imaging findings",
+      "Communication": "Clear communication of findings and clinical significance"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "CT head interpretation for acute stroke assessment",
+    "system_instruction": "Simulate a case requiring urgent CT head interpretation for suspected stroke. Focus on early ischemic changes and hemorrhage detection.",
+    "case_metadata": {
+      "case_id": "RAD-002",
+      "title": "Acute Ischemic Stroke",
+      "program_area": "Basic Program",
+      "specialty": "Radiology",
+      "difficulty": "Advanced",
+      "tags": ["CT", "stroke", "neuro", "emergency"],
+      "location": "Emergency Radiology",
+      "case_type": "emergency_interpretation"
+    },
+    "patient_persona": {
+      "name": "Robert Johnson",
+      "age": 68,
+      "gender": "Male",
+      "occupation": "Retired Accountant",
+      "chief_complaint": "Sudden right-sided weakness and speech difficulty",
+      "emotional_tone": "Anxious",
+      "background_story": "Woke up with symptoms 2 hours ago, history of hypertension and atrial fibrillation",
+      "speaks_for": "self",
+      "patient_is_present": false
+    },
+    "initial_prompt": "Emergency CT head performed for acute neurological symptoms. Please interpret urgently.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Acute Left MCA Territory Ischemic Stroke",
+      "history_of_presenting_illness": {
+        "onset": "Sudden 2 hours ago",
+        "location": "Right side of body",
+        "character": "Weakness and numbness",
+        "severity": 8,
+        "timing_and_duration": "Persistent since onset",
+        "associated_symptoms": ["Slurred speech", "Facial droop", "Right visual field defect"]
+      },
+      "past_medical_history": ["Hypertension", "Atrial Fibrillation", "Hyperlipidemia"],
+      "medications": ["Warfarin", "Lisinopril", "Atorvastatin"],
+      "allergies": ["None known"],
+      "neurological_exam": {
+        "NIHSS_score": 12,
+        "findings": ["Right hemiparesis", "Expressive aphasia", "Right facial droop"]
+      }
+    },
+    "imaging_findings": {
+      "modality": "CT Head",
+      "study_type": "Non-contrast CT Brain",
+      "technique": {
+        "slice_thickness": "5mm",
+        "kvp": 120,
+        "ma": 300,
+        "reconstruction": "Standard algorithm"
+      },
+      "description": "Early ischemic changes in left MCA territory with loss of gray-white differentiation",
+      "key_findings": [
+        "Loss of insular ribbon on left side",
+        "Effacement of left sylvian fissure",
+        "Hyperdense left MCA sign",
+        "Early hypodensity in left basal ganglia",
+        "No hemorrhage",
+        "Patent basilar and venous sinuses"
+      ],
+      "alberta_stroke_program_early_ct_score": 7,
+      "quality_assessment": {
+        "technical_quality": "Excellent",
+        "motion_artifacts": "Minimal",
+        "coverage": "Complete"
+      }
+    },
+    "systematic_review": {
+      "parenchyma": {
+        "supratentorial": "Early ischemic changes left MCA territory",
+        "infratentorial": "Normal cerebellum and brainstem"
+      },
+      "ventricles": "Normal size and configuration",
+      "sulci": "Effacement left sylvian fissure",
+      "cisterns": "Patent basal cisterns",
+      "vessels": "Hyperdense left MCA",
+      "bones": "No fractures",
+      "soft_tissues": "Unremarkable"
+    },
+    "differential_diagnosis": [
+      {
+        "diagnosis": "Acute Ischemic Stroke",
+        "confidence": "High",
+        "supporting_evidence": ["Early ischemic changes", "Hyperdense vessel sign", "Clinical correlation"],
+        "contradicting_evidence": ["No hemorrhage"]
+      },
+      {
+        "diagnosis": "Complex Migraine",
+        "confidence": "Low",
+        "supporting_evidence": ["Neurological symptoms"],
+        "contradicting_evidence": ["CT changes not typical"]
+      },
+      {
+        "diagnosis": "Seizure",
+        "confidence": "Low",
+        "supporting_evidence": ["Focal neurological signs"],
+        "contradicting_evidence": ["No post-ictal changes"]
+      }
+    ],
+    "radiation_safety": {
+      "dose_parameters": {
+        "effective_dose": "2 mSv",
+        "ctdi_vol": "60 mGy",
+        "dlp": "900 mGy·cm"
+      },
+      "optimization_techniques": [
+        "Dose modulation",
+        "Appropriate kVp/mA",
+        "Automatic exposure control"
+      ],
+      "clinical_justification": "Time-sensitive evaluation for potential thrombolysis candidate"
+    },
+    "reporting_components": {
+      "clinical_history": "68-year-old male with acute right hemiparesis and aphasia",
+      "comparison_studies": "No prior neuroimaging",
+      "findings_description": "Early ischemic changes in left MCA territory with hyperdense vessel sign",
+      "impression": "Findings consistent with acute left MCA territory ischemic stroke",
+      "recommendations": [
+        "Urgent neurology consultation",
+        "Consider CT angiography for vessel assessment",
+        "Eligibility assessment for thrombolysis",
+        "Close clinical monitoring"
+      ]
+    },
+    "critical_findings": {
+      "finding": "Acute ischemic stroke with potential for intervention",
+      "severity": "Critical",
+      "communication_requirements": "Immediate verbal communication to emergency physician",
+      "documentation": "Time of discovery and communication documented"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "thrombolysis",
+        "patient_response": "The stroke team has been notified and is reviewing for treatment options."
+      },
+      "critical_finding": {
+        "condition_keyword": "emergency",
+        "response": "This is an emergency finding requiring immediate intervention."
+      }
+    },
+    "evaluation_criteria": {
+      "Emergency_Recognition": "Rapid identification of time-sensitive findings",
+      "Ischemic_Changes": "Detection of early stroke signs and ASPECTS scoring",
+      "Hemorrhage_Exclusion": "Confident exclusion of intracranial hemorrhage",
+      "Vessel_Assessment": "Recognition of hyperdense vessel signs",
+      "Report_Urgency": "Appropriate communication of urgent findings",
+      "Treatment_Implications": "Understanding of thrombolysis eligibility criteria",
+      "Safety_Protocols": "Radiation dose awareness and optimization"
+    }
+  }
+]

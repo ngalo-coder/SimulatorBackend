@@ -1,0 +1,330 @@
+[
+  {
+    "version": 3.1,
+    "description": "Complete Blood Count interpretation for anemia diagnosis with quality control procedures",
+    "system_instruction": "Present lab results and respond to hematology questions only. Focus on specimen quality and result interpretation.",
+    "case_metadata": {
+      "case_id": "LAB-001",
+      "title": "Iron Deficiency Anemia Workup",
+      "program_area": "Basic Program",
+      "specialty": "Laboratory",
+      "difficulty": "Intermediate",
+      "tags": ["hematology", "CBC", "microcytic", "quality-control"],
+      "location": "Clinical Laboratory",
+      "case_type": "diagnostic_testing",
+      "accreditation_standards": ["ISO 15189", "CLIA"]
+    },
+    "patient_persona": {
+      "name": "Emma Wilson",
+      "age": 28,
+      "gender": "Female",
+      "occupation": "Graduate Student",
+      "chief_complaint": "Fatigue and pallor for 3 months",
+      "emotional_tone": "Fatigued",
+      "background_story": "Heavy menstrual periods, vegetarian diet",
+      "speaks_for": "self",
+      "patient_is_present": false
+    },
+    "initial_prompt": "Please interpret these CBC results and provide recommendations for further testing.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Iron Deficiency Anemia",
+      "history_of_presenting_illness": {
+        "onset": "Gradual over 3 months",
+        "associated_symptoms": ["Weakness", "Shortness of breath on exertion", "Pale skin"]
+      },
+      "past_medical_history": ["Menorrhagia"],
+      "medications": ["None"],
+      "allergies": ["None"],
+      "social_history": {
+        "diet": "Vegetarian for 5 years",
+        "exercise": "Sedentary due to fatigue"
+      }
+    },
+    "specimen_information": {
+      "specimen_type": "Whole blood",
+      "collection_method": "Venipuncture",
+      "collection_time": "08:30 AM",
+      "specimen_quality": "acceptable",
+      "volume_adequacy": "sufficient",
+      "hemolysis_index": "0.2 (acceptable)",
+      "lipemia_index": "0.1 (acceptable)",
+      "icterus_index": "0.3 (acceptable)",
+      "collection_issues": "None reported",
+      "stability": "Stable at room temperature for 24 hours"
+    },
+    "test_requests": {
+      "ordered_tests": ["CBC", "Differential", "Reticulocyte Count"],
+      "priority": "Routine",
+      "turnaround_time": "4 hours",
+      "special_instructions": "None"
+    },
+    "lab_results": {
+      "CBC": {
+        "WBC": "7.2 x 10^9/L",
+        "RBC": "3.8 x 10^12/L",
+        "HGB": "9.2 g/dL",
+        "HCT": "30.1%",
+        "MCV": "75 fL",
+        "MCH": "24.2 pg",
+        "MCHC": "30.5 g/dL",
+        "RDW": "16.8%",
+        "PLT": "320 x 10^9/L"
+      },
+      "differential": {
+        "Neutrophils": "65%",
+        "Lymphocytes": "25%",
+        "Monocytes": "8%",
+        "Eosinophils": "2%",
+        "Basophils": "0%"
+      },
+      "reticulocyte_count": "1.2%",
+      "iron_studies": {
+        "Ferritin": "8 ng/mL",
+        "Iron": "30 μg/dL",
+        "TIBC": "450 μg/dL",
+        "Transferrin_Saturation": "7%"
+      },
+      "reference_ranges": {
+        "HGB": "12.0-16.0 g/dL",
+        "MCV": "80-100 fL",
+        "Ferritin": "15-150 ng/mL",
+        "Transferrin_Saturation": "20-50%"
+      }
+    },
+    "quality_control": {
+      "qc_materials": ["Level 1 Control", "Level 2 Control", "Level 3 Control"],
+      "qc_frequency": "Every 8 hours",
+      "qc_results": {
+        "Level_1": {
+          "HGB": "11.8 g/dL (target 12.0 ± 0.5)",
+          "MCV": "82 fL (target 80 ± 2)",
+          "status": "Acceptable"
+        },
+        "Level_2": {
+          "HGB": "15.2 g/dL (target 15.0 ± 0.5)",
+          "MCV": "92 fL (target 90 ± 2)",
+          "status": "Acceptable"
+        }
+      },
+      "westgard_rules": {
+        "1_2s": "No violations",
+        "1_3s": "No violations",
+        "2_2s": "No violations",
+        "R_4s": "No violations",
+        "4_1s": "No violations",
+        "10_x": "No violations"
+      },
+      "instrument": "Automated Hematology Analyzer XT-4000",
+      "last_calibration": "24 hours ago",
+      "maintenance_status": "Up to date"
+    },
+    "interpretation_guidance": {
+      "pattern_recognition": "Microcytic hypochromic anemia",
+      "differential_diagnosis": [
+        "Iron Deficiency Anemia (most likely)",
+        "Anemia of Chronic Disease",
+        "Thalassemia",
+        "Sideroblastic Anemia"
+      ],
+      "discriminatory_indices": {
+        "Mentzer_Index": "MCV/RBC = 19.7 (suggests iron deficiency)",
+        "Green_King_Index": "MCH/RBC = 6.4 (suggests iron deficiency)",
+        "RDW": "Elevated (supports iron deficiency)"
+      },
+      "clinical_correlation": "Consistent with iron deficiency given low ferritin and transferrin saturation"
+    },
+    "safety_protocols": {
+      "ppe_requirements": ["Gloves", "Lab coat", "Eye protection"],
+      "biohazard_level": "BSL-2",
+      "waste_disposal": "Sharps container for needles, biohazard bag for other waste",
+      "emergency_procedures": {
+        "needlestick": "Immediate washing, report to supervisor",
+        "spill": "Absorb with appropriate disinfectant"
+      }
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "diagnosis confirmed",
+        "patient_response": "Thank you for the comprehensive analysis. The diagnosis has been confirmed."
+      },
+      "critical_value": {
+        "condition_keyword": "critical result",
+        "response": "Critical value identified. Immediate communication required."
+      }
+    },
+    "evaluation_criteria": {
+      "Specimen_Quality_Assessment": "Proper evaluation of specimen acceptability and limitations",
+      "QC_Procedures": "Correct application of quality control rules and troubleshooting",
+      "Result_Interpretation": "Accurate pattern recognition and differential diagnosis",
+      "Clinical_Correlation": "Appropriate integration of clinical information",
+      "Safety_Protocols": "Adherence to laboratory safety standards",
+      "Communication": "Clear reporting of results and recommendations",
+      "Documentation": "Complete and accurate documentation of procedures"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Comprehensive metabolic panel with renal impairment and quality control issues",
+    "system_instruction": "Simulate chemistry testing with renal function assessment and QC challenges. Focus on result verification and clinical correlation.",
+    "case_metadata": {
+      "case_id": "LAB-002",
+      "title": "Acute Kidney Injury with QC Failure",
+      "program_area": "Basic Program",
+      "specialty": "Laboratory",
+      "difficulty": "Advanced",
+      "tags": ["chemistry", "renal", "QC", "emergency"],
+      "location": "Hospital Central Laboratory",
+      "case_type": "quality_control",
+      "accreditation_standards": ["ISO 15189", "CAP", "CLIA"]
+    },
+    "patient_persona": {
+      "name": "James Wilson",
+      "age": 68,
+      "gender": "Male",
+      "occupation": "Retired",
+      "chief_complaint": "Decreased urine output and swelling",
+      "emotional_tone": "Concerned",
+      "background_story": "Recent contrast exposure for cardiac catheterization",
+      "speaks_for": "self",
+      "patient_is_present": false
+    },
+    "initial_prompt": "Urgent comprehensive metabolic panel received. QC failure detected on creatinine. Please troubleshoot and interpret results.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Contrast-Induced Nephropathy",
+      "history_of_presenting_illness": {
+        "onset": "24 hours post cardiac catheterization",
+        "associated_symptoms": ["Oliguria", "Peripheral edema", "Nausea"]
+      },
+      "past_medical_history": ["Hypertension", "Diabetes", "Coronary Artery Disease"],
+      "medications": ["Metformin", "Lisinopril", "Aspirin"],
+      "allergies": ["Iodinated contrast"],
+      "procedure_history": "Cardiac catheterization 24 hours ago with contrast administration"
+    },
+    "specimen_information": {
+      "specimen_type": "Serum",
+      "collection_method": "Venipuncture",
+      "collection_time": "07:45 AM",
+      "specimen_quality": "lipemic",
+      "volume_adequacy": "sufficient",
+      "hemolysis_index": "0.1 (acceptable)",
+      "lipemia_index": "3.8 (significant)",
+      "icterus_index": "0.2 (acceptable)",
+      "collection_issues": "Non-fasting sample",
+      "stability": "Stable refrigerated for 7 days"
+    },
+    "test_requests": {
+      "ordered_tests": ["Comprehensive Metabolic Panel", "eGFR"],
+      "priority": "Stat",
+      "turnaround_time": "1 hour",
+      "special_instructions": "Report urgently if renal impairment detected"
+    },
+    "lab_results": {
+      "chemistry_results": {
+        "Sodium": "138 mmol/L",
+        "Potassium": "5.8 mmol/L",
+        "Chloride": "102 mmol/L",
+        "Bicarbonate": "18 mmol/L",
+        "BUN": "48 mg/dL",
+        "Creatinine": "3.2 mg/dL",
+        "Glucose": "145 mg/dL",
+        "Calcium": "8.8 mg/dL",
+        "Total_Protein": "6.2 g/dL",
+        "Albumin": "3.5 g/dL",
+        "AST": "35 U/L",
+        "ALT": "40 U/L",
+        "Alk_Phos": "110 U/L"
+      },
+      "calculated_values": {
+        "Anion_Gap": "18 mmol/L",
+        "eGFR": "18 mL/min/1.73m²"
+      },
+      "reference_ranges": {
+        "Potassium": "3.5-5.0 mmol/L",
+        "BUN": "7-20 mg/dL",
+        "Creatinine": "0.6-1.2 mg/dL",
+        "eGFR": ">60 mL/min/1.73m²"
+      },
+      "critical_values": {
+        "Potassium": ">5.5 mmol/L (critical high)",
+        "Creatinine": ">2.0 mg/dL (critical high)"
+      }
+    },
+    "quality_control": {
+      "qc_materials": ["Chemistry Control Level 1", "Chemistry Control Level 2"],
+      "qc_frequency": "Every 4 hours",
+      "qc_results": {
+        "Level_1": {
+          "Creatinine": "1.8 mg/dL (target 1.0 ± 0.2) - 1_3s violation",
+          "Potassium": "4.8 mmol/L (target 4.5 ± 0.3) - acceptable",
+          "status": "Unacceptable - creatinine out of range"
+        }
+      },
+      "westgard_rules": {
+        "1_2s": "Creatinine violation",
+        "1_3s": "Creatinine violation",
+        "corrective_actions": [
+          "Repeat QC with fresh material",
+          "Check calibration",
+          "Perform maintenance if needed",
+          "Verify reagent integrity"
+        ]
+      },
+      "instrument": "Chemistry Analyzer AU680",
+      "last_calibration": "12 hours ago",
+      "maintenance_status": "Due for daily maintenance"
+    },
+    "interpretation_guidance": {
+      "pattern_recognition": "Acute kidney injury with hyperkalemia and metabolic acidosis",
+      "differential_diagnosis": [
+        "Contrast-Induced Nephropathy",
+        "Acute Tubular Necrosis",
+        "Prerenal Azotemia",
+        "Obstructive Uropathy"
+      ],
+      "clinical_correlation": "Temporal relationship with contrast exposure supports contrast-induced nephropathy",
+      "interferences": {
+        "lipemia": "May affect photometric measurements",
+        "recommendation": "Consider ultracentrifugation if results questionable"
+      }
+    },
+    "safety_protocols": {
+      "ppe_requirements": ["Gloves", "Lab coat", "Face shield"],
+      "biohazard_level": "BSL-2",
+      "chemical_hazards": ["Acids", "Alkalis", "Biohazardous materials"],
+      "emergency_procedures": {
+        "chemical_spill": "Neutralize and contain according to MSDS",
+        "instrument_malfunction": "Shut down and report to supervisor"
+      }
+    },
+    "critical_value_management": {
+      "critical_results": ["Potassium: 5.8 mmol/L", "Creatinine: 3.2 mg/dL"],
+      "communication_protocol": "Immediate phone call to ordering physician",
+      "documentation_requirements": [
+        "Time of result",
+        "Time of communication",
+        "Person notified",
+        "Read-back verification"
+      ],
+      "follow-up_actions": ["Repeat testing if clinically indicated", "Monitor trends"]
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "results communicated",
+        "patient_response": "Critical results have been communicated and appropriate actions taken."
+      },
+      "qc_failure": {
+        "condition_keyword": "troubleshooting complete",
+        "response": "QC issue resolved. Results verified and released."
+      }
+    },
+    "evaluation_criteria": {
+      "QC_Troubleshooting": "Systematic approach to quality control failure resolution",
+      "Critical_Value_Management": "Proper handling and communication of critical results",
+      "Interference_Recognition": "Identification and management of analytical interferences",
+      "Result_Verification": "Appropriate result validation and release",
+      "Clinical_Urgency": "Recognition of time-sensitive results",
+      "Safety_Procedures": "Adherence to laboratory safety protocols",
+      "Documentation_Quality": "Complete and accurate record keeping"
+    }
+  }
+]

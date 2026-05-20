@@ -1,0 +1,453 @@
+[
+  {
+    "version": 3.1,
+    "description": "Antibiotic stewardship and renal dosing adjustment for hospital-acquired pneumonia",
+    "system_instruction": "Focus on antimicrobial stewardship, renal dosing adjustments, and drug interaction monitoring in elderly patient with renal impairment.",
+    "case_metadata": {
+      "case_id": "PHARM-001",
+      "title": "Antibiotic Stewardship in Renal Impairment",
+      "program_area": "Basic Program",
+      "specialty": "Pharmacy",
+      "difficulty": "Intermediate",
+      "tags": ["antibiotics", "renal-dosing", "stewardship", "geriatric"],
+      "location": "Hospital Pharmacy",
+      "case_type": "medication_therapy"
+    },
+    "patient_persona": {
+      "name": "James Wilson",
+      "age": 68,
+      "gender": "Male",
+      "occupation": "Retired",
+      "chief_complaint": "Fever and productive cough",
+      "emotional_tone": "Confused",
+      "background_story": "Recent hospitalization for hip fracture, developed respiratory symptoms",
+      "speaks_for": "self",
+      "patient_is_present": false
+    },
+    "initial_prompt": "Please review this medication regimen for appropriate renal dosing and potential interactions.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Hospital-Acquired Pneumonia",
+      "history_of_presenting_illness": {
+        "onset": "3 days post-operative",
+        "associated_symptoms": ["Fever 38.8°C", "Productive cough", "Increased respiratory rate"]
+      },
+      "past_medical_history": ["CKD Stage 3", "Hypertension", "Diabetes", "Osteoarthritis"],
+      "medications": [
+        "Vancomycin 1g IV q12h (needs adjustment)",
+        "Piperacillin-tazobactam 4.5g IV q8h",
+        "Metoprolol 25mg daily",
+        "Lisinopril 10mg daily",
+        "Warfarin 5mg daily",
+        "Acetaminophen PRN"
+      ],
+      "allergies": ["Penicillin - rash"],
+      "lab_results": {
+        "creatinine": "2.1 mg/dL",
+        "GFR": "32 mL/min/1.73m²",
+        "INR": "2.8",
+        "WBC": "14.5 x 10^9/L",
+        "Cultures": "Pending"
+      },
+      "vital_signs": {
+        "BP": "145/85 mmHg",
+        "HR": "92 bpm",
+        "RR": "22/min",
+        "SpO2": "92% on room air"
+      }
+    },
+    "pharmacy_components": {
+      "medication_therapy_management": {
+        "appropriate_indications": [
+          {
+            "medication": "Vancomycin",
+            "indication": "Empiric coverage for MRSA",
+            "appropriateness": "Appropriate"
+          },
+          {
+            "medication": "Piperacillin-tazobactam",
+            "indication": "Broad-spectrum coverage for HAP",
+            "appropriateness": "Appropriate with monitoring"
+          }
+        ],
+        "dosing_issues": [
+          {
+            "medication": "Vancomycin",
+            "current_dose": "1g q12h",
+            "recommended_dose": "1g q24h based on CKD",
+            "rationale": "Renal impairment requires extended dosing interval"
+          },
+          {
+            "medication": "Piperacillin-tazobactam",
+            "current_dose": "4.5g q8h",
+            "recommended_dose": "2.25g q8h or 4.5g q12h",
+            "rationale": "Dose adjustment required for CrCl <40 mL/min"
+          }
+        ]
+      },
+      "drug_interactions": [
+        {
+          "medication1": "Warfarin",
+          "medication2": "Piperacillin-tazobactam",
+          "interaction_type": "Pharmacodynamic",
+          "severity": "Moderate",
+          "mechanism": "Enhanced anticoagulant effect",
+          "effects": "Increased bleeding risk",
+          "management": ["Monitor INR closely", "Consider warfarin dose reduction", "Check INR every 2-3 days"]
+        },
+        {
+          "medication1": "Vancomycin",
+          "medication2": "Piperacillin-tazobactam",
+          "interaction_type": "Pharmacokinetic",
+          "severity": "Mild",
+          "mechanism": "Potential additive nephrotoxicity",
+          "effects": "Increased risk of AKI",
+          "management": ["Monitor renal function", "Ensure adequate hydration", "Consider alternative if renal function worsens"]
+        }
+      ],
+      "monitoring_parameters": [
+        {
+          "medication": "Vancomycin",
+          "parameters": ["Trough levels (target 15-20 mg/L)", "Renal function", "Hearing assessment"],
+          "frequency": ["Trough before 4th dose", "Creatinine daily", "Auditory symptoms ongoing"]
+        },
+        {
+          "medication": "Piperacillin-tazobactam",
+          "parameters": ["Renal function", "Electrolytes", "Bleeding signs"],
+          "frequency": ["Creatinine daily", "Electrolytes twice weekly", "INR monitoring"]
+        },
+        {
+          "medication": "Warfarin",
+          "parameters": ["INR", "Bleeding signs", "Diet consistency"],
+          "frequency": ["INR every 2-3 days", "Daily assessment for bleeding"]
+        }
+      ],
+      "allergy_management": {
+        "reported_allergy": "Penicillin - rash",
+        "reaction_severity": "Non-severe",
+        "cross_reactivity_risk": "Low for cephalosporins",
+        "management_strategy": "Piperacillin-tazobactam can be use with monitoring",
+        "precautions": ["Monitor for rash", "Have epinephrine available", "Document reaction details"]
+      }
+    },
+    "patient_counseling": {
+      "medication_counseling": [
+        {
+          "medication": "Vancomycin",
+          "topics": [
+            {
+              "topic": "administration",
+              "key_points": ["IV infusion over 60 minutes", "Report redness or pain at IV site", "Complete full course"],
+              "visual_aids": ["Infusion pump diagram"],
+              "teach_back_questions": ["How long should the antibiotic infusion take?"]
+            }
+          ]
+        },
+        {
+          "medication": "Warfarin",
+          "topics": [
+            {
+              "topic": "safety_monitoring",
+              "key_points": ["Regular blood tests needed", "Watch for unusual bleeding", "Maintain consistent diet"],
+              "visual_aids": ["INR target range card", "Vitamin K food list"],
+              "teach_back_questions": ["What foods should you keep consistent in your diet?"]
+            }
+          ]
+        }
+      ],
+      "adherence_strategies": [
+        "Medication calendar",
+        "Pill organizer setup",
+        "Family involvement in medication management"
+      ],
+      "barriers_assessment": [
+        "Cognitive impairment may affect understanding",
+        "Multiple medications complexity",
+        "Need for family caregiver involvement"
+      ]
+    },
+    "outcome_tracking": {
+      "therapeutic_outcomes": [
+        {
+          "medication": "Antibiotic regimen",
+          "outcome_type": "clinical_cure",
+          "target": "Resolution of pneumonia symptoms",
+          "timeframe": "7-10 days",
+          "monitoring_parameters": ["Fever resolution", "WBC normalization", "Chest X-ray improvement"]
+        }
+      ],
+      "safety_outcomes": [
+        {
+          "outcome_type": "nephrotoxicity",
+          "target": "No worsening renal function",
+          "monitoring": ["Daily creatinine", "Urine output", "Electrolytes"]
+        },
+        {
+          "outcome_type": "bleeding_risk",
+          "target": "INR maintained 2-3",
+          "monitoring": ["INR every 2-3 days", "Bleeding assessment daily"]
+        }
+      ],
+      "quality_indicators": [
+        {
+          "indicator": "appropriate_renal_dosing",
+          "target": "100% compliance",
+          "current_status": "Needs adjustment"
+        },
+        {
+          "indicator": "drug_interaction_monitoring",
+          "target": "Comprehensive monitoring plan",
+          "current_status": "Partially addressed"
+        }
+      ]
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "therapy optimized",
+        "patient_response": "Thank you for optimizing the medication regimen. The changes have been implemented."
+      },
+      "critical_issue": {
+        "condition_keyword": "INR critical",
+        "response": "Critical INR value detected. Immediate dose adjustment required."
+      }
+    },
+    "evaluation_criteria": {
+      "Therapy_Optimization": "Appropriate renal dosing adjustments and regimen selection",
+      "Interaction_Management": "Comprehensive identification and management of drug interactions",
+      "Monitoring_Planning": "Development of appropriate monitoring parameters and frequency",
+      "Patient_Safety": "Consideration of allergy status and safety precautions",
+      "Stewardship_Principles": "Adherence to antimicrobial stewardship guidelines",
+      "Patient_Education": "Effective medication counseling and adherence strategies",
+      "Documentation": "Complete and accurate documentation of recommendations"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Medication reconciliation and polypharmacy management in geriatric patient",
+    "system_instruction": "Focus on comprehensive medication review, deprescribing, and fall risk assessment in elderly patient with multiple comorbidities.",
+    "case_metadata": {
+      "case_id": "PHARM-002",
+      "title": "Geriatric Polypharmacy Management",
+      "program_area": "Basic Program",
+      "specialty": "Pharmacy",
+      "difficulty": "Advanced",
+      "tags": ["geriatrics", "polypharmacy", "deprescribing", "fall-risk"],
+      "location": "Outpatient Pharmacy Clinic",
+      "case_type": "medication_therapy"
+    },
+    "patient_persona": {
+      "name": "Eleanor Thompson",
+      "age": 82,
+      "gender": "Female",
+      "occupation": "Retired",
+      "chief_complaint": "Dizziness and recent falls",
+      "emotional_tone": "Worried",
+      "background_story": "Multiple chronic conditions managed by different specialists",
+      "speaks_for": "self",
+      "patient_is_present": false
+    },
+    "initial_prompt": "Please review this medication list for potential interactions and fall risk considerations.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Polypharmacy-Related Adverse Effects",
+      "history_of_presenting_illness": {
+        "onset": "Gradual over 6 months",
+        "associated_symptoms": ["Dizziness", "2 falls in past month", "Fatigue", "Confusion"]
+      },
+      "past_medical_history": ["Hypertension", "Osteoporosis", "Osteoarthritis", "Depression", "GERD"],
+      "medications": [
+        "Lisinopril 20mg daily",
+        "Hydrochlorothiazide 25mg daily",
+        "Amitriptyline 50mg nightly",
+        "Alprazolam 0.5mg TID",
+        "Calcium with Vitamin D twice daily",
+        "Omeprazole 40mg daily",
+        "Acetaminophen 1000mg QID",
+        "Ibuprofen 400mg TID PRN"
+      ],
+      "allergies": ["Sulfa drugs"],
+      "lab_results": {
+        "creatinine": "1.4 mg/dL",
+        "GFR": "45 mL/min/1.73m²",
+        "sodium": "132 mmol/L",
+        "potassium": "3.2 mmol/L"
+      },
+      "vital_signs": {
+        "BP": "118/70 mmHg (sitting)",
+        "BP_standing": "100/60 mmHg",
+        "HR": "72 bpm",
+        "RR": "16/min"
+      },
+      "functional_status": {
+        "ADL_assistance": "Requires help with bathing",
+        "mobility": "Uses walker for ambulation",
+        "cognitive_status": "Mild cognitive impairment"
+      }
+    },
+    "pharmacy_components": {
+      "medication_therapy_management": {
+        "appropriate_indications": [
+          {
+            "medication": "Amitriptyline",
+            "indication": "Depression",
+            "appropriateness": "Inappropriate in elderly - high anticholinergic burden"
+          },
+          {
+            "medication": "Alprazolam",
+            "indication": "Anxiety",
+            "appropriateness": "Inappropriate in elderly - high fall risk"
+          },
+          {
+            "medication": "Hydrochlorothiazide",
+            "indication": "Hypertension",
+            "appropriateness": "Caution in elderly - may cause hyponatremia"
+          }
+        ],
+        "dosing_issues": [
+          {
+            "medication": "Omeprazole",
+            "current_dose": "40mg daily",
+            "recommended_dose": "20mg daily or consider deprescribing",
+            "rationale": "Long-term PPI use associated with fractures and deficiencies"
+          },
+          {
+            "medication": "Ibuprofen",
+            "current_dose": "400mg TID PRN",
+            "recommended_dose": "Avoid in elderly with renal impairment",
+            "rationale": "NSAIDs contraindicated with ACE inhibitor and renal impairment"
+          }
+        ],
+        "beers_criteria_violations": [
+          "Amitriptyline: Strong anticholinergic effects",
+          "Alprazolam: High risk of falls and cognitive impairment",
+          "Hydrochlorothiazide: Potential for hyponatremia in elderly"
+        ]
+      },
+      "drug_interactions": [
+        {
+          "medication1": "Lisinopril",
+          "medication2": "Ibuprofen",
+          "interaction_type": "Pharmacodynamic",
+          "severity": "Major",
+          "mechanism": "Reduced antihypertensive effect, increased renal toxicity",
+          "effects": "Worsening hypertension, acute kidney injury",
+          "management": ["Discontinue ibuprofen", "Monitor renal function", "Consider alternative analgesia"]
+        },
+        {
+          "medication1": "Hydrochlorothiazide",
+          "medication2": "Ibuprofen",
+          "interaction_type": "Pharmacodynamic",
+          "severity": "Moderate",
+          "mechanism": "Additive nephrotoxicity",
+          "effects": "Increased risk of acute kidney injury",
+          "management": ["Avoid combination", "Monitor electrolytes and renal function"]
+        }
+      ],
+      "monitoring_parameters": [
+        {
+          "medication": "All medications",
+          "parameters": ["Fall risk assessment", "Cognitive function", "Renal function", "Electrolytes"],
+          "frequency": ["Monthly fall assessment", "Cognitive screening every 6 months", "Renal function quarterly"]
+        },
+        {
+          "medication": "Deprescribing process",
+          "parameters": ["Withdrawal symptoms", "Disease control", "Functional status"],
+          "frequency": ["Weekly during taper", "Monthly after completion"]
+        }
+      ],
+      "fall_risk_assessment": {
+        "medication_related_risk": "High",
+        "contributing_medications": ["Amitriptyline", "Alprazolam", "Hydrochlorothiazide"],
+        "fall_risk_score": "8/10 (high risk)",
+        "prevention_strategies": ["Deprescribing high-risk medications", "Home safety evaluation", "Physical therapy referral"]
+      }
+    },
+    "patient_counseling": {
+      "medication_counseling": [
+        {
+          "medication": "Deprescribing plan",
+          "topics": [
+            {
+              "topic": "tapering_schedule",
+              "key_points": ["Gradual reduction of medications", "Monitoring for withdrawal effects", "Expected timeline"],
+              "visual_aids": ["Tapering calendar", "Symptom tracking sheet"],
+              "teach_back_questions": ["What should you do if you feel dizzy during medication changes?"]
+            }
+          ]
+        },
+        {
+          "medication": "Fall prevention",
+          "topics": [
+            {
+              "topic": "safety_measures",
+              "key_points": ["Remove home hazards", "Use walker consistently", "Rise slowly from sitting"],
+              "visual_aids": ["Home safety checklist", "Proper walker use diagram"],
+              "teach_back_questions": ["What are three things you can do to make your home safer?"]
+            }
+          ]
+        }
+      ],
+      "adherence_strategies": [
+        "Weekly pill organizer with family assistance",
+        "Medication list carried at all times",
+        "Regular pharmacy reviews"
+      ],
+      "caregiver_involvement": {
+        "role": "Daughter assists with medication management",
+        "training_needs": ["Medication administration", "Symptom monitoring", "Emergency planning"]
+      }
+    },
+    "outcome_tracking": {
+      "therapeutic_outcomes": [
+        {
+          "medication": "Deprescribing regimen",
+          "outcome_type": "reduced_adverse_effects",
+          "target": "Reduction in falls and dizziness",
+          "timeframe": "3 months",
+          "monitoring_parameters": ["Fall frequency", "Dizziness episodes", "Cognitive function"]
+        }
+      ],
+      "safety_outcomes": [
+        {
+          "outcome_type": "fall_reduction",
+          "target": "No falls in 3 months",
+          "monitoring": ["Monthly fall diary", "Functional assessment", "Balance testing"]
+        },
+        {
+          "outcome_type": "medication_burden",
+          "target": "Reduce medications from 8 to 5 or fewer",
+          "monitoring": ["Medication count", "Beers criteria medications", "PIMs (Potentially Inappropriate Medications)"]
+        }
+      ],
+      "quality_indicators": [
+        {
+          "indicator": "appropriate_geriatric_prescribing",
+          "target": "Elimination of Beers criteria medications",
+          "current_status": "Needs intervention"
+        },
+        {
+          "indicator": "comprehensive_medication_review",
+          "target": "100% medication reconciliation completed",
+          "current_status": "In progress"
+        }
+      ]
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "deprescribing plan",
+        "patient_response": "Thank you for the comprehensive medication review. I understand the plan to simplify my medications."
+      },
+      "safety_concern": {
+        "condition_keyword": "fall risk",
+        "response": "High fall risk identified. Immediate medication review and safety measures required."
+      }
+    },
+    "evaluation_criteria": {
+      "Medication_Reconciliation": "Comprehensive review of all medications including OTC and herbal products",
+      "Geriatric_Assessment": "Appropriate evaluation of age-related pharmacokinetic changes and functional status",
+      "Deprescribing_Skills": "Systematic approach to identifying and eliminating inappropriate medications",
+      "Fall_Risk_Management": "Comprehensive fall risk assessment and prevention strategies",
+      "Patient_Safety": "Consideration of drug-disease interactions and contraindications",
+      "Caregiver_Education": "Effective involvement and education of family caregivers",
+      "Documentation": "Complete medication action plan and follow-up coordination"
+    }
+  }
+]

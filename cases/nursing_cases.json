@@ -1,0 +1,340 @@
+[
+  {
+    "version": 3.1,
+    "description": "Post-operative wound care management",
+    "system_instruction": "Simulate a post-surgical patient with wound complications. Focus on nursing assessments and interventions.",
+    "case_metadata": {
+      "case_id": "NURSE-001",
+      "title": "Post-Operative Wound Infection",
+      "program_area": "Basic Program",
+      "specialty": "Nursing",
+      "difficulty": "Intermediate",
+      "tags": ["wound-care", "infection-control", "post-op", "surgical-nursing"],
+      "location": "Surgical Ward"
+    },
+    "patient_persona": {
+      "name": "John Carter",
+      "age": 62,
+      "gender": "Male",
+      "occupation": "Retired Engineer",
+      "chief_complaint": "Redness and discharge from abdominal incision site",
+      "emotional_tone": "Anxious",
+      "background_story": "Underwent elective cholecystectomy 5 days ago",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "Hello, my incision site has been getting more painful and there's some discharge.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Surgical Site Infection",
+      "history_of_presenting_illness": {
+        "onset": "Gradual over 2 days",
+        "location": "Right upper quadrant abdominal incision",
+        "character": "Throbbing pain with purulent discharge",
+        "severity": 7,
+        "timing_and_duration": "Constant worsening pain",
+        "exacerbating_factors": ["Movement", "Touching the area"],
+        "relieving_factors": ["Pain medication provides temporary relief"],
+        "associated_symptoms": ["Fever", "Malaise", "Loss of appetite"]
+      },
+      "review_of_systems": {
+        "positive": ["Fever", "Localized pain", "Drainage"],
+        "negative": ["Chest pain", "Shortness of breath", "Nausea/vomiting"]
+      },
+      "past_medical_history": ["Hypertension", "Hyperlipidemia"],
+      "medications": ["Lisinopril 10mg daily", "Atorvastatin 20mg daily", "Acetaminophen PRN"],
+      "allergies": ["Penicillin"],
+      "surgical_history": ["Appendectomy 1985", "Cholecystectomy 5 days ago"],
+      "family_history": ["Father: CAD", "Mother: Diabetes"],
+      "social_history": {
+        "smoking_status": "Former smoker (quit 10 years ago)",
+        "alcohol_use": "Social drinker",
+        "substance_use": "None",
+        "diet_and_exercise": "Balanced diet, walks daily",
+        "living_situation": "Lives with wife in own home"
+      }
+    },
+    "nursing_diagnoses": [
+      {
+        "diagnosis": "Impaired Skin Integrity",
+        "related_factors": ["Surgical incision", "Infection", "Impaired healing"],
+        "defining_characteristics": ["Erythema", "Purulent drainage", "Warmth", "Edema"],
+        "priority": "High",
+        "nanda_code": "00046"
+      },
+      {
+        "diagnosis": "Acute Pain",
+        "related_factors": ["Surgical trauma", "Inflammation", "Infection"],
+        "defining_characteristics": ["Verbal report of pain 7/10", "Guarding behavior", "Facial grimacing"],
+        "priority": "High",
+        "nanda_code": "00132"
+      },
+      {
+        "diagnosis": "Risk for Infection Spread",
+        "related_factors": ["Compromised skin integrity", "Surgical site", "Advanced age"],
+        "defining_characteristics": ["Fever 38.2°C", "Elevated WBC count"],
+        "priority": "High",
+        "nanda_code": "00004"
+      }
+    ],
+    "nursing_interventions": [
+      {
+        "intervention": "Wound Assessment and Care",
+        "category": "Treatment",
+        "description": "Assess wound characteristics and perform dressing changes",
+        "nic_code": "3660",
+        "parameters": ["q8h dressing changes", "Aseptic technique", "Document characteristics"],
+        "expected_outcomes": ["Clean wound bed", "Reduced drainage", "Improved healing"]
+      },
+      {
+        "intervention": "Pain Management",
+        "category": "Comfort",
+        "description": "Administer analgesics and non-pharmacological pain relief",
+        "nic_code": "1400",
+        "parameters": ["PRN pain medication", "Positioning", "Distraction techniques"],
+        "expected_outcomes": ["Pain reduced to 3/10", "Improved comfort", "Adequate rest"]
+      },
+      {
+        "intervention": "Infection Control Measures",
+        "category": "Safety",
+        "description": "Implement standard precautions and monitor for sepsis",
+        "nic_code": "6540",
+        "parameters": ["Hand hygiene", "Contact precautions", "Vital sign monitoring"],
+        "expected_outcomes": ["No further infection spread", "Afebrile", "Normal WBC count"]
+      },
+      {
+        "intervention": "Patient Education",
+        "category": "Education",
+        "description": "Teach wound care and signs of complications",
+        "nic_code": "5510",
+        "parameters": ["Daily education sessions", "Written instructions", "Return demonstration"],
+        "expected_outcomes": ["Patient demonstrates proper wound care", "Understands warning signs", "Compliant with follow-up"]
+      }
+    ],
+    "nursing_outcomes": [
+      {
+        "outcome": "Wound Healing: Secondary Intention",
+        "indicators": ["Clean granulation tissue", "Decreased drainage", "Reduced erythema"],
+        "measurement_scale": "Wound Assessment Scale 1-4",
+        "noc_code": "1102"
+      },
+      {
+        "outcome": "Pain Level",
+        "indicators": ["Verbal pain rating", "Pain behavior", "Medication usage"],
+        "measurement_scale": "Numeric Rating Scale 0-10",
+        "noc_code": "2102"
+      },
+      {
+        "outcome": "Infection Severity",
+        "indicators": ["Temperature", "WBC count", "Local signs"],
+        "measurement_scale": "Infection Severity Scale",
+        "noc_code": "0703"
+      }
+    ],
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment plan",
+        "patient_response": "Thank you for explaining everything. I feel more confident about managing this at home now."
+      },
+      "invalid_input": {
+        "response": "I'm not sure I understand. Could you ask about my wound care?"
+      }
+    },
+    "evaluation_criteria": {
+      "Assessment_Skills": "Comprehensive wound assessment including characteristics, measurements, and surrounding tissue",
+      "Nursing_Diagnosis_Accuracy": "Appropriate identification of actual and risk nursing diagnoses using NANDA terminology",
+      "Intervention_Selection": "Evidence-based wound care and infection control interventions",
+      "Pain_Management": "Effective pain assessment and multimodal pain management strategies",
+      "Patient_Education": "Comprehensive teaching on wound care, signs of complications, and follow-up",
+      "Safety_Protocols": "Adherence to infection control and patient safety standards",
+      "Documentation": "Accurate and timely documentation of assessments and interventions",
+      "Communication": "Therapeutic communication and patient-centered care approach"
+    },
+    "patient_safety_metrics": {
+      "fall_risk_assessment": true,
+      "pressure_ulcer_risk": false,
+      "infection_control_measures": true,
+      "medication_safety": true,
+      "patient_education_provided": true,
+      "hand_hygiene_compliance": true,
+      "pain_assessment_documentation": true,
+      "vital_signs_monitoring": true
+    },
+    "quality_metrics": {
+      "patient_satisfaction_score": 92,
+      "wound_healing_rate": 85,
+      "infection_resolution_rate": 90,
+      "pain_control_effectiveness": 88,
+      "patient_education_completion": 95,
+      "care_plan_adherence": 90
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Congestive heart failure management in elderly patient",
+    "system_instruction": "Simulate an elderly patient with worsening heart failure symptoms. Focus on comprehensive nursing assessment and chronic disease management.",
+    "case_metadata": {
+      "case_id": "NURSE-002",
+      "title": "Decompensated Heart Failure",
+      "program_area": "Basic Program",
+      "specialty": "Nursing",
+      "difficulty": "Intermediate",
+      "tags": ["cardiac", "heart-failure", "geriatric", "chronic-care"],
+      "location": "Medical Ward"
+    },
+    "patient_persona": {
+      "name": "Margaret Williams",
+      "age": 78,
+      "gender": "Female",
+      "occupation": "Retired Teacher",
+      "chief_complaint": "Increasing shortness of breath and leg swelling",
+      "emotional_tone": "Worried",
+      "background_story": "Long-standing heart failure with recent weight gain and reduced activity",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I've been having trouble breathing, especially at night, and my ankles are very swollen.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Decompensated Heart Failure",
+      "history_of_presenting_illness": {
+        "onset": "Progressive over 1 week",
+        "location": "Chest and lower extremities",
+        "character": "Dyspnea on exertion progressing to orthopnea",
+        "severity": 8,
+        "timing_and_duration": "Worsening over past week",
+        "exacerbating_factors": ["Lying flat", "Physical activity"],
+        "relieving_factors": ["Sitting upright", "Rest"],
+        "associated_symptoms": ["Fatigue", "Weight gain (3kg)", "Nocturnal cough"]
+      },
+      "review_of_systems": {
+        "positive": ["Dyspnea", "Edema", "Fatigue", "Orthopnea"],
+        "negative": ["Chest pain", "Palpitations", "Fever", "Wheezing"]
+      },
+      "past_medical_history": ["Heart Failure (5 years)", "Hypertension", "Atrial Fibrillation", "Osteoarthritis"],
+      "medications": ["Furosemide 40mg daily", "Lisinopril 10mg daily", "Metoprolol 25mg BID", "Warfarin 5mg daily"],
+      "allergies": ["Sulfa drugs"],
+      "surgical_history": ["Hip replacement 2010"],
+      "family_history": ["Mother: Heart disease", "Father: Stroke"],
+      "social_history": {
+        "smoking_status": "Never",
+        "alcohol_use": "Rarely",
+        "substance_use": "None",
+        "diet_and_exercise": "High sodium diet due to taste changes, sedentary",
+        "living_situation": "Lives alone in apartment with home care support"
+      }
+    },
+    "nursing_diagnoses": [
+      {
+        "diagnosis": "Excess Fluid Volume",
+        "related_factors": ["Compromised regulatory mechanism", "Heart failure", "High sodium intake"],
+        "defining_characteristics": ["Edema", "Weight gain", "Orthopnea", "Jugular venous distension"],
+        "priority": "High",
+        "nanda_code": "00026"
+      },
+      {
+        "diagnosis": "Impaired Gas Exchange",
+        "related_factors": ["Fluid overload", "Decreased cardiac output", "Pulmonary congestion"],
+        "defining_characteristics": ["Dyspnea", "Tachypnea", "Oxygen saturation 88% on room air"],
+        "priority": "High",
+        "nanda_code": "00030"
+      },
+      {
+        "diagnosis": "Activity Intolerance",
+        "related_factors": ["Imbalance between oxygen supply and demand", "Fatigue", "Deconditioning"],
+        "defining_characteristics": ["Verbal report of weakness", "Exertional dyspnea", "Reduced activity level"],
+        "priority": "Medium",
+        "nanda_code": "00092"
+      }
+    ],
+    "nursing_interventions": [
+      {
+        "intervention": "Fluid Balance Management",
+        "category": "Treatment",
+        "description": "Monitor intake/output, daily weights, and assess for fluid overload",
+        "nic_code": "4120",
+        "parameters": ["Strict I&O", "Daily weights same scale", "Assess edema q4h"],
+        "expected_outcomes": ["Weight reduction", "Improved edema", "Normal fluid balance"]
+      },
+      {
+        "intervention": "Respiratory Monitoring",
+        "category": "Assessment",
+        "description": "Assess respiratory status and oxygen saturation",
+        "nic_code": "3350",
+        "parameters": ["Respiratory assessment q4h", "Oxygen saturation monitoring", "Lung auscultation"],
+        "expected_outcomes": ["Improved oxygenation", "Reduced respiratory distress", "Clear lung sounds"]
+      },
+      {
+        "intervention": "Medication Administration and Monitoring",
+        "category": "Treatment",
+        "description": "Administer cardiac medications and monitor effects",
+        "nic_code": "2300",
+        "parameters": ["Diuretic therapy", "ACE inhibitor administration", "Monitor electrolytes"],
+        "expected_outcomes": ["Adequate diuresis", "Stable blood pressure", "Normal electrolyte levels"]
+      },
+      {
+        "intervention": "Activity Planning and Energy Conservation",
+        "category": "Education",
+        "description": "Teach energy conservation techniques and gradual activity progression",
+        "nic_code": "0180",
+        "parameters": ["Activity pacing", "Rest periods", "Gradual progression"],
+        "expected_outcomes": ["Improved activity tolerance", "Energy conservation techniques", "Progressive ambulation"]
+      }
+    ],
+    "nursing_outcomes": [
+      {
+        "outcome": "Fluid Balance",
+        "indicators": ["Stable weight", "Reduced edema", "Normal JVD"],
+        "measurement_scale": "Fluid Balance Scale",
+        "noc_code": "0601"
+      },
+      {
+        "outcome": "Respiratory Status",
+        "indicators": ["Oxygen saturation", "Respiratory rate", "Breath sounds"],
+        "measurement_scale": "Respiratory Assessment Scale",
+        "noc_code": "0410"
+      },
+      {
+        "outcome": "Activity Tolerance",
+        "indicators": ["Exercise capacity", "Fatigue level", "Functional status"],
+        "measurement_scale": "Activity Tolerance Scale",
+        "noc_code": "0005"
+      }
+    ],
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "discharge planning",
+        "patient_response": "I understand my medications and when to call the doctor now. Thank you for your help."
+      },
+      "invalid_input": {
+        "response": "Could you please ask about my breathing or swelling?"
+      }
+    },
+    "evaluation_criteria": {
+      "Assessment_Skills": "Comprehensive cardiac and respiratory assessment including vital signs, edema, and lung sounds",
+      "Fluid_Balance_Management": "Accurate intake/output monitoring and weight assessment",
+      "Medication_Knowledge": "Understanding of cardiac medications and their monitoring requirements",
+      "Patient_Education": "Effective teaching on low-sodium diet, medication adherence, and symptom monitoring",
+      "Safety_Protocols": "Fall prevention and oxygen safety measures",
+      "Geriatric_Considerations": "Age-appropriate assessment and communication strategies",
+      "Documentation": "Thorough documentation of assessments and interventions",
+      "Therapeutic_Communication": "Empathetic communication addressing patient concerns"
+    },
+    "patient_safety_metrics": {
+      "fall_risk_assessment": true,
+      "pressure_ulcer_risk": true,
+      "infection_control_measures": true,
+      "medication_safety": true,
+      "patient_education_provided": true,
+      "hand_hygiene_compliance": true,
+      "pain_assessment_documentation": true,
+      "vital_signs_monitoring": true
+    },
+    "quality_metrics": {
+      "patient_satisfaction_score": 90,
+      "readmission_prevention": 85,
+      "symptom_control": 88,
+      "medication_adherence": 82,
+      "patient_education_completion": 88,
+      "care_plan_adherence": 85
+    }
+  }
+]
