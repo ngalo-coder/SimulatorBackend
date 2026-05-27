@@ -6,25 +6,11 @@
  */
 
 import express from 'express';
-import multer from 'multer';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { requireAnyRole } from '../middleware/rbacMiddleware.js';
 import * as usersController from '../controllers/usersController.js';
 
 const router = express.Router();
-
-// Configure multer for file uploads (admin CSV import)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only CSV files are allowed'), false);
-    }
-  }
-});
 
 // ──────────────────────────────────────────────
 // REGISTRATION & UTILITY (no auth required)
@@ -97,15 +83,5 @@ router.get('/:userId/preferences', authenticateToken, usersController.getUserPre
  * Update user preferences
  */
 router.put('/:userId/preferences', authenticateToken, usersController.updateUserPreferences);
-
-// ──────────────────────────────────────────────
-// ADMIN OPERATIONS
-// ──────────────────────────────────────────────
-
-/**
- * POST /api/users/import
- * Import users from CSV (admin only)
- */
-router.post('/import', authenticateToken, requireAnyRole(['admin']), upload.single('file'), usersController.importUsersCSV);
 
 export default router;

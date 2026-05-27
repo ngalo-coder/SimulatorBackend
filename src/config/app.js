@@ -10,7 +10,6 @@ import { swaggerSpec, swaggerUi, swaggerUiOptions } from './swagger.js';
 import authRoutes from '../routes/auth.routes.js';
 import usersRoutes from '../routes/users.routes.js';
 import casesRoutes from '../routes/cases.routes.js';
-import dashboardRoutes from '../routes/dashboard.routes.js';
 import simulationsRoutes from '../routes/simulations.routes.js';
 
 export function createApp() {
@@ -38,10 +37,9 @@ export function createApp() {
 }
 
 export function setupRoutes(app) {
-  app.use('/api/auth', authRoutes);
+    app.use('/api/auth', authRoutes);
   app.use('/api/users', usersRoutes);
   app.use('/api/cases', casesRoutes);
-  app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/simulations', simulationsRoutes);
 
   app.use('/auth/login', (_req, res) => res.redirect(307, '/api/auth/login'));

@@ -9,8 +9,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/UserModel.js';
-import auditLogger from '../services/AuditLoggerService.js';
-import { authenticateToken, requireAuth, requireAdmin } from '../middleware/authMiddleware.js';
+import { authenticateToken, requireAuth } from '../middleware/authMiddleware.js';
 import { rateLimiter } from '../middleware/rateLimiter.js';
 import { getJwtSecret, getJwtExpiresIn } from '../config/auth.js';
 
@@ -370,47 +369,10 @@ router.post('/change-password',
       user.password = newPassword;
       await user.save();
 
-      res.json({ success: true, message: 'Password changed successfully' });
+            res.json({ success: true, message: 'Password changed successfully' });
     } catch (error) {
       console.error('Change password error:', error);
       res.status(500).json({ success: false, message: 'Password change failed' });
-    }
-  }
-);
-
-// ──────────────────────────────────────────────
-// ADMIN ENDPOINTS (require admin role)
-// ──────────────────────────────────────────────
-
-/**
- * GET /api/auth/admin/audit-logs
- * Get audit logs (admin only)
- */
-router.get('/admin/audit-logs',
-  (req, res, next) => {
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-  },
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const { page = 1, limit = 50, event, userId, ip, severity, startDate, endDate } = req.query;
-
-      const filters = { event, userId, ip, severity, startDate, endDate };
-      Object.keys(filters).forEach(key => filters[key] === undefined && delete filters[key]);
-
-      const options = {
-        limit: parseInt(limit),
-        skip: (parseInt(page) - 1) * parseInt(limit),
-        sort: { timestamp: -1 }
-      };
-
-      const result = await auditLogger.getAuditLogs(filters, options);
-
-      res.json({ success: true, ...result });
-    } catch (error) {
-      console.error('Get audit logs error:', error);
-      res.status(500).json({ success: false, message: 'Failed to retrieve audit logs' });
     }
   }
 );
