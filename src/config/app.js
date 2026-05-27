@@ -7,12 +7,6 @@ import { globalErrorHandler, notFoundHandler } from '../middleware/errorHandler.
 import { swaggerSpec, swaggerUi, swaggerUiOptions } from './swagger.js';
 
 // RESOURCE-CENTRIC ROUTES
-
-
-
-
-
-
 import authRoutes from '../routes/auth.routes.js';
 import usersRoutes from '../routes/users.routes.js';
 import casesRoutes from '../routes/cases.routes.js';
@@ -40,9 +34,13 @@ export function createApp() {
     next();
   });
 
+  return app;
+}
+
+export function setupRoutes(app) {
+  app.use('/api/auth', authRoutes);
   app.use('/api/users', usersRoutes);
   app.use('/api/cases', casesRoutes);
-  app.use('/api/progress', progressRoutes);
   app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/simulations', simulationsRoutes);
 
