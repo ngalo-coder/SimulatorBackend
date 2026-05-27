@@ -3,7 +3,7 @@
  * 
  * RESOURCE-CENTRIC: All authentication operations consolidated here.
  * Handles: login, register, logout, token refresh, token verification,
- *          current user, password changes, and admin audit log management.
+ *          current user, and password changes.
  */
 
 import express from 'express';
@@ -414,102 +414,5 @@ router.get('/admin/audit-logs',
     }
   }
 );
-
-/**
- * GET /api/auth/admin/audit-stats
- * Get audit statistics (admin only)
- */
-router.get('/admin/audit-stats',
-  (req, res, next) => {
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-  },
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const { startDate, endDate } = req.query;
-      const filters = { startDate, endDate };
-      Object.keys(filters).forEach(key => filters[key] === undefined && delete filters[key]);
-
-      const stats = await auditLogger.getAuditStats(filters);
-      res.json({ success: true, stats });
-    } catch (error) {
-      console.error('Get audit stats error:', error);
-      res.status(500).json({ success: false, message: 'Failed to retrieve audit statistics' });
-    }
-  }
-);
-
-/**
- * GET /api/auth/admin/export-logs
- * Export audit logs (admin only)
- */
-router.get('/admin/export-logs',
-  (req, res, next) => {
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-  },
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const { startDate, endDate, format = 'json' } = req.query;
-      const filters = { startDate, endDate };
-      Object.keys(filters).forEach(key => filters[key] === undefined && delete filters[key]);
-
-      const logs = await auditLogger.exportLogs(filters);
-
-      if (format === 'csv') {
-        const csv = convertToCSV(logs);
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=audit-logs.csv');
-        res.send(csv);
-      } else {
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', 'attachment; filename=audit-logs.json');
-        res.json({ success: true, logs, exportedAt: new Date(), totalRecords: logs.length });
-      }
-    } catch (error) {
-      console.error('Export audit logs error:', error);
-      res.status(500).json({ success: false, message: 'Failed to export audit logs' });
-    }
-  }
-);
-
-/**
- * POST /api/auth/admin/cleanup-logs
- * Cleanup old audit logs (admin only)
- */
-router.post('/admin/cleanup-logs',
-  (req, res, next) => {
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-  },
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const { maxAgeDays = 90 } = req.body;
-      const deletedCount = await auditLogger.cleanupOldLogs(maxAgeDays);
-      res.json({ success: true, message: `Cleaned up ${deletedCount} old audit logs`, deletedCount });
-    } catch (error) {
-      console.error('Cleanup logs error:', error);
-      res.status(500).json({ success: false, message: 'Failed to cleanup old logs' });
-    }
-  }
-);
-
-// ──────────────────────────────────────────────
-// HELPERS
-// ──────────────────────────────────────────────
-
-function convertToCSV(logs) {
-  if (!logs?.length) return '';
-  const headers = ['timestamp', 'event', 'username', 'role', 'ip', 'path', 'reason', 'severity'];
-  const csvRows = [headers.join(',')];
-  logs.forEach(log => {
-    const row = headers.map(header => `"${String(log[header] || '').replace(/"/g, '""')}"`);
-    csvRows.push(row.join(','));
-  });
-  return csvRows.join('\n');
-}
 
 export default router;
