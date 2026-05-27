@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import pinoHttp from 'pino-http';
-import mongoose from 'mongoose';
 import logger from './logger.js';
 import corsOptions from './corsConfig.js';
 import { globalErrorHandler, notFoundHandler } from '../middleware/errorHandler.js';
@@ -41,34 +40,6 @@ export function createApp() {
 }
 
 export function setupRoutes(app) {
-  app.get('/', (_req, res) => {
-    res.json({
-      message: 'Virtual Patient Simulation API is running!',
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-    });
-  });
-
-  app.get('/health', async (req, res) => {
-    try {
-      const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-      res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        origin: req.get('Origin') || 'none',
-        environment: process.env.NODE_ENV || 'development',
-        database: dbStatus,
-        uptime: process.uptime(),
-      });
-    } catch (error) {
-      res.status(503).json({
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: error.message,
-      });
-    }
-  });
-
   app.use('/api/auth', authRoutes);
   app.use('/api/users', usersRoutes);
   app.use('/api/cases', casesRoutes);
