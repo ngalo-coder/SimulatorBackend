@@ -40,10 +40,9 @@ export function createApp() {
 }
 
 export function setupRoutes(app) {
-  app.use('/api/auth', authRoutes);
+    app.use('/api/auth', authRoutes);
   app.use('/api/users', usersRoutes);
   app.use('/api/cases', casesRoutes);
-  app.use('/api/analytics', analyticsRoutes);
   app.use('/api/progress', progressRoutes);
   app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/simulations', simulationsRoutes);

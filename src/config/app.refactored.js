@@ -120,8 +120,7 @@ export function setupRoutes(app) {
   app.use('/api/admin/users', (req, res) => res.redirect(301, '/api/users' + req.url));
   app.use('/api/privacy', (req, res) => res.redirect(301, '/api/users/' + req.user?._id + '/preferences'));
 
-  // Analytics (moved to /api/analytics)
-  app.use('/api/progress-analytics', (req, res) => res.redirect(301, '/api/analytics/progress' + req.url));
+    // Analytics (removed - was at /api/analytics)
 
   // Progress/Performance (moved to /api/progress)
   app.use('/api/performance', (req, res) => res.redirect(301, '/api/progress' + req.url));
