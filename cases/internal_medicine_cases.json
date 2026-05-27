@@ -1,0 +1,204 @@
+[
+  {
+    "version": 3.1,
+    "description": "Type 2 Diabetes management with insulin therapy adjustment",
+    "system_instruction": "Focus on comprehensive diabetes management, insulin titration, and complication screening in a patient with poorly controlled diabetes.",
+    "case_metadata": {
+      "case_id": "MED-001",
+      "title": "Uncontrolled Type 2 Diabetes with Insulin Adjustment",
+      "program_area": "Basic Program",
+      "specialty": "Internal Medicine",
+      "difficulty": "Intermediate",
+      "tags": ["diabetes", "insulin", "metabolic", "endocrine"],
+      "location": "Internal Medicine Clinic",
+      "case_type": "chronic_disease_management"
+    },
+    "patient_persona": {
+      "name": "Carlos Rodriguez",
+      "age": 55,
+      "gender": "Male",
+      "occupation": "Truck Driver",
+      "chief_complaint": "High blood sugar readings and frequent urination",
+      "emotional_tone": "Frustrated",
+      "background_story": "Diagnosed with Type 2 Diabetes 8 years ago, poor glycemic control despite oral medications",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "My blood sugar has been running really high lately. I'm checking it at home and it's often over 250. I'm also getting up to urinate many times at night.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Uncontrolled Type 2 Diabetes Mellitus requiring insulin intensification",
+      "history_of_presenting_illness": {
+        "onset": "Progressive over 3 months",
+        "location": "Systemic",
+        "character": "Polyuria, polydipsia, fatigue",
+        "severity": 7,
+        "timing_and_duration": "Worsening over past 3 months",
+        "exacerbating_factors": ["High carbohydrate meals", "Stress", "Sedentary lifestyle"],
+        "relieving_factors": ["Medication adjustments provide temporary improvement"],
+        "associated_symptoms": ["Blurry vision", "Fatigue", "Increased thirst", "Numbness in feet"]
+      },
+      "review_of_systems": {
+        "positive": ["Polyuria", "Polydipsia", "Blurry vision", "Peripheral neuropathy"],
+        "negative": ["Chest pain", "Shortness of breath", "Fever", "Weight loss"]
+      },
+      "past_medical_history": ["Type 2 Diabetes (8 years)", "Hypertension", "Hyperlipidemia", "Diabetic peripheral neuropathy"],
+      "medications": ["Metformin 1000mg BID", "Glipizide 10mg BID", "Lisinopril 20mg daily", "Atorvastatin 40mg daily"],
+      "allergies": ["Sulfa drugs"],
+      "surgical_history": ["None"],
+      "family_history": ["Mother: Type 2 Diabetes", "Father: Coronary Artery Disease"],
+      "social_history": {
+        "smoking_status": "Former smoker (quit 5 years ago)",
+        "alcohol_use": "Occasional beer",
+        "substance_use": "None",
+        "diet_and_exercise": "High carbohydrate diet, sedentary job, no regular exercise",
+        "living_situation": "Lives with wife and teenage children"
+      }
+    },
+    "lab_results": {
+      "HbA1c": "10.2%",
+      "fasting_glucose": "245 mg/dL",
+      "creatinine": "1.1 mg/dL",
+      "eGFR": "72 mL/min/1.73m²",
+      "urine_microalbumin": "45 mg/g",
+      "lipid_panel": {
+        "LDL": "130 mg/dL",
+        "HDL": "38 mg/dL",
+        "triglycerides": "280 mg/dL"
+      }
+    },
+    "vital_signs": {
+      "BP": "138/85 mmHg",
+      "HR": "78 bpm",
+      "RR": "16/min",
+      "BMI": "32.5 kg/m²",
+      "weight": "98 kg"
+    },
+    "physical_exam_findings": {
+      "general": "Obese male in no acute distress",
+      "eyes": "Non-proliferative diabetic retinopathy on fundoscopic exam",
+      "feet": "Decreased vibratory sensation bilaterally, intact pulses",
+      "skin": "Acanthosis nigricans on neck",
+      "neurological": "Decreased monofilament sensation in both feet"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment plan",
+        "patient_response": "I understand the insulin adjustment plan. I'll monitor my blood sugar and follow up as scheduled."
+      },
+      "critical_issue": {
+        "condition_keyword": "hypoglycemia",
+        "response": "Patient reports symptoms of hypoglycemia. Immediate assessment and glucose administration required."
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Comprehensive assessment of glycemic control, adherence, and complications",
+      "Medication_Management": "Appropriate insulin initiation and titration strategy",
+      "Complication_Screening": "Systematic evaluation for diabetic complications",
+      "Patient_Education": "Effective counseling on lifestyle modifications and glucose monitoring",
+      "Follow_up_Planning": "Establishment of appropriate monitoring schedule and goals",
+      "Multidisciplinary_Coordination": "Referral to diabetes education, nutrition, and ophthalmology"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Community-acquired pneumonia management in an elderly patient with multiple comorbidities",
+    "system_instruction": "Focus on diagnosis, antibiotic selection, and management of pneumonia in an elderly patient with comorbidities.",
+    "case_metadata": {
+      "case_id": "MED-002",
+      "title": "Community-Acquired Pneumonia in Elderly Patient",
+      "program_area": "Basic Program",
+      "specialty": "Internal Medicine",
+      "difficulty": "Intermediate",
+      "tags": ["pneumonia", "respiratory", "infection", "geriatric"],
+      "location": "Medical Ward",
+      "case_type": "acute_care"
+    },
+    "patient_persona": {
+      "name": "Helen Baker",
+      "age": 74,
+      "gender": "Female",
+      "occupation": "Retired Librarian",
+      "chief_complaint": "Fever, cough, and shortness of breath for 4 days",
+      "emotional_tone": "Anxious",
+      "background_story": "Lives alone, became progressively more short of breath and confused over past 2 days",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I've had this cough for a few days and it's getting worse. I feel feverish and can't catch my breath just walking to the bathroom.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Community-Acquired Pneumonia with sepsis risk",
+      "history_of_presenting_illness": {
+        "onset": "4 days ago",
+        "location": "Chest",
+        "character": "Productive cough with green sputum, pleuritic chest pain",
+        "severity": 8,
+        "timing_and_duration": "Progressive worsening over 4 days",
+        "exacerbating_factors": ["Deep breathing", "Coughing", "Walking"],
+        "relieving_factors": ["Rest", "Sitting upright"],
+        "associated_symptoms": ["Fever 39.1°C", "Chills", "Confusion", "Decreased appetite"]
+      },
+      "review_of_systems": {
+        "positive": ["Cough", "Fever", "Dyspnea", "Confusion", "Malaise"],
+        "negative": ["Chest pain at rest", "Hemoptysis", "Nausea/vomiting", "Headache"]
+      },
+      "past_medical_history": ["COPD", "Hypertension", "Osteoarthritis", "GERD"],
+      "medications": ["Tiotropium inhaler daily", "Lisinopril 10mg daily", "Omeprazole 20mg daily"],
+      "allergies": ["Penicillin - rash"],
+      "surgical_history": ["Cholecystectomy (2015)"],
+      "family_history": ["Father: Lung cancer", "Mother: Stroke"],
+      "social_history": {
+        "smoking_status": "Current smoker (40 pack-years)",
+        "alcohol_use": "None",
+        "substance_use": "None",
+        "diet_and_exercise": "Poor appetite, sedentary",
+        "living_situation": "Lives alone in apartment, daughter checks in daily"
+      }
+    },
+    "lab_results": {
+      "WBC": "16.2 x 10^9/L",
+      "neutrophils": "85%",
+      "CRP": "185 mg/L",
+      "procalcitonin": "2.5 ng/mL",
+      "creatinine": "1.3 mg/dL",
+      "BUN": "28 mg/dL",
+      "glucose": "145 mg/dL",
+      "blood_cultures": "Pending",
+      "sputum_culture": "Pending"
+    },
+    "vital_signs": {
+      "BP": "110/70 mmHg",
+      "HR": "102 bpm",
+      "RR": "26/min",
+      "temperature": "39.1°C",
+      "SpO2": "88% on room air"
+    },
+    "physical_exam_findings": {
+      "general": "Elderly female, appears confused, in respiratory distress",
+      "chest": "Decreased breath sounds right lower lobe, crackles, bronchial breath sounds",
+      "cardiovascular": "Tachycardia, no murmurs",
+      "abdomen": "Soft, non-tender"
+    },
+    "imaging_findings": {
+      "modality": "Chest X-ray",
+      "findings": ["Right lower lobe consolidation", "Small pleural effusion", "No pneumothorax"]
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment initiated",
+        "patient_response": "Thank you for explaining everything. I understand I need to be admitted."
+      },
+      "critical_issue": {
+        "condition_keyword": "sepsis",
+        "response": "Patient meets SIRS criteria. Immediate sepsis protocol activation required."
+      }
+    },
+    "evaluation_criteria": {
+      "Diagnostic_Assessment": "Appropriate clinical evaluation and diagnostic testing for pneumonia",
+      "Severity_Assessment": "Proper use of CURB-65 or similar severity scoring",
+      "Antibiotic_Selection": "Appropriate empiric antibiotic therapy considering allergies and comorbidities",
+      "Supportive_Care": "Appropriate oxygen therapy, hydration, and monitoring",
+      "Geriatric_Considerations": "Assessment of delirium, fall risk, and functional status",
+      "Discharge_Planning": "Appropriate criteria for discharge and follow-up arrangement"
+    }
+  }
+]

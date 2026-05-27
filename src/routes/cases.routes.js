@@ -12,15 +12,9 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { requireAnyRole, requirePermission } from '../middleware/rbacMiddleware.js';
-import caseManagementService from '../services/CaseManagementService.js';
-import caseTemplateService from '../services/CaseTemplateService.js';
-import caseCreationWorkflowService from '../services/CaseCreationWorkflowService.js';
-import CasePublishingService from '../services/CasePublishingService.js';
-import CaseReviewService from '../services/CaseReviewService.js';
-import studentDashboardService from '../services/StudentDashboardService.js';
-import educatorDashboardService from '../services/EducatorDashboardService.js';
+import * as casesController from '../controllers/casesController.js';
+import { getCaseCategories } from '../controllers/simulationController.js';
 import ContributedCase from '../models/ContributedCaseModel.js';
-import Case from '../models/CaseModel.js';
 
 const router = express.Router();
 
@@ -35,96 +29,25 @@ const router = express.Router();
  * Educator → cases they manage
  * Admin → all cases with management data
  */
-router.get('/', authenticateToken, async (req, res) => {
-  try {
-    const filters = {
-      difficulty: req.query.difficulty ? req.query.difficulty.split(',') : undefined,
-      caseType: req.query.caseType ? req.query.caseType.split(',') : undefined,
-      status: req.query.status,
-      discipline: req.query.discipline,
-      specialty: req.query.specialty,
-      search: req.query.search || '',
-      page: parseInt(req.query.page) || 1,
-      limit: parseInt(req.query.limit) || 12,
-      sortBy: req.query.sortBy || 'createdAt',
-      sortOrder: req.query.sortOrder || 'desc'
-    };
-
-    let result;
-    const role = req.user?.role;
-
-    if (role === 'student') {
-      result = await studentDashboardService.getAvailableCases(req.user, filters, filters);
-    } else if (role === 'educator') {
-      result = await educatorDashboardService.getCaseManagementData(req.user, filters);
-    } else {
-      // Admin: get all cases with full management data
-      result = await educatorDashboardService.getCaseManagementData(req.user, { ...filters, all: true });
-    }
-
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error('Get cases error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to load cases' });
-  }
-});
+router.get('/', authenticateToken, casesController.getCases);
 
 /**
  * GET /api/cases/published
  * Publicly-accessible published cases with filtering
  */
-router.get('/published', async (req, res) => {
-  try {
-    const filters = {
-      query: req.query.query,
-      specialties: req.query.specialties?.split(','),
-      difficulties: req.query.difficulties?.split(','),
-      programAreas: req.query.programAreas?.split(','),
-      locations: req.query.locations?.split(','),
-      tags: req.query.tags?.split(','),
-      accessLevel: req.query.accessLevel,
-      sortBy: req.query.sortBy || 'publishedAt',
-      sortOrder: req.query.sortOrder || 'desc',
-      page: parseInt(req.query.page) || 1,
-      limit: parseInt(req.query.limit) || 20
-    };
-
-    const result = await CasePublishingService.getPublishedCases(filters, req.user);
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error('Get published cases error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch published cases' });
-  }
-});
+router.get('/published', casesController.getPublishedCases);
 
 /**
  * GET /api/cases/popular
  * Get most popular cases by usage
  */
-router.get('/popular', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 10;
-    const popularCases = await CasePublishingService.getPopularCases(limit);
-    res.json({ success: true, data: popularCases });
-  } catch (error) {
-    console.error('Get popular cases error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch popular cases' });
-  }
-});
+router.get('/popular', casesController.getPopularCases);
 
 /**
  * GET /api/cases/categories
  * Get case categories
  */
-router.get('/categories', async (req, res) => {
-  try {
-    const { getCaseCategories } = await import('../controllers/simulationController.js');
-    const categories = await getCaseCategories(req, res);
-  } catch (error) {
-    console.error('Get case categories error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to load categories' });
-  }
-});
+router.get('/categories', getCaseCategories);
 
 // ──────────────────────────────────────────────
 // SINGLE CASE ENDPOINTS
@@ -134,101 +57,31 @@ router.get('/categories', async (req, res) => {
  * GET /api/cases/:id
  * Get a single case (with access control)
  */
-router.get('/:id', authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Try published case lookup with access control
-    const accessInfo = await CasePublishingService.checkCaseAccess(id, req.user);
-    if (accessInfo.accessible) {
-      // Track usage for authenticated users
-      if (req.user?._id) {
-        CasePublishingService.trackCaseUsage(id, req.user._id).catch(() => {});
-      }
-      return res.json({ success: true, data: accessInfo.case });
-    }
-
-    // Fall back to direct lookup for educators/admins
-    if (req.user && ['educator', 'admin'].includes(req.user.role)) {
-      const caseDoc = await Case.findById(id)
-        .populate('createdBy', 'username profile.firstName profile.lastName');
-      if (caseDoc) return res.json({ success: true, data: caseDoc });
-    }
-
-    res.status(403).json({ success: false, message: accessInfo.reason || 'Access denied', requiresAuth: accessInfo.requiresAuth });
-  } catch (error) {
-    console.error('Get case error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch case' });
-  }
-});
+router.get('/:id', authenticateToken, casesController.getCaseById);
 
 /**
  * POST /api/cases
  * Create a new case (educator/admin only)
  */
-router.post('/', authenticateToken, requireAnyRole(['educator', 'admin']), async (req, res) => {
-  try {
-    const newCase = await caseManagementService.createCase(req.body, req.user);
-    res.status(201).json({
-      success: true,
-      message: 'Case created successfully',
-      data: newCase
-    });
-  } catch (error) {
-    console.error('Create case error:', error);
-    res.status(400).json({ success: false, message: error.message || 'Failed to create case' });
-  }
-});
+router.post('/', authenticateToken, requireAnyRole(['educator', 'admin']), casesController.createCase);
 
 /**
  * PUT /api/cases/:id
  * Update a case (educator/admin only)
  */
-router.put('/:id', authenticateToken, requireAnyRole(['educator', 'admin']), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedCase = await caseManagementService.updateCase(id, req.body, req.user);
-    res.json({ success: true, message: 'Case updated successfully', data: updatedCase });
-  } catch (error) {
-    console.error('Update case error:', error);
-    res.status(400).json({ success: false, message: error.message || 'Failed to update case' });
-  }
-});
+router.put('/:id', authenticateToken, requireAnyRole(['educator', 'admin']), casesController.updateCase);
 
 /**
  * DELETE /api/cases/:id
  * Archive/delete a case (educator/admin only)
  */
-router.delete('/:id', authenticateToken, requireAnyRole(['educator', 'admin']), async (req, res) => {
-  try {
-    const { id } = req.params;
-    await caseManagementService.deleteCase(id, req.user);
-    res.json({ success: true, message: 'Case archived successfully' });
-  } catch (error) {
-    console.error('Delete case error:', error);
-    res.status(400).json({ success: false, message: error.message || 'Failed to archive case' });
-  }
-});
+router.delete('/:id', authenticateToken, requireAnyRole(['educator', 'admin']), casesController.deleteCase);
 
 /**
  * POST /api/cases/:id/duplicate
  * Duplicate a case (educator/admin only)
  */
-router.post('/:id/duplicate', authenticateToken, requireAnyRole(['educator', 'admin']), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, description, includeMultimedia, createAsTemplate } = req.body;
-    const duplicatedCase = await caseCreationWorkflowService.duplicateCase(id, req.user, {
-      title, description,
-      includeMultimedia: includeMultimedia || false,
-      createAsTemplate: createAsTemplate || false
-    });
-    res.status(201).json({ success: true, message: 'Case duplicated successfully', data: duplicatedCase });
-  } catch (error) {
-    console.error('Duplicate case error:', error);
-    res.status(400).json({ success: false, message: error.message || 'Failed to duplicate case' });
-  }
-});
+router.post('/:id/duplicate', authenticateToken, requireAnyRole(['educator', 'admin']), casesController.duplicateCase);
 
 // ──────────────────────────────────────────────
 // CASE REVIEW ENDPOINTS
@@ -238,15 +91,7 @@ router.post('/:id/duplicate', authenticateToken, requireAnyRole(['educator', 'ad
  * GET /api/cases/reviews/pending
  * Get pending reviews for a reviewer
  */
-router.get('/reviews/pending', authenticateToken, requireAnyRole(['educator', 'admin']), async (req, res) => {
-  try {
-    const pendingReviews = await CaseReviewService.getPendingReviews(req.user.id);
-    res.json(pendingReviews);
-  } catch (error) {
-    console.error('Get pending reviews error:', error);
-    res.status(500).json({ error: 'Failed to fetch pending reviews' });
-  }
-});
+router.get('/reviews/pending', authenticateToken, requireAnyRole(['educator', 'admin']), casesController.getPendingReviews);
 
 /**
  * GET /api/cases/reviews/queue
@@ -658,20 +503,34 @@ router.delete('/workflow/drafts/:draftId', authenticateToken, requireAnyRole(['e
 
 router.get('/contributions/form-data', async (req, res) => {
   try {
+    // Fetch only specialties that exist in database
     const specialties = await Case.distinct('case_metadata.specialty');
+    const filteredSpecialties = specialties.filter(s => s);
+
+    // Fetch modules per specialty from database
+    const modules = {};
+    for (const specialty of filteredSpecialties) {
+      const specialtyModules = await Case.distinct('case_metadata.program_area', {
+        'case_metadata.specialty': specialty
+      });
+      modules[specialty] = specialtyModules.filter(m => m);
+    }
+
+    // Fetch program areas from database
+    const programAreas = await Case.distinct('case_metadata.program_area');
+
+    // Fetch difficulties from database
+    const difficulties = await Case.distinct('case_metadata.difficulty');
+
+    // Fetch locations from database
+    const locations = await Case.distinct('case_metadata.location');
+
     const formData = {
-      specialties: specialties.filter(s => s),
-      modules: {
-        'Internal Medicine': [
-          'Cardiovascular System', 'Tropical Medicine', 'Central Nervous System',
-          'Respiratory System', 'Genital Urinary System', 'Musculoskeletal System',
-          'Endocrinology', 'Emergency Medicine'
-        ],
-        'Pediatrics': [], 'General Surgery': [], 'Reproductive Health': []
-      },
-      programAreas: ['Basic Program', 'Specialty Program'],
-      difficulties: ['Easy', 'Intermediate', 'Hard'],
-      locations: ['East Africa', 'West Africa', 'Central Africa', 'Southern Africa', 'Global'],
+      specialties: filteredSpecialties,
+      modules,
+      programAreas: programAreas.filter(p => p),
+      difficulties: difficulties.filter(d => d),
+      locations: locations.filter(l => l),
       genders: ['Male', 'Female', 'Other'],
       emotionalTones: [
         'Anxious and worried', 'Calm but concerned', 'Frustrated and impatient',

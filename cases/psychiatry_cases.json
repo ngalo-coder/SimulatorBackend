@@ -1,0 +1,193 @@
+[
+  {
+    "version": 3.1,
+    "description": "Major depressive disorder assessment and treatment planning",
+    "system_instruction": "Focus on comprehensive psychiatric assessment, suicide risk evaluation, and evidence-based treatment selection.",
+    "case_metadata": {
+      "case_id": "PSY-001",
+      "title": "Major Depressive Disorder - First Episode",
+      "program_area": "Basic Program",
+      "specialty": "Psychiatry",
+      "difficulty": "Intermediate",
+      "tags": ["depression", "mood-disorder", "suicide-assessment", "psychiatry"],
+      "location": "Psychiatry Outpatient Clinic",
+      "case_type": "mental_health"
+    },
+    "patient_persona": {
+      "name": "Daniel Kim",
+      "age": 28,
+      "gender": "Male",
+      "occupation": "Software Developer",
+      "chief_complaint": "Persistent sadness, loss of interest in activities, and trouble sleeping for 2 months",
+      "emotional_tone": "Withdrawn",
+      "background_story": "Gradual onset of depressive symptoms after a difficult breakup, now affecting work performance and social relationships",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I've been feeling really down for the past couple of months. Nothing seems enjoyable anymore and I can't sleep. I've been calling in sick to work because I can't get out of bed.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Major Depressive Disorder, Single Episode, Moderate Severity",
+      "history_of_presenting_illness": {
+        "onset": "Gradual over 2 months",
+        "location": "N/A - mood symptoms",
+        "character": "Persistent sad mood, anhedonia, low energy, hopelessness",
+        "severity": 7,
+        "timing_and_duration": "Present nearly every day for 2 months",
+        "exacerbating_factors": ["Stress at work", "Social isolation", "Reminders of breakup"],
+        "relieving_factors": ["Nothing provides lasting relief"],
+        "associated_symptoms": ["Early morning awakening", "Decreased appetite (5 lb weight loss)", "Poor concentration", "Low self-esteem", "Social withdrawal"]
+      },
+      "review_of_systems": {
+        "positive": ["Depressed mood", "Anhedonia", "Sleep disturbance", "Appetite change", "Fatigue", "Poor concentration", "Feelings of worthlessness"],
+        "negative": ["Manic/hypomanic episodes", "Hallucinations", "Delusions", "Panic attacks", "Obsessions/compulsions"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["None"],
+      "allergies": ["None known"],
+      "surgical_history": ["None"],
+      "family_history": ["Mother: Depression, treated with SSRI", "Paternal uncle: Alcohol use disorder"],
+      "social_history": {
+        "smoking_status": "Non-smoker",
+        "alcohol_use": "Social drinker (has stopped drinking past month)",
+        "substance_use": "Denies drug use",
+        "diet_and_exercise": "Poor appetite, stopped exercising",
+        "living_situation": "Lives alone in apartment, recently single"
+      }
+    },
+    "mental_status_exam": {
+      "appearance": "Casually dressed, appears tired, poor eye contact",
+      "behavior": "Psychomotor retardation, slow movements",
+      "speech": "Soft, slowed rate, normal volume",
+      "mood": "Depressed (subjective rating 7/10)",
+      "affect": "Constricted, blunted, congruent with mood",
+      "thought_process": "Linear but slowed",
+      "thought_content": "Themes of worthlessness, guilt over breakup, no psychotic content",
+      "suicide_assessment": {
+        "passive_death_wish": true,
+        "suicidal_ideation": "Transient thoughts of 'not wanting to wake up', no plan or intent",
+        "prior_attempts": "None",
+        "protective_factors": ["Close relationship with sister", "Religious beliefs", "Engaged in treatment"],
+        "risk_level": "Low-moderate"
+      },
+      "cognition": "Alert and oriented x3, intact memory and concentration",
+      "insight": "Fair - recognizes symptoms as depression",
+      "judgment": "Fair - came for help voluntarily"
+    },
+    "depression_severity": {
+      "PHQ_9_score": 18,
+      "severity": "Moderate depression",
+      "GAD_7_score": 10,
+      "functional_impairment": "Moderate impairment in work and social functioning"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment plan",
+        "patient_response": "I'm willing to try medication and therapy. I hope this helps."
+      },
+      "critical_issue": {
+        "condition_keyword": "suicide",
+        "response": "Patient expressing active suicidal thoughts with plan. Immediate safety intervention required."
+      }
+    },
+    "evaluation_criteria": {
+      "Risk_Assessment": "Thorough suicide risk assessment with appropriate safety planning",
+      "Diagnostic_Accuracy": "Accurate diagnosis using DSM-5 criteria and appropriate differential diagnosis",
+      "Treatment_Selection": "Appropriate evidence-based treatment selection (SSRI/SNRI, psychotherapy, or combination)",
+      "Monitoring_Plan": "Establishment of appropriate follow-up frequency and monitoring parameters",
+      "Psychotherapy_Integration": "Appropriate referral for evidence-based psychotherapy",
+      "Patient_Education": "Effective psychoeducation about depression, treatment options, and warning signs"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Generalized anxiety disorder assessment and management",
+    "system_instruction": "Focus on anxiety assessment, differential diagnosis, and integrated treatment approach combining pharmacotherapy and psychotherapy.",
+    "case_metadata": {
+      "case_id": "PSY-002",
+      "title": "Generalized Anxiety Disorder",
+      "program_area": "Basic Program",
+      "specialty": "Psychiatry",
+      "difficulty": "Easy",
+      "tags": ["anxiety", "GAD", "psychotherapy", "pharmacotherapy"],
+      "location": "Psychiatry Outpatient Clinic",
+      "case_type": "mental_health"
+    },
+    "patient_persona": {
+      "name": "Jennifer Walsh",
+      "age": 35,
+      "gender": "Female",
+      "occupation": "Elementary School Teacher",
+      "chief_complaint": "Constant worrying and feeling on edge for over a year",
+      "emotional_tone": "Tense",
+      "background_story": "Always been a 'worrier' but symptoms have escalated over the past year to the point of affecting her work and sleep",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I can't stop worrying about everything - my job, my health, my family. I feel tense all the time and I'm having trouble sleeping. I've been taking my students' stress home with me.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Generalized Anxiety Disorder",
+      "history_of_presenting_illness": {
+        "onset": "Gradual worsening over 12 months",
+        "location": "N/A - somatic symptoms",
+        "character": "Excessive worry about multiple domains, difficulty controlling worry",
+        "severity": 7,
+        "timing_and_duration": "Nearly daily for over 12 months",
+        "exacerbating_factors": ["Work stress", "Health concerns about family", "Financial worries", "News/current events"],
+        "relieving_factors": ["Exercise provides temporary relief", "Talking with friends"],
+        "associated_symptoms": ["Restlessness", "Fatigue", "Difficulty concentrating", "Irritability", "Muscle tension", "Sleep disturbance"]
+      },
+      "review_of_systems": {
+        "positive": ["Excessive worry", "Restlessness", "Fatigue", "Poor concentration", "Irritability", "Muscle tension", "Insomnia"],
+        "negative": ["Panic attacks", "Agoraphobia", "Compulsions", "Hallucinations", "Suicidal ideation"]
+      },
+      "past_medical_history": ["None significant"],
+      "medications": ["None - tried chamomile tea and melatonin for sleep"],
+      "allergies": ["None known"],
+      "surgical_history": ["None"],
+      "family_history": ["Father: 'Nervous disposition' (untreated)", "Maternal aunt: Generalized anxiety disorder"],
+      "social_history": {
+        "smoking_status": "Non-smoker",
+        "alcohol_use": "1-2 drinks weekly, not used to cope with anxiety",
+        "substance_use": "Denies drug use",
+        "diet_and_exercise": "Moderate diet, runs 3 times weekly",
+        "living_situation": "Lives with husband and two children (ages 4 and 7)"
+      }
+    },
+    "mental_status_exam": {
+      "appearance": "Well-groomed, appropriate attire, appears tense",
+      "behavior": "Fidgeting, nail-biting during interview",
+      "speech": "Rapid rate, normal volume and tone",
+      "mood": "Anxious (subjective rating 8/10)",
+      "affect": "Anxious, congruent with mood",
+      "thought_process": "Linear, mildly tangential when discussing worries",
+      "thought_content": "Excessive worry about work performance, children's health, financial security, household safety",
+      "suicide_assessment": "No suicidal ideation, intent, or plan",
+      "cognition": "Alert and oriented x3, intact cognitive function",
+      "insight": "Good - recognizes anxiety as excessive and wants treatment",
+      "judgment": "Good - no risky behaviors"
+    },
+    "anxiety_severity": {
+      "GAD_7_score": 15,
+      "severity": "Moderate-severe anxiety",
+      "functional_impairment": "Moderate impairment - affects sleep, work concentration, and family relationships"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment options",
+        "patient_response": "I think therapy sounds like a good start. I'd like to try that before medication if possible."
+      },
+      "critical_issue": {
+        "condition_keyword": "panic",
+        "response": "Patient experiencing acute panic attack. Immediate supportive intervention required."
+      }
+    },
+    "evaluation_criteria": {
+      "Diagnostic_Accuracy": "Accurate diagnosis meeting DSM-5 criteria for GAD with appropriate differential diagnosis",
+      "Psychoeducation": "Effective explanation of anxiety mechanisms and treatment rationale",
+      "Treatment_Selection": "Appropriate first-line treatment recommendation (CBT, SSRI/SNRI, or combination)",
+      "Lifestyle_Interventions": "Counseling on stress management, sleep hygiene, and exercise",
+      "Monitoring_Plan": "Appropriate follow-up schedule and monitoring parameters",
+      "Comorbidity_Assessment": "Screening for comorbid depression, panic disorder, and substance use"
+    }
+  }
+]

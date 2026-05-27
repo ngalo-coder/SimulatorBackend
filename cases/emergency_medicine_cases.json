@@ -1,0 +1,222 @@
+[
+  {
+    "version": 3.1,
+    "description": "Trauma assessment and management for a motor vehicle collision victim",
+    "system_instruction": "Focus on ATLS primary and secondary survey, trauma resuscitation, and team coordination.",
+    "case_metadata": {
+      "case_id": "EMERG-001",
+      "title": "Blunt Trauma from Motor Vehicle Collision",
+      "program_area": "Basic Program",
+      "specialty": "Emergency Medicine",
+      "difficulty": "Advanced",
+      "tags": ["trauma", "ATLS", "MVC", "resuscitation", "emergency"],
+      "location": "Emergency Department - Trauma Bay",
+      "case_type": "emergency_care"
+    },
+    "patient_persona": {
+      "name": "Michael Torres",
+      "age": 45,
+      "gender": "Male",
+      "occupation": "Delivery Driver",
+      "chief_complaint": "Involved in high-speed motor vehicle collision 30 minutes ago",
+      "emotional_tone": "Distressed",
+      "background_story": "Front-end collision at approximately 60mph, airbag deployed, prolonged extrication required. Complaining of chest pain and abdominal pain",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I was in a bad car accident. My chest hurts where I hit the steering wheel and my belly is starting to hurt too. I can't take a deep breath.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Blunt chest trauma with pulmonary contusion and splenic laceration",
+      "history_of_presenting_illness": {
+        "onset": "Sudden - 30 minutes ago",
+        "location": "Chest and left upper quadrant abdomen",
+        "character": "Sharp chest pain worsened by breathing, dull abdominal pain",
+        "severity": 8,
+        "timing_and_duration": "Continuous since accident",
+        "exacerbating_factors": ["Deep breathing", "Movement"],
+        "relieving_factors": ["Splinting chest wall"],
+        "associated_symptoms": ["Shortness of breath", "Lightheadedness", "Anxiety"]
+      },
+      "review_of_systems": {
+        "positive": ["Chest pain", "Abdominal pain", "Dyspnea", "Dizziness"],
+        "negative": ["Loss of consciousness", "Head/neck pain", "Numbness/weakness", "Pelvic pain"]
+      },
+      "past_medical_history": ["Hypertension", "GERD"],
+      "medications": ["Lisinopril 10mg daily"],
+      "allergies": ["Codeine - nausea"],
+      "surgical_history": ["None"],
+      "social_history": {
+        "smoking_status": "Current smoker (15 pack-years)",
+        "alcohol_use": "Occasional",
+        "substance_use": "None",
+        "living_situation": "Married, three children"
+      }
+    },
+    "mechanism_of_injury": {
+      "type": "Front-end MVC",
+      "speed": "Approximately 60 mph",
+      "restraints": "Seatbelt worn, airbag deployed",
+      "extrication": "15 minutes required",
+      "steering_wheel_deformity": "Significant",
+      "patient_position": "Driver"
+    },
+    "vital_signs": {
+      "BP": "105/70 mmHg",
+      "HR": "115 bpm",
+      "RR": "26/min",
+      "temperature": "36.8°C",
+      "SpO2": "91% on room air"
+    },
+    "primary_survey_findings": {
+      "A_airway": "Patent, speaking in full sentences, no obstruction",
+      "B_breathing": "Tachypneic, decreased breath sounds left base, chest wall contusion, no flail segment, trachea midline",
+      "C_circulation": "Tachycardia, mild hypotension, skin cool and moist, cap refill 3 seconds, no active external hemorrhage",
+      "D_disability": "GCS 15, pupils equal and reactive, moving all extremities",
+      "E_exposure": "Multiple abrasions and contusions on chest and abdomen, seatbelt sign across chest and abdomen"
+    },
+    "imaging_findings": {
+      "chest_xray": "Left pulmonary contusion, no pneumothorax, no hemothorax, no rib fracture seen",
+      "focused_abdominal_sonography_in_trauma": "Positive for free fluid in splenorenal recess",
+      "CT_chest_abdomen_pelvis": "Left pulmonary contusion, Grade II splenic laceration with moderate hemoperitoneum, no hollow viscus injury, no spinal injury"
+    },
+    "lab_results": {
+      "hemoglobin": "12.5 g/dL",
+      "hematocrit": "37%",
+      "lactate": "3.5 mmol/L",
+      "coagulation": "INR 1.1, PTT 30",
+      "type_and_screen": "O Positive"
+    },
+    "fas_scan_results": "Positive - free fluid in left upper quadrant",
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "disposition",
+        "patient_response": "Am I going to be okay? Thank you for taking care of me."
+      },
+      "critical_issue": {
+        "condition_keyword": "hypotension",
+        "response": "Patient's blood pressure dropping. Hemorrhagic shock protocol and blood transfusion required immediately."
+      }
+    },
+    "evaluation_criteria": {
+      "Primary_Survey": "Systematic ATLS primary survey with appropriate interventions at each step",
+      "Resuscitation": "Appropriate fluid resuscitation and activation of massive transfusion protocol if indicated",
+      "Secondary_Survey": "Complete secondary survey with appropriate adjuncts (FAST, X-rays, CT)",
+      "Injury_Identification": "Accurate identification and prioritization of life-threatening injuries",
+      "Team_Leadership": "Effective trauma team leadership and communication",
+      "Disposition_Decision": "Appropriate decision regarding OR vs ICU vs transfer to higher level of care"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Septic shock recognition and management",
+    "system_instruction": "Focus on early recognition of sepsis, source control, and goal-directed therapy using Surviving Sepsis Campaign guidelines.",
+    "case_metadata": {
+      "case_id": "EMERG-002",
+      "title": "Septic Shock from Urinary Tract Infection",
+      "program_area": "Basic Program",
+      "specialty": "Emergency Medicine",
+      "difficulty": "Advanced",
+      "tags": ["sepsis", "septic-shock", "infection", "emergency", "resuscitation"],
+      "location": "Emergency Department",
+      "case_type": "emergency_care"
+    },
+    "patient_persona": {
+      "name": "Dorothy Williams",
+      "age": 78,
+      "gender": "Female",
+      "occupation": "Retired",
+      "chief_complaint": "Confusion, fever, and weakness for 2 days",
+      "emotional_tone": "Confused",
+      "background_story": "Brought in by daughter who found her confused and febrile. History of recurrent UTIs. Has been feeling 'off' for 2 days with burning on urination",
+      "speaks_for": "Daughter",
+      "patient_is_present": true
+    },
+    "initial_prompt": "My mom is very confused today and has a high fever. She's been saying urination burns for a few days and now she can barely stand up.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Septic Shock Secondary to Pyelonephritis",
+      "history_of_presenting_illness": {
+        "onset": "Progressive over 2-3 days",
+        "location": "Urinary tract, now systemic",
+        "character": "Dysuria initially, now fever, confusion, weakness",
+        "severity": 9,
+        "timing_and_duration": "Mental status changes started today",
+        "exacerbating_factors": ["Standing", "Trying to ambulate"],
+        "relieving_factors": ["None"],
+        "associated_symptoms": ["Fever 39.5°C at home", "Chills", "Dysuria", "Decreased urine output", "Nausea", "Weakness in legs"]
+      },
+      "review_of_systems": {
+        "positive": ["Fever", "Confusion", "Dysuria", "Decreased urine output", "Weakness"],
+        "negative": ["Head injury", "Chest pain", "Cough", "Vomiting", "Rash"]
+      },
+      "past_medical_history": ["Hypertension", "Type 2 Diabetes", "Recurrent UTIs", "Chronic kidney disease stage 3"],
+      "medications": ["Lisinopril 20mg daily", "Metformin 500mg BID", "Vitamin D supplement"],
+      "allergies": ["Sulfa drugs - rash"],
+      "surgical_history": ["None"],
+      "family_history": ["Non-contributory"],
+      "social_history": {
+        "smoking_status": "Never",
+        "alcohol_use": "None",
+        "substance_use": "None",
+        "diet_and_exercise": "Limited due to mobility issues",
+        "living_situation": "Lives alone, daughter visits daily"
+      }
+    },
+    "vital_signs": {
+      "BP": "88/50 mmHg",
+      "HR": "118 bpm",
+      "RR": "24/min",
+      "temperature": "39.2°C",
+      "SpO2": "93% on room air",
+      "MAP": "63 mmHg"
+    },
+    "physical_exam_findings": {
+      "general": "Elderly female, acutely ill, confused (GCS 13)",
+      "HEENT": "Dry mucous membranes",
+      "chest": "Clear to auscultation",
+      "cardiovascular": "Tachycardia, reduced JVP, warm extremities",
+      "abdomen": "Suprapubic tenderness, no rebound or guarding",
+      "back": "Left costovertebral angle tenderness",
+      "skin": "Warm, flushed, capillary refill 3 seconds",
+      "neurological": "Confused, oriented to person only, no focal deficits"
+    },
+    "lab_results": {
+      "WBC": "18.5 x 10^9/L with left shift",
+      "hemoglobin": "11.2 g/dL",
+      "platelets": "150 x 10^9/L",
+      "creatinine": "2.4 mg/dL (baseline 1.3)",
+      "BUN": "45 mg/dL",
+      "lactate": "4.2 mmol/L",
+      "CRP": "220 mg/L",
+      "procalcitonin": "12 ng/mL",
+      "urinalysis": "Cloudy, positive for leukocyte esterase, nitrites, WBC >50/hpf, bacteria",
+      "blood_cultures": "Pending",
+      "urine_culture": "Pending"
+    },
+    "imaging_findings": {
+      "renal_ultrasound": "No hydronephrosis, normal kidney size, no abscess"
+    },
+    "sepsis_assessment": {
+      "qSOFA_score": 3,
+      "criteria_met": ["Altered mental status (GCS <15)", "Respiratory rate ≥22", "Systolic BP ≤100"],
+      "sepsis_bundle": "Sepsis with septic shock - immediate 1-hour bundle initiation required"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "admission",
+        "patient_response": "My daughter told me I had a serious infection. Thank you for treating me quickly."
+      },
+      "critical_issue": {
+        "condition_keyword": "worsening",
+        "response": "Patient becoming increasingly hypotensive despite fluids. Vasopressor initiation required."
+      }
+    },
+    "evaluation_criteria": {
+      "Sepsis_Screening": "Rapid recognition of sepsis using qSOFA/SIRS criteria",
+      "Resuscitation": "Appropriate 1-hour sepsis bundle completion including lactate, blood cultures, broad-spectrum antibiotics, fluid resuscitation, vasopressors",
+      "Antibiotic_Selection": "Appropriate empiric broad-spectrum antibiotics considering allergies and renal function",
+      "Source_Control": "Identification and management of infection source",
+      "Hemodynamic_Monitoring": "Appropriate fluid resuscitation and vasopressor management with hemodynamic monitoring",
+      "Lactate_Clearance": "Appropriate monitoring of lactate clearance as marker of resuscitation adequacy"
+    }
+  }
+]

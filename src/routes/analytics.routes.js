@@ -9,10 +9,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { requireAnyRole } from '../middleware/rbacMiddleware.js';
-import AnalyticsService from '../services/AnalyticsService.js';
-import ProgressAnalyticsService from '../services/ProgressAnalyticsService.js';
-import educatorDashboardService from '../services/EducatorDashboardService.js';
-import studentDashboardService from '../services/StudentDashboardService.js';
+import * as analyticsController from '../controllers/analyticsController.js';
 
 const router = express.Router();
 
@@ -27,99 +24,35 @@ router.use(authenticateToken);
  * GET /api/analytics/case-usage
  * Case usage analytics (admin/educator)
  */
-router.get('/case-usage', requireAnyRole(['admin', 'educator']), async (req, res) => {
-  try {
-    const { timeRange = '30d', specialty, difficulty, programArea } = req.query;
-    const analytics = await AnalyticsService.getCaseUsageAnalytics({
-      timeRange,
-      specialty: specialty || undefined,
-      difficulty: difficulty || undefined,
-      programArea: programArea || undefined
-    });
-    res.json({ success: true, data: analytics });
-  } catch (error) {
-    console.error('Get case usage analytics error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch case usage analytics' });
-  }
-});
+router.get('/case-usage', requireAnyRole(['admin', 'educator']), analyticsController.getCaseUsageAnalytics);
 
 /**
  * GET /api/analytics/case-effectiveness
  * Case effectiveness metrics (admin/educator)
  */
-router.get('/case-effectiveness', requireAnyRole(['admin', 'educator']), async (req, res) => {
-  try {
-    const { caseId } = req.query;
-    const metrics = await AnalyticsService.getCaseEffectivenessMetrics(caseId || null);
-    res.json({ success: true, data: metrics });
-  } catch (error) {
-    console.error('Get case effectiveness metrics error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch case effectiveness metrics' });
-  }
-});
+router.get('/case-effectiveness', requireAnyRole(['admin', 'educator']), analyticsController.getCaseEffectivenessMetrics);
 
 /**
  * GET /api/analytics/difficulty-analysis
  */
-router.get('/difficulty-analysis', requireAnyRole(['admin', 'educator']), async (req, res) => {
-  try {
-    const { specialty, programArea } = req.query;
-    const analysis = await AnalyticsService.getDifficultyAnalysis({
-      specialty: specialty || undefined,
-      programArea: programArea || undefined
-    });
-    res.json({ success: true, data: analysis });
-  } catch (error) {
-    console.error('Get difficulty analysis error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch difficulty analysis' });
-  }
-});
+router.get('/difficulty-analysis', requireAnyRole(['admin', 'educator']), analyticsController.getDifficultyAnalysis);
 
 /**
  * GET /api/analytics/performance-trends
  */
-router.get('/performance-trends', requireAnyRole(['admin', 'educator']), async (req, res) => {
-  try {
-    const { timeRange = '90d', interval = 'week' } = req.query;
-    const trends = await AnalyticsService.getPerformanceTrends(timeRange, interval);
-    res.json({ success: true, data: trends });
-  } catch (error) {
-    console.error('Get performance trends error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch performance trends' });
-  }
-});
+router.get('/performance-trends', requireAnyRole(['admin', 'educator']), analyticsController.getPerformanceTrends);
 
 /**
  * GET /api/analytics/contributor-analytics
  * (admin only)
  */
-router.get('/contributor-analytics', requireAnyRole(['admin']), async (req, res) => {
-  try {
-    const analytics = await AnalyticsService.getContributorAnalytics();
-    res.json({ success: true, data: analytics });
-  } catch (error) {
-    console.error('Get contributor analytics error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch contributor analytics' });
-  }
-});
+router.get('/contributor-analytics', requireAnyRole(['admin']), analyticsController.getContributorAnalytics);
 
 /**
  * GET /api/analytics/review-quality
  * (admin only)
  */
-router.get('/review-quality', requireAnyRole(['admin']), async (req, res) => {
-  try {
-    const { timeRange = '30d', reviewerId } = req.query;
-    const metrics = await AnalyticsService.getReviewQualityMetrics({
-      timeRange,
-      reviewerId: reviewerId || undefined
-    });
-    res.json({ success: true, data: metrics });
-  } catch (error) {
-    console.error('Get review quality metrics error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch review quality metrics' });
-  }
-});
+router.get('/review-quality', requireAnyRole(['admin']), analyticsController.getReviewQualityMetrics);
 
 // ──────────────────────────────────────────────
 // PROGRESS ANALYTICS (per user)
@@ -128,72 +61,17 @@ router.get('/review-quality', requireAnyRole(['admin']), async (req, res) => {
 /**
  * GET /api/analytics/progress/realtime/:userId
  */
-router.get('/progress/realtime/:userId', requireAnyRole(['student', 'educator', 'admin']), async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { timeRange, granularity } = req.query;
-
-    if (req.user.role === 'student' && req.user._id.toString() !== userId) {
-      return res.status(403).json({ success: false, message: 'Access denied' });
-    }
-
-    const progressData = await ProgressAnalyticsService.getRealTimeProgress(userId, {
-      timeRange: timeRange || '30d',
-      granularity: granularity || 'week'
-    });
-    res.json({ success: true, data: progressData });
-  } catch (error) {
-    console.error('Get real-time progress error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch real-time progress data' });
-  }
-});
+router.get('/progress/realtime/:userId', requireAnyRole(['student', 'educator', 'admin']), analyticsController.getRealTimeProgress);
 
 /**
  * GET /api/analytics/progress/competency-trends/:userId
  */
-router.get('/progress/competency-trends/:userId', requireAnyRole(['student', 'educator', 'admin']), async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { timeRange, granularity } = req.query;
-
-    if (req.user.role === 'student' && req.user._id.toString() !== userId) {
-      return res.status(403).json({ success: false, message: 'Access denied' });
-    }
-
-    const trendData = await ProgressAnalyticsService.analyzeCompetencyTrends(userId, {
-      timeRange: timeRange || '90d',
-      granularity: granularity || 'week'
-    });
-    res.json({ success: true, data: trendData });
-  } catch (error) {
-    console.error('Analyze competency trends error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to analyze competency trends' });
-  }
-});
+router.get('/progress/competency-trends/:userId', requireAnyRole(['student', 'educator', 'admin']), analyticsController.analyzeCompetencyTrends);
 
 /**
  * GET /api/analytics/progress/benchmarks/:userId
  */
-router.get('/progress/benchmarks/:userId', requireAnyRole(['student', 'educator', 'admin']), async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { specialty, difficulty, programArea } = req.query;
-
-    if (req.user.role === 'student' && req.user._id.toString() !== userId) {
-      return res.status(403).json({ success: false, message: 'Access denied' });
-    }
-
-    const benchmarkData = await ProgressAnalyticsService.compareToBenchmarks(userId, {
-      specialty: specialty || undefined,
-      difficulty: difficulty || undefined,
-      programArea: programArea || undefined
-    });
-    res.json({ success: true, data: benchmarkData });
-  } catch (error) {
-    console.error('Compare to benchmarks error:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to compare against benchmarks' });
-  }
-});
+router.get('/progress/benchmarks/:userId', requireAnyRole(['student', 'educator', 'admin']), analyticsController.compareToBenchmarks);
 
 /**
  * GET /api/analytics/progress/predictions/:userId

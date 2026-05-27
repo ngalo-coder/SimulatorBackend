@@ -1,0 +1,194 @@
+[
+  {
+    "version": 3.1,
+    "description": "Psoriasis assessment and treatment planning",
+    "system_instruction": "Focus on psoriasis diagnosis, severity assessment, and treatment selection including topical and systemic therapies.",
+    "case_metadata": {
+      "case_id": "DERM-001",
+      "title": "Moderate to Severe Plaque Psoriasis",
+      "program_area": "Specialty Program",
+      "specialty": "Dermatology",
+      "difficulty": "Intermediate",
+      "tags": ["psoriasis", "plaque", "autoimmune", "dermatology", "biologics"],
+      "location": "Dermatology Clinic",
+      "case_type": "chronic_disease_management"
+    },
+    "patient_persona": {
+      "name": "James Henderson",
+      "age": 38,
+      "gender": "Male",
+      "occupation": "Sales Representative",
+      "chief_complaint": "Red, scaly patches on elbows, knees, and scalp for 5 years with recent worsening",
+      "emotional_tone": "Frustrated",
+      "background_story": "Gradually worsening psoriasis, affecting his appearance and confidence in sales meetings. Multiple topical treatments have failed",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "These red patches on my skin keep getting worse. They're all over my elbows, knees, and scalp. The creams my regular doctor gave me aren't helping anymore. It's really affecting my confidence at work.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Moderate to Severe Chronic Plaque Psoriasis",
+      "history_of_presenting_illness": {
+        "onset": "Gradual onset 5 years ago",
+        "location": "Elbows, knees, scalp, lower back, nails",
+        "character": "Well-demarcated erythematous plaques with silvery scale, pruritic",
+        "severity": 7,
+        "timing_and_duration": "Chronic persistent with gradual worsening over 5 years",
+        "exacerbating_factors": ["Stress", "Winter/cold weather", "Alcohol", "Infections (sore throat)"],
+        "relieving_factors": ["Summer/sun exposure", "Moisturizers provide minimal relief"],
+        "associated_symptoms": ["Pruritus", "Joint pain and stiffness in fingers (suspected PsA)", "Nail pitting and onycholysis"]
+      },
+      "review_of_systems": {
+        "positive": ["Skin plaques", "Scalp involvement", "Nail changes", "Joint stiffness in hands", "Pruritus"],
+        "negative": ["Fever", "Weight loss", "Joint swelling/redness", "Back pain", "Eye symptoms"]
+      },
+      "past_medical_history": ["Hypertension", "Hyperlipidemia"],
+      "medications": ["Betamethasone valerate 0.1% cream - previously effective, now minimal response", "Calcipotriol cream - used intermittently", "Moisturizers"],
+      "allergies": ["None known"],
+      "surgical_history": ["None"],
+      "family_history": ["Father: Psoriasis", "No family history of PsA"],
+      "social_history": {
+        "smoking_status": "Non-smoker",
+        "alcohol_use": "3-4 drinks weekly, especially for work events",
+        "substance_use": "None",
+        "diet_and_exercise": "Regular diet, minimal exercise",
+        "living_situation": "Married, two children"
+      }
+    },
+    "physical_exam_findings": {
+      "skin": "Multiple erythematous plaques with silvery scale on extensor surfaces (elbows, knees), sacrum, scalp. Plaques vary from 2-8 cm in diameter. Auspitz sign present",
+      "nail": "Nail pitting on fingernails, onycholysis of right thumb, oil drop spots",
+      "scalp": "Thick plaques with scale extending 2cm beyond hairline",
+      "joints": "No synovitis or joint swelling, some stiffness in DIP joints of fingers",
+      "mucous_membranes": "Clear"
+    },
+    "psoriasis_severity_assessment": {
+      "BSA_involvement": "22%", 
+      "PASI_score": 14,
+      "DLQI_score": 18,
+      "severity": "Moderate to severe"
+    },
+    "imaging_findings": {
+      "hand_xray": "No erosive changes or joint space narrowing"
+    },
+    "lab_results": {
+      "CRP": "12 mg/L (mildly elevated)",
+      "RF": "Negative",
+      "ANA": "Negative",
+      "LFTs": "Normal",
+      "creatinine": "0.9 mg/dL"
+    },
+    "previous_treatments": [
+      "Topical corticosteroids (various potencies) - inadequate response",
+      "Vitamin D analogues - partial response",
+      "UVB phototherapy - tried but inconvenient due to work schedule"
+    ],
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment options",
+        "patient_response": "I'd like to try the systemic treatment. I'm tired of dealing with this."
+      },
+      "critical_issue": {
+        "condition_keyword": "infection",
+        "response": "Patient reports fever and pustules on skin. Possible pustular psoriasis or infection. Urgent evaluation required."
+      }
+    },
+    "evaluation_criteria": {
+      "Disease_Assessment": "Accurate assessment of psoriasis severity using BSA, PASI, and DLQI scores",
+      "Treatment_Escalation": "Appropriate step-up from topical to systemic therapy based on severity",
+      "Biologic_Therapy_Knowledge": "Knowledge of biologic therapy options, mechanisms, and safety monitoring",
+      "Comorbidity_Screening": "Screening for psoriatic arthritis and associated comorbidities",
+      "Patient_Counseling": "Effective counseling on treatment expectations, side effects, and monitoring requirements",
+      "Lifestyle_Modification": "Discussion of trigger management and lifestyle factors affecting psoriasis"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Acute allergic contact dermatitis assessment and management",
+    "system_instruction": "Focus on identification of contact allergen, acute management of dermatitis, and prevention strategies.",
+    "case_metadata": {
+      "case_id": "DERM-002",
+      "title": "Acute Allergic Contact Dermatitis",
+      "program_area": "Specialty Program",
+      "specialty": "Dermatology",
+      "difficulty": "Easy",
+      "tags": ["contact-dermatitis", "allergic", "rash", "dermatology", "poison-ivy"],
+      "location": "Dermatology Clinic",
+      "case_type": "acute_care"
+    },
+    "patient_persona": {
+      "name": "Laura Bennett",
+      "age": 42,
+      "gender": "Female",
+      "occupation": "Horticulturist",
+      "chief_complaint": "Itchy, blistering rash on arms and legs for 3 days",
+      "emotional_tone": "Uncomfortable",
+      "background_story": "Was gardening in a new area of her yard 5 days ago. Noticed itchy red bumps 2 days later which have worsened into blisters",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I was gardening five days ago and now I have this horrible itchy rash with blisters on my arms and legs. It's spreading and I can't sleep because of the itching.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Acute Allergic Contact Dermatitis due to Poison Ivy (Urushiol)",
+      "history_of_presenting_illness": {
+        "onset": "2 days after known gardening exposure, progressive over 3 days",
+        "location": "Linear streaks on forearms, lower legs, patch on ankle where socks meet skin",
+        "character": "Erythematous papules and vesicles, bullae in areas of heaviest exposure, intense pruritus",
+        "severity": 8,
+        "timing_and_duration": "Started 3 days ago, worsening daily",
+        "exacerbating_factors": ["Hot showers", "Scratching", "Tight clothing"],
+        "relieving_factors": ["Cool compresses", "Calamine lotion - minimal relief"],
+        "associated_symptoms": ["Intense itching", "Mild burning sensation", "Slight swelling"]
+      },
+      "review_of_systems": {
+        "positive": ["Rash", "Pruritus", "Blistering"],
+        "negative": ["Fever", "Malaise", "Shortness of breath", "Facial swelling", "Mucous membrane involvement"]
+      },
+      "past_medical_history": ["Seasonal allergies", "Previous mild poison ivy 10 years ago"],
+      "medications": ["OTC hydrocortisone cream - no relief", "Diphenhydramine at night for itching"],
+      "allergies": ["Seasonal pollen allergies", "Suspected poison ivy allergy"],
+      "surgical_history": ["None"],
+      "family_history": ["Non-contributory"],
+      "social_history": {
+        "smoking_status": "Non-smoker",
+        "alcohol_use": "Occasional wine",
+        "substance_use": "None",
+        "occupation": "Horticulturist - daily plant exposure",
+        "living_situation": "Lives with husband, has large garden"
+      }
+    },
+    "physical_exam_findings": {
+      "skin": "Linear erythematous papules and vesicles on bilateral forearms and lower legs. Several 1-2 cm bullae on left ankle. Streaks of erythema where plant contact occurred. Mild edema of affected areas. No secondary infection",
+      "distribution": "Linear pattern consistent with plant brushing against skin. Interdigital spaces of hands also affected",
+      "mucous_membranes": "Not involved",
+      "face": "Clear, no periodontal edema"
+    },
+    "lab_results": {
+      "No_labs_indicated": "Diagnosis is clinical based on history and presentation"
+    },
+    "skin_biopsy": "Not performed - classic clinical presentation",
+    "treatment_plan": {
+      "topical": "High-potency corticosteroid (clobetasol) BID to affected areas for 7 days",
+      "systemic": "Prednisone 40mg daily x 5 days, then taper 20mg x 5 days, then 10mg x 5 days",
+      "supportive": ["Cool compresses", "Calamine lotion", "Oral antihistamines for sleep"],
+      "prevention": "Education on plant identification, barrier creams, protective clothing, and washing exposed areas immediately"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment plan",
+        "patient_response": "Thank you! I'll stay away from the poison ivy and use the creams as prescribed."
+      },
+      "critical_issue": {
+        "condition_keyword": "severe",
+        "response": "Extensive facial involvement or systemic symptoms detected. Consider higher level of care."
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Thorough exposure history to identify potential allergens",
+      "Diagnostic_Accuracy": "Accurate recognition of allergic contact dermatitis vs irritant contact dermatitis vs other dermatoses",
+      "Severity_Assessment": "Appropriate assessment of extent and severity to determine treatment intensity",
+      "Treatment_Selection": "Appropriate selection of topical and systemic therapy based on severity",
+      "Patient_Education": "Effective counseling on allergen identification, avoidance strategies, and proper use of protective measures",
+      "Prevention_Strategies": "Comprehensive prevention plan including barrier creams, protective clothing, and post-exposure washing"
+    }
+  }
+]

@@ -1,0 +1,218 @@
+[
+  {
+    "version": 3.1,
+    "description": "Upper GI bleed assessment and management",
+    "system_instruction": "Focus on hemodynamic assessment, risk stratification, and management of upper gastrointestinal bleeding.",
+    "case_metadata": {
+      "case_id": "GI-001",
+      "title": "Acute Upper Gastrointestinal Bleeding",
+      "program_area": "Basic Program",
+      "specialty": "Gastroenterology",
+      "difficulty": "Advanced",
+      "tags": ["GI-bleed", "melena", "hematemesis", "endoscopy", "emergent"],
+      "location": "Emergency Department",
+      "case_type": "emergency_care"
+    },
+    "patient_persona": {
+      "name": "Robert Kowalski",
+      "age": 58,
+      "gender": "Male",
+      "occupation": "Accountant",
+      "chief_complaint": "Black tarry stools and vomiting blood",
+      "emotional_tone": "Frightened",
+      "background_story": "History of NSAID use for chronic back pain. Noticed black stools 2 days ago, now vomiting bright red blood",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I've been passing black, sticky stools for two days. Today I started vomiting blood. I'm feeling really lightheaded and scared.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Acute Upper GI Bleed likely from Peptic Ulcer Disease",
+      "history_of_presenting_illness": {
+        "onset": "Black stools started 2 days ago, hematemesis started today",
+        "location": "Upper abdomen, now vomiting blood",
+        "character": "Coffee-ground emesis now turning bright red, melena",
+        "severity": 9,
+        "timing_and_duration": "Hematemesis started 2 hours ago, 3 episodes",
+        "exacerbating_factors": ["Eating", "Movement"],
+        "relieving_factors": ["None"],
+        "associated_symptoms": ["Epigastric pain", "Lightheadedness", "Fatigue", "Shortness of breath on exertion"]
+      },
+      "review_of_systems": {
+        "positive": ["Melena", "Hematemesis", "Epigastric pain", "Dizziness", "Fatigue"],
+        "negative": ["Hematochezia", "Fever", "Weight loss", "Jaundice", "Dysphagia"]
+      },
+      "past_medical_history": ["Osteoarthritis", "GERD", "Hypertension"],
+      "medications": ["Ibuprofen 800mg TID for back pain (daily use past 3 months)", "Omeprazole 20mg daily", "Lisinopril 10mg daily"],
+      "allergies": ["None known"],
+      "surgical_history": ["None"],
+      "family_history": ["Father: Peptic ulcer disease", "No known GI cancers"],
+      "social_history": {
+        "smoking_status": "Current smoker (25 pack-years)",
+        "alcohol_use": "2-3 beers daily",
+        "substance_use": "None",
+        "diet_and_exercise": "Regular diet, sedentary",
+        "living_situation": "Lives with wife"
+      }
+    },
+    "vital_signs": {
+      "BP": "100/65 mmHg (sitting), 85/50 mmHg (standing)",
+      "HR": "110 bpm (sitting), 125 bpm (standing)",
+      "RR": "20/min",
+      "temperature": "36.9°C",
+      "SpO2": "96% on room air"
+    },
+    "physical_exam_findings": {
+      "general": "Pale, diaphoretic male appearing unwell",
+      "HEENT": "Pale conjunctivae, dry mucous membranes",
+      "abdomen": "Soft, mild epigastric tenderness, no rebound, no guarding, no hepatosplenomegaly",
+      "rectal": "Melena (black, tarry stool) on digital exam",
+      "skin": "Pale, no jaundice, no spider angiomas"
+    },
+    "lab_results": {
+      "hemoglobin": "8.2 g/dL",
+      "hematocrit": "25%",
+      "MCV": "82 fL",
+      "platelets": "250 x 10^9/L",
+      "INR": "1.2",
+      "BUN": "38 mg/dL",
+      "creatinine": "1.0 mg/dL",
+      "BUN_creatinine_ratio": "38 (elevated, suggesting upper GI source)",
+      "LFTs": "Normal"
+    },
+    "risk_stratification": {
+      "Glasgow_Blatchford_score": 12,
+      "risk_category": "High risk",
+      "need_for_intervention": "High - likely requires endoscopic intervention",
+      "Rockall_score_pre_endoscopy": 5,
+      "mortality_risk": "Intermediate"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "endoscopy plan",
+        "patient_response": "I understand I need an endoscopy. Please help stop the bleeding."
+      },
+      "critical_issue": {
+        "condition_keyword": "hemodynamic instability",
+        "response": "Patient becoming hemodynamically unstable. Massive transfusion protocol and emergent endoscopy required."
+      }
+    },
+    "evaluation_criteria": {
+      "Hemodynamic_Assessment": "Accurate assessment of hemodynamic status and resuscitation needs",
+      "Risk_Stratification": "Appropriate use of Glasgow-Blatchford or Rockall scores for risk stratification",
+      "Resuscitation": "Appropriate fluid resuscitation and blood product transfusion based on guidelines",
+      "Pharmacotherapy": "Appropriate use of proton pump inhibitors and octreotide",
+      "Endoscopy_Timing": "Appropriate determination of endoscopy timing and pre-endoscopy preparation",
+      "NSAID_Cessation": "Recognition and management of NSAID-induced ulcer risk"
+    }
+  },
+  {
+    "version": 3.1,
+    "description": "Evaluation and management of chronic diarrhea",
+    "system_instruction": "Focus on diagnostic approach to chronic diarrhea, including stool studies, imaging, and treatment options.",
+    "case_metadata": {
+      "case_id": "GI-002",
+      "title": "Chronic Diarrhea - Inflammatory Bowel Disease Workup",
+      "program_area": "Basic Program",
+      "specialty": "Gastroenterology",
+      "difficulty": "Intermediate",
+      "tags": ["diarrhea", "IBD", "colitis", "inflammatory", "chronic"],
+      "location": "Gastroenterology Clinic",
+      "case_type": "chronic_disease_management"
+    },
+    "patient_persona": {
+      "name": "Rachel Greenfield",
+      "age": 27,
+      "gender": "Female",
+      "occupation": "Marketing Manager",
+      "chief_complaint": "Chronic diarrhea with blood and abdominal pain for 3 months",
+      "emotional_tone": "Frustrated",
+      "background_story": "Previously healthy, developed frequent loose stools with blood intermittently. Lost 8 lbs over 3 months. Symptoms affecting work and social life",
+      "speaks_for": "self",
+      "patient_is_present": true
+    },
+    "initial_prompt": "I've been having diarrhea for three months with blood in my stool sometimes. I have crampy abdominal pain and I'm running to the bathroom 6-8 times a day. I've lost weight and I'm always tired.",
+    "clinical_dossier": {
+      "hidden_diagnosis": "Ulcerative Colitis (Moderate Severity)",
+      "history_of_presenting_illness": {
+        "onset": "Gradual onset 3 months ago",
+        "location": "Lower abdomen, left lower quadrant",
+        "character": "Crampy abdominal pain, urgent loose stools with blood and mucus",
+        "severity": 7,
+        "timing_and_duration": "Daily for 3 months, intermittent symptoms initially now persistent",
+        "exacerbating_factors": ["Spicy foods", "Stress", "Dairy products"],
+        "relieving_factors": ["Emptying bowels", "Rest"],
+        "associated_symptoms": ["Fatigue", "Unintentional weight loss (8 lbs)", "Low-grade fever", "Joint pain in knees", "Nocturnal bowel movements"]
+      },
+      "review_of_systems": {
+        "positive": ["Chronic diarrhea", "Hematochezia", "Abdominal pain", "Urgency", "Tenemus", "Weight loss", "Fatigue", "Arthralgias"],
+        "negative": ["Nausea/vomiting", "Fever >101°F", "Severe bleeding", "Eye symptoms", "Skin rash"]
+      },
+      "past_medical_history": ["None significant", "Appendectomy age 15"],
+      "medications": ["None", "Has tried loperamide OTC with minimal relief"],
+      "allergies": ["None known"],
+      "surgical_history": ["Appendectomy"],
+      "family_history": ["Mother: Ulcerative colitis", "Maternal grandfather: Colon cancer (age 72)"],
+      "social_history": {
+        "smoking_status": "Non-smoker",
+        "alcohol_use": "Social drinker",
+        "substance_use": "None",
+        "diet_and_exercise": "Regular diet, reduced exercise due to fatigue",
+        "living_situation": "Lives alone in apartment, works in marketing"
+      }
+    },
+    "vital_signs": {
+      "BP": "115/70 mmHg",
+      "HR": "82 bpm",
+      "RR": "16/min",
+      "temperature": "37.4°C",
+      "BMI": "21.5 kg/m²"
+    },
+    "physical_exam_findings": {
+      "general": "Thin female in no acute distress",
+      "abdomen": "Soft, mild left lower quadrant tenderness, no rebound, no masses, hyperactive bowel sounds",
+      "rectal": "Mild perianal skin irritation, digital exam reveals blood-streaked stool, no fissures or fistulas",
+      "musculoskeletal": "No joint swelling or tenderness despite history of arthralgias"
+    },
+    "lab_results": {
+      "hemoglobin": "11.8 g/dL",
+      "MCV": "78 fL (microcytic)",
+      "ferritin": "12 ng/mL",
+      "CRP": "45 mg/L",
+      "ESR": "38 mm/hr",
+      "albumin": "3.2 g/dL",
+      "fecal_calprotectin": "485 μg/g (elevated)",
+      "stool_culture": "Negative for pathogens",
+      "stool_ova_and_parasites": "Negative",
+      "C_diff_toxin": "Negative"
+    },
+    "colonoscopy_findings": {
+      "preparation": "Adequate",
+      "extent": "Proctosigmoiditis - inflammation extends to 35 cm from anal verge",
+      "findings": "Continuous inflammation from rectum to sigmoid colon, erythema, friability, loss of vascular pattern, superficial ulcerations",
+      "histopathology": "Active chronic colitis with crypt abscesses, architectural distortion, basal plasmacytosis consistent with ulcerative colitis"
+    },
+    "disease_activity_assessment": {
+      "partial_Mayo_score": 6,
+      "disease_severity": "Moderate",
+      "extent": "Left-sided colitis (E2 per Montreal classification)"
+    },
+    "simulation_triggers": {
+      "end_session": {
+        "condition_keyword": "treatment plan",
+        "patient_response": "Thank you for figuring out what's wrong with me. I'm ready to start treatment."
+      },
+      "critical_issue": {
+        "condition_keyword": "severe bleeding",
+        "response": "Patient reports significant increase in rectal bleeding. Requires urgent assessment and possible hospitalization."
+      }
+    },
+    "evaluation_criteria": {
+      "History_Taking": "Comprehensive characterization of diarrhea including inflammatory vs non-inflammatory features",
+      "Diagnostic_Workup": "Appropriate use of stool studies, inflammatory markers, and endoscopic evaluation",
+      "Differential_Diagnosis": "Appropriate consideration of infectious, inflammatory, ischemic, and functional causes",
+      "Colonoscopy_Interpretation": "Accurate interpretation of endoscopic and histopathologic findings",
+      "Treatment_Selection": "Appropriate first-line therapy for moderate UC (5-ASA compounds)",
+      "Patient_Education": "Effective counseling on disease chronicity, treatment expectations, and when to seek urgent care"
+    }
+  }
+]
