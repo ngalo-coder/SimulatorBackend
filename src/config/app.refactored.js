@@ -21,9 +21,10 @@ import { swaggerSpec, swaggerUi, swaggerUiOptions } from './swagger.js';
 import authRoutes from '../routes/auth.routes.js';          // NEW: renamed for consistency
 import casesRoutes from '../routes/cases.routes.js';        // NEW: replaces 7+ files
 import usersRoutes from '../routes/users.routes.js';        // NEW: replaces 3+ files
+
+
+
 import simulationsRoutes from '../routes/simulations.routes.js'; // NEW: cleans up simulationRoutes.js
-import analyticsRoutes from '../routes/analytics.routes.js';     // NEW: replaces 3+ files
-import progressRoutes from '../routes/progress.routes.js';       // NEW: replaces 4+ files
 import dashboardRoutes from '../routes/dashboard.routes.js';     // NEW: replaces 3+ files
 
 export function createApp() {
@@ -123,15 +124,6 @@ export function setupRoutes(app) {
     // Analytics (removed - was at /api/analytics)
 
   // Progress/Performance (moved to /api/progress)
-  app.use('/api/performance', (req, res) => res.redirect(301, '/api/progress' + req.url));
-  app.use('/api/performance-review', (req, res) => res.redirect(301, '/api/progress' + req.url));
-  app.use('/api/progress', (req, res) => res.redirect(301, '/api/progress' + req.url)); // was clinicianProgressRoutes
-  app.use('/api/student/progress', (req, res) => res.redirect(301, '/api/progress' + req.url));
-
-  // Leaderboard (moved to /api/progress/leaderboard)
-  app.use('/api/leaderboard', (req, res) => res.redirect(301, '/api/progress/leaderboard' + req.url));
-
-  // Dashboards (moved to /api/dashboard)
   app.use('/api/student', (req, res) => res.redirect(301, '/api/dashboard/student' + req.url));
   app.use('/api/educator', (req, res) => res.redirect(301, '/api/dashboard/educator' + req.url));
   app.use('/api/admin', (req, res) => {

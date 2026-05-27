@@ -1,6 +1,6 @@
 # API Routes — Resource-Centric Architecture
 
-This directory contains **7 unified route files**, each responsible for a single domain resource.
+This directory contains **5 unified route files**, each responsible for a single domain resource.
 This replaces the previous 30+ fragmented route files that were split by user role.
 
 ## Route Files
@@ -10,8 +10,6 @@ This replaces the previous 30+ fragmented route files that were split by user ro
 | `auth.routes.js` | `/api/auth` | Login, register, token management, password changes, admin audit logs |
 | `users.routes.js` | `/api/users` | User CRUD, profiles, preferences, admin user management (export/import/bulk ops) |
 | `cases.routes.js` | `/api/cases` | Case CRUD, templates, workflows, publishing, reviews, contributions |
-| `analytics.routes.js` | `/api/analytics` | Case usage, effectiveness, difficulty analysis, progress analytics, performance trends |
-| `progress.routes.js` | `/api/progress` | Performance summaries, leaderboard, eligibility, evaluations, help/guidance, adaptive learning, achievements, PDF reports |
 | `dashboard.routes.js` | `/api/dashboard` | Role-aware dashboards (student/educator/admin), stats, student progress, educator case management |
 | `simulations.routes.js` | `/api/simulations` | Simulation session lifecycle (start, ask, end), performance metrics, treatment plans, retakes |
 
@@ -35,3 +33,9 @@ This refactoring consolidated the following legacy files:
 - `simulationRoutes.js` → `simulations.routes.js`
 
 All legacy route files have been removed from the codebase.
+
+## Removed Route Groups
+
+The following route groups were removed as they had no frontend consumers:
+- `/api/analytics` — Analytics routes (13 endpoints) — no frontend usage
+- `/api/progress` — Progress routes (5 endpoints) — no frontend usage
