@@ -4,6 +4,7 @@ const sampleCases = [
         specialty: "Internal Medicine",
         category: "Basic",
         difficulty: "Easy",
+        patientName: "Kevin Otieno",
         patientProfile: {
             age: 22,
             gender: "Male",
@@ -24,6 +25,7 @@ const sampleCases = [
         specialty: "Internal Medicine",
         category: "Specialised",
         difficulty: "Intermediate",
+        patientName: "Grace Wanjiku",
         patientProfile: {
             age: 68,
             gender: "Female",
@@ -44,6 +46,7 @@ const sampleCases = [
         specialty: "Mental Health",
         category: "Specialised",
         difficulty: "Intermediate",
+        patientName: "Akinyi Ochieng",
         patientProfile: {
             age: 35,
             gender: "Female",

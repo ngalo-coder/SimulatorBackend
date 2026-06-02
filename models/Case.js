@@ -5,6 +5,7 @@ const caseSchema = new mongoose.Schema({
     specialty: { type: String, required: true },
     category: { type: String, enum: ['Basic', 'Specialised'], required: true },
     difficulty: String,
+    patientName: { type: String, required: true },
     patientProfile: {
         age: Number,
         gender: String,
