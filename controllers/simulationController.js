@@ -7,7 +7,7 @@ const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
   defaultHeaders: {
     'HTTP-Referer': process.env.APP_URL || 'http://localhost:5173',
-    'X-Title': 'SimuaMed',
+    'X-Title': 'Simuatech',
   },
 });
 exports.startSession = async (req, res) => {
