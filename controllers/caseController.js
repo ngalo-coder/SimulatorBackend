@@ -18,7 +18,7 @@ exports.getCases = async (req, res) => {
       const filter = {};
       if (category) filter.category = category;
       if (specialty) filter.specialty = specialty;
-      const cases = await Case.find(filter).select('title patientProfile.chiefComplaint patientProfile.age patientProfile.gender specialty');
+      const cases = await Case.find(filter).select('title difficulty patientProfile.chiefComplaint patientProfile.age patientProfile.gender patientProfile.patientPersonality specialty');
       res.json(cases);
     } catch (err) {
       console.error('❌ getCases error:', err.message);

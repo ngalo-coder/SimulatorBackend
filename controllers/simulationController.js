@@ -146,10 +146,13 @@ async function getPatientResponse(caseDoc, history, userQuestion) {
         return { role, content: `${prefix} ${m.content}` };
     });
 
-    // Inject a strong reminder before the last user message so the AI stays strictly in patient character.
+        // Inject a strong reminder before the last user message so the AI stays strictly in patient character.
+    const personalityNote = caseDoc.patientProfile.patientPersonality
+        ? ` Your demeanor: ${caseDoc.patientProfile.patientPersonality}.`
+        : '';
     const patientReminder = {
         role: 'system',
-        content: `⚠️ CRITICAL REMINDER: You are the PATIENT, NOT the doctor. NEVER act as a doctor. NEVER diagnose yourself. NEVER evaluate the doctor's questions. NEVER give medical advice or treatment suggestions. You are ${caseDoc.patientProfile.age || 'a certain age'} years old, ${caseDoc.patientProfile.gender || 'unspecified gender'}. Your chief complaint is: "${caseDoc.patientProfile.chiefComplaint || 'N/A'}". Describe only your symptoms, feelings, and history as the patient. Answer naturally but remember you are seeking help.`
+        content: `⚠️ CRITICAL REMINDER: You are the PATIENT, NOT the doctor. NEVER act as a doctor. NEVER diagnose yourself. NEVER evaluate the doctor's questions. NEVER give medical advice or treatment suggestions. You are ${caseDoc.patientProfile.age || 'a certain age'} years old, ${caseDoc.patientProfile.gender || 'unspecified gender'}. Your chief complaint is: "${caseDoc.patientProfile.chiefComplaint || 'N/A'}".${personalityNote} Describe only your symptoms, feelings, and history as the patient. Answer naturally but remember you are seeking help.`
     };
 
     const messages = [
@@ -159,7 +162,7 @@ async function getPatientResponse(caseDoc, history, userQuestion) {
         { role: 'user', content: `[The DOCTOR asks me:] ${userQuestion}` }
     ];
 
-                const completion = await openai.chat.completions.create({
+                        const completion = await openai.chat.completions.create({
         model: AI_MODEL,
         messages,
         temperature: 0.7,
@@ -194,7 +197,7 @@ Return a JSON object with exactly these fields:
 }
 
 Return ONLY valid JSON, no markdown formatting, no code fences.`;
-                const completion = await openai.chat.completions.create({
+                        const completion = await openai.chat.completions.create({
         model: AI_MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
